@@ -32,9 +32,7 @@ El modelo entidad-relación del módulo CRM describe la estructura de datos nece
 
 ## 3. Diagrama entidad-relación
 
-![Modelo Entidad-Relación CRM](crm_simple.png)
-
-El código fuente del diagrama está disponible en [`crm_simple_codigo.md`](crm_simple_codigo.md).
+![Modelo Entidad-Relación CRM](crm_simple.svg)
 
 ---
 
