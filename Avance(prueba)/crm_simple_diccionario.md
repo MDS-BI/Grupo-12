@@ -1,7 +1,7 @@
 # Diccionario de datos — CRM (entrega inicial)
 
 **Módulo:**
-- CRM
+- CRM (Customer Relationship Management)
 
 **Alcance:**
 - Clientes, interacciones y pipeline de oportunidades.
