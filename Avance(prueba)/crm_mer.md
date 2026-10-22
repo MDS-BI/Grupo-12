@@ -32,48 +32,9 @@ El modelo entidad-relación del módulo CRM describe la estructura de datos nece
 
 ## 3. Diagrama entidad-relación
 
-```dbml
-// CRM - Modelo Entidad-Relación (entrega inicial)
+![Modelo Entidad-Relación CRM](crm_simple.png)
 
-Table Cliente {
-  id_cliente int [pk]
-  nombre_empresa varchar
-  persona_contacto varchar
-  correo varchar
-  telefono varchar
-  estado_cliente varchar
-}
-
-Table Empleado {
-  id_empleado int [pk]
-  nombre varchar
-  cargo varchar
-}
-
-Table Oportunidad {
-  id_oportunidad int [pk]
-  id_cliente int
-  id_empleado int
-  descripcion varchar
-  monto_estimado decimal
-  etapa varchar
-  fecha_estimada_cierre date
-}
-
-Table Interaccion {
-  id_interaccion int [pk]
-  id_cliente int
-  id_empleado int
-  fecha date
-  tipo_interaccion varchar
-  descripcion varchar
-}
-
-Ref: Cliente.id_cliente < Oportunidad.id_cliente
-Ref: Empleado.id_empleado < Oportunidad.id_empleado
-Ref: Cliente.id_cliente < Interaccion.id_cliente
-Ref: Empleado.id_empleado < Interaccion.id_empleado
-```
+El código fuente del diagrama está disponible en [`crm_simple_codigo.md`](crm_simple_codigo.md).
 
 ---
 
