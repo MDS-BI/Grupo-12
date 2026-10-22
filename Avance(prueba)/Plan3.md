@@ -34,7 +34,7 @@ El desarrollo se organiza en las siguientes etapas:
 
 La descripción completa del módulo, los usuarios, el Modelo Entidad-Relación (diagrama, entidades, atributos, cardinalidad, compatibilidad con la estructura base del ERP) y las reglas del dominio se encuentran documentadas en el siguiente archivo:
 
-📄 **[Ver Modelo Entidad-Relación y Estructura de Datos](modelo_er.md)**
+📄 **[Ver Modelo Entidad-Relación y Estructura de Datos](crm_mer.md)**
 
 ---
 
