@@ -1,10 +1,16 @@
 # Diccionario de datos — CRM (entrega inicial)
 
-**Módulo:** CRM
-**Alcance:** entrega inicial (20 de octubre). Clientes, interacciones y pipeline de oportunidades.
-**Fuera de alcance:** leads, campañas, soporte, privacidad y scoring (fases siguientes).
+**Módulo:**
+- CRM
 
-**Diagrama:** [`crm_simple.mermaid`](crm_simple.mermaid) · [`crm_simple.png`](crm_simple.png)
+**Alcance:**
+- entrega inicial (20 de octubre). Clientes, interacciones y pipeline de oportunidades.
+
+**Fuera de alcance:**
+- leads, campañas, soporte, privacidad y scoring (fases siguientes).
+
+**Diagrama:**
+- [`crm_simple.mermaid`](crm_simple.mermaid) · [`crm_simple.png`](crm_simple.png)
 
 ---
 
