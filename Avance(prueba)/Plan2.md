@@ -76,7 +76,53 @@ Todas las relaciones son de cardinalidad **1 : N**:
 - **Cliente — Interacción:** un cliente puede registrar múltiples interacciones.
 - **Empleado — Interacción:** un empleado puede registrar y realizar múltiples interacciones.
 
-### 3.3 Compatibilidad con la estructura base del ERP
+### 3.3 Diagrama entidad-relación
+
+![Modelo Entidad-Relación CRM](crm_simple.png)
+
+```mermaid
+erDiagram
+    CLIENTE {
+        int id_cliente PK
+        varchar nombre_empresa
+        varchar persona_contacto
+        varchar correo
+        varchar telefono
+        varchar estado_cliente
+    }
+
+    EMPLEADO {
+        int id_empleado PK
+        varchar nombre
+        varchar cargo
+    }
+
+    OPORTUNIDAD {
+        int id_oportunidad PK
+        int id_cliente FK
+        int id_empleado FK
+        varchar descripcion
+        decimal monto_estimado
+        varchar etapa
+        date fecha_estimada_cierre
+    }
+
+    INTERACCION {
+        int id_interaccion PK
+        int id_cliente FK
+        int id_empleado FK
+        date fecha
+        varchar tipo_interaccion
+        varchar descripcion
+    }
+
+    CLIENTE ||--o{ OPORTUNIDAD : "genera"
+    EMPLEADO ||--o{ OPORTUNIDAD : "gestiona"
+    CLIENTE ||--o{ INTERACCION : "registra"
+    EMPLEADO ||--o{ INTERACCION : "realiza"
+```
+
+### 3.4 Compatibilidad con la estructura base del ERP
 
 El modelo asegura compatibilidad con la estructura base mediante las claves foráneas `id_cliente` e `id_empleado`, que permiten vincular la información comercial con los módulos y entidades globales del ERP **sin duplicar datos ni romper la integridad referencial**. Las entidades propias del módulo se agregan como extensiones, sin modificar las tablas base del sistema.
 
