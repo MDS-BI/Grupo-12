@@ -1,8 +1,6 @@
 # Modelo Entidad-Relación (MER) — Módulo CRM
 
-**Curso:** Modelación de Sistemas 2026-2 — Universidad de Concepción
 **Módulo:** CRM (Customer Relationship Management)
-**Entrega:** inicial — 20 de octubre
 **Integrantes:**
 - Emilia Catalina Yévenes Figueroa
 - Benjamín Alonso Cruces Molina
