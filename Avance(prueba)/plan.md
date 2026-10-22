@@ -74,11 +74,3 @@ El presente plan corresponde a la **entrega inicial** del CRM y abarca tres áre
 | Catálogo de empleados incompleto | Medio | Cargar `Empleado` antes de F2. |
 | Falta de validación de correo/teléfono/monto | Medio | Validaciones en alta y edición. |
 | Crecimiento de alcance (leads/campañas) | Medio | Congelar alcance tras la entrega inicial. |
-
----
-
-## 7. Entregables
-
-1. Modelo entidad-relación (`crm_mer.md`) y diccionario de datos (`crm_simple_diccionario.md`).
-2. Plan de trabajo (este documento).
-3. Aplicación funcional: clientes, interacciones y pipeline.
