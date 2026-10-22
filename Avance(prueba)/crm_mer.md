@@ -1,6 +1,8 @@
 # Modelo Entidad-Relación (MER) — Módulo CRM
 
-**Módulo:** CRM (Customer Relationship Management)
+**Módulo:**
+- CRM (Customer Relationship Management)
+
 **Integrantes:**
 - Emilia Catalina Yévenes Figueroa
 - Benjamín Alonso Cruces Molina
