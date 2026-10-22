@@ -4,7 +4,7 @@
 - CRM
 
 **Alcance:**
-- entrega inicial (20 de octubre). Clientes, interacciones y pipeline de oportunidades.
+- Clientes, interacciones y pipeline de oportunidades.
 
 **Fuera de alcance:**
 - leads, campañas, soporte, privacidad y scoring (fases siguientes).
