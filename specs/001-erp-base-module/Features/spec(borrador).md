@@ -41,21 +41,20 @@ Como usuario, quiero ver el detalle de un cliente con sus oportunidades e intera
 
 ---
 
-### Historia de Usuario 2 - Gestionar el catálogo de empleados (Prioridad: P1)
+### Historia de Usuario 2 - Gestionar clientes (Prioridad: P1)
 
-Como administrador comercial, quiero mantener un catálogo de empleados con su nombre y cargo, para asignar responsables válidos a las oportunidades e interacciones.
+Como empleado, quiero registrar y gestionar clientes para mantener la información ordenada.
 
-**Por qué esta prioridad**: Toda oportunidad e interacción debe tener un responsable trazable. El catálogo de empleados es una dependencia directa del resto de las funcionalidades comerciales.
+**Por qué esta prioridad**: Los clientes son la bace del CRM, ya que permiten registrar interacciones y asociar oportunidades comerciales.
 
-**Prueba Independiente**: Un usuario puede crear un empleado con nombre y cargo, verlo en el catálogo y editarlo; luego puede seleccionarlo como responsable al crear una oportunidad o interacción.
+**Prueba Independiente**: Un usuario puede registrar un cliente con sus datos, visualizarlo en el catalogo y editar su información.
 
 **Escenarios de Aceptación**:
 
-1. **Dado** que el usuario está viendo el catálogo de empleados, **cuando** crea un empleado con nombre y cargo, **entonces** el empleado se guarda y aparece en la lista.
-2. **Dado** que el usuario está creando un empleado, **cuando** deja el nombre o el cargo en blanco, **entonces** el sistema impide guardar y explica qué falta.
-3. **Dado** un empleado existente, **cuando** el usuario edita su nombre o cargo, **entonces** los cambios se guardan y se reflejan en la lista.
-4. **Dado** que el usuario está creando una oportunidad o interacción, **cuando** abre el selector de responsable, **entonces** solo puede elegir empleados existentes en el catálogo.
-
+1. **Dado** que el usuario está en el catálogo de clientes, cuando registra un cliente con sus datos, entonces este se guarda y aparece en la lista.
+2. **Dado** que el usuario está registrando un cliente, cuando deja campos obligatorios vacíos, entonces el sistema impide guardar el registro.
+3. **Dado** un cliente existente, cuando el usuario modifica sus datos, entonces los cambios se guardan y se reflejan en el catálogo.
+4. **Dado** que un cliente ha sido registrado, cuando el usuario consulta su información, entonces puede visualizar sus datos y estado actual.
 ---
 
 ### Historia de Usuario 3 - Seguimiento de oportunidades comerciales (Prioridad: P1)
