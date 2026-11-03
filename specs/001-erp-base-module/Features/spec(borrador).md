@@ -58,26 +58,26 @@ Como administrador comercial, quiero mantener un catálogo de empleados con su n
 
 ---
 
-### Historia de Usuario 3 - Gestionar oportunidades y su pipeline (Prioridad: P1)
+### Historia de Usuario 3 - Seguimiento de oportunidades comerciales (Prioridad: P1)
 
-Como ejecutivo comercial, quiero registrar oportunidades vinculadas a un cliente y a un empleado, con monto estimado, fecha de cierre y etapa de venta, para dar seguimiento a cada negociación.
+Como ejecutivo comercial, quiero registrar y hacer seguimiento a las oportunidades comerciales asociadas a clientes y empleados responsables, incluyendo monto estimado, fecha de cierre y actualización de etapas del pipeline, para monitorear el avance de cada negociación y enfocar los esfuerzos en las ventas con mayor probabilidad de cierre.
 
-**Por qué esta prioridad**: Las oportunidades representan el valor comercial que el CRM debe gestionar. Sin ellas, el módulo no cumple su objetivo de seguimiento de ventas.
+**Por qué esta prioridad**: Las oportunidades comerciales representan el núcleo financiero y operativo del CRM. Sin el seguimiento de oportunidades y sus etapas de venta, la empresa no puede gestionar su pipeline ni proyectar sus ingresos futuros.
 
-**Prueba Independiente**: Un usuario puede crear una oportunidad válida para un cliente existente, verla en la lista con su etapa y monto, y avanzarla por las etapas permitidas.
+**Prueba Independiente**: Se puede probar registrando una nueva oportunidad comercial para un cliente existente con un empleado asignado, visualizándola en el listado con sus atributos clave (monto, fecha de cierre y etapa) y actualizando su etapa a lo largo del flujo comercial permitido.
 
 **Escenarios de Aceptación**:
 
-1. **Dado** un cliente y un empleado existentes, **cuando** el usuario crea una oportunidad con monto estimado y fecha de cierre, **entonces** la oportunidad se guarda y aparece asociada al cliente.
-2. **Dado** que el usuario está creando una oportunidad, **cuando** no selecciona cliente o empleado, **entonces** el sistema impide guardar y explica que ambos responsables son obligatorios.
-3. **Dado** que el usuario introduce un monto estimado negativo, **cuando** intenta guardar, **entonces** el sistema rechaza el valor e indica que debe ser mayor o igual a cero.
-4. **Dado** que el usuario deja la fecha estimada de cierre vacía o introduce una fecha inválida, **cuando** intenta guardar, **entonces** el sistema impide guardar y explica el problema.
-5. **Dada** una oportunidad en etapa `Evaluación`, **cuando** el usuario la avanza, **entonces** puede pasarla a `Propuesta` o marcarla como `Perdido`, pero no puede marcarla como `Ganado`.
-6. **Dada** una oportunidad en etapa `Propuesta`, **cuando** el usuario la avanza, **entonces** puede pasarla a `Negociación` o marcarla como `Perdido`, pero no puede marcarla como `Ganado`.
-7. **Dada** una oportunidad en etapa `Negociación`, **cuando** el usuario la cierra, **entonces** puede marcarla como `Ganado` o `Perdido`.
-8. **Dada** una oportunidad en etapa `Ganado` o `Perdido`, **cuando** el usuario intenta cambiarla de etapa, **entonces** el sistema rechaza la transición por ser un estado terminal.
-9. **Dada** una oportunidad en etapa `Evaluación` o `Propuesta`, **cuando** el usuario intenta marcarla como `Ganado`, **entonces** el sistema rechaza la transición y explica que solo puede ganarse desde `Negociación`.
-10. **Dada** una lista de oportunidades, **cuando** el usuario la consulta, **entonces** puede identificar de un vistazo la etapa, el monto y la fecha estimada de cierre de cada una.
+1. **Dado** un cliente activo y un empleado registrados en el sistema, **cuando** el ejecutivo comercial crea una oportunidad indicando cliente, empleado, monto estimado válido, fecha estimada de cierre y etapa inicial (`Evaluación`), **entonces** la oportunidad se guarda exitosamente y se muestra en la lista de seguimiento vinculada al cliente.
+2. **Dado** que el usuario intenta crear una oportunidad comercial, **cuando** omite la selección del cliente o del empleado responsable, **entonces** el sistema bloquea el registro y muestra un mensaje indicando que ambos campos son obligatorios.
+3. **Dado** que el usuario ingresa un monto estimado negativo, **cuando** intenta guardar la oportunidad, **entonces** el sistema valida el campo, rechaza la operación y notifica que el monto debe ser mayor o igual a cero.
+4. **Dado** que el usuario no especifica la fecha estimada de cierre o ingresa una fecha inválida, **cuando** intenta guardar la oportunidad, **entonces** el sistema bloquea el guardado e informa que la fecha estimada de cierre es obligatoria y debe ser válida.
+5. **Dada** una oportunidad comercial en etapa `Evaluación`, **cuando** el ejecutivo actualiza su estado, **entonces** el sistema le permite avanzar a `Propuesta` o marcarla como `Perdido`, pero impide cambiarla directamente a `Ganado`.
+6. **Dada** una oportunidad comercial en etapa `Propuesta`, **cuando** el ejecutivo actualiza su estado, **entonces** el sistema le permite avanzar a `Negociación` o marcarla como `Perdido`, pero impide cambiarla directamente a `Ganado`.
+7. **Dada** una oportunidad comercial en etapa `Negociación`, **cuando** el ejecutivo concluye la negociación, **entonces** el sistema permite cambiar su etapa a `Ganado` o a `Perdido`.
+8. **Dada** una oportunidad comercial que ha alcanzado un estado final (`Ganado` o `Perdido`), **cuando** el usuario intenta modificar su etapa, **entonces** el sistema rechaza el cambio por tratarse de un estado terminal e inmutable.
+9. **Dada** una oportunidad en etapa `Evaluación` o `Propuesta`, **cuando** el usuario intenta marcarla como `Ganado`, **entonces** el sistema rechaza la regla de negocio y notifica que una oportunidad solo puede ser ganada desde la etapa de `Negociación`.
+10. **Dada** la vista principal de seguimiento de oportunidades, **cuando** el usuario consulta el listado, **entonces** puede visualizar de forma clara y resumida el cliente, responsable, monto estimado, etapa actual y fecha estimada de cierre de cada negociación.
 
 ---
 
