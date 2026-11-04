@@ -92,15 +92,6 @@ Como representante de ventas, quiero clasificar un lead registrado como caliente
 1. Dado que un representante de ventas está viendo el detalle de un lead, cuando le asigna una temperatura (caliente, tibio o frío), entonces la clasificación se guarda y se muestra tanto en el detalle como en la lista de leads.
 2. Dado que el lead no ha sido clasificado aún, cuando el representante intenta convertirlo en oportunidad de venta, entonces el sistema impide la conversión y le indica que primero debe calificarlo.
 Dado que un representante filtra la lista de leads por temperatura, cuando selecciona "calientes", entonces solo se muestran los leads con esa clasificación.
-
-**Escenarios de Aceptación**:
-
-1. **Dado** un cliente y un empleado existentes, **cuando** el usuario registra una interacción con fecha y tipo, **entonces** la interacción se guarda y queda asociada al cliente.
-2. **Dado** que el usuario está registrando una interacción, **cuando** deja la fecha o el tipo en blanco, **entonces** el sistema impide guardar y explica qué falta.
-3. **Dado** que el usuario selecciona el tipo de interacción, **cuando** abre las opciones, **entonces** solo puede elegir `Llamada`, `Correo` o `Reunión`.
-4. **Dado** un cliente con interacciones registradas, **cuando** el usuario consulta su ficha, **entonces** ve el historial ordenado y puede identificar fecha, tipo y responsable.
-5. **Dado** que el usuario está registrando una interacción, **cuando** deja la descripción vacía, **entonces** la interacción se guarda igualmente porque la descripción es opcional.
-
 ---
 
 ### Historia de Usuario 5 - Gestionar clientes (Prioridad: P1)
