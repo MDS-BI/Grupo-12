@@ -80,13 +80,18 @@ Como ejecutivo comercial, quiero registrar y hacer seguimiento a las oportunidad
 
 ---
 
-### Historia de Usuario 4 - Registrar interacciones con clientes (Prioridad: P1)
+### Historia de Usuario 4 - Calificar y clasificar leads (Prioridad: P1)
+Como representante de ventas, quiero clasificar un lead registrado como caliente, tibio o frío, para priorizar el seguimiento de los prospectos con mayor probabilidad de compra.
 
-Como ejecutivo comercial, quiero registrar llamadas, correos y reuniones asociadas a un cliente y a un empleado, para dejar trazabilidad de cada comunicación.
+**Por qué esta prioridad**: Sin saber qué leads merecen atención inmediata, los vendedores pierden tiempo en prospectos que no van a comprar y el proceso de ventas pierde valor.
 
-**Por qué esta prioridad**: El historial de interacciones es el segundo pilar del CRM y permite justificar el avance de las oportunidades y el estado de la relación con el cliente.
+**Prueba Independiente**: Un usuario puede abrir un lead de la lista, asignarle una temperatura (caliente, tibio o frío) y verla reflejada en el detalle del lead.
 
-**Prueba Independiente**: Un usuario puede registrar una interacción válida para un cliente existente, verla en el historial del cliente y editarla.
+**Escenarios de Aceptación**:
+
+1. Dado que un representante de ventas está viendo el detalle de un lead, cuando le asigna una temperatura (caliente, tibio o frío), entonces la clasificación se guarda y se muestra tanto en el detalle como en la lista de leads.
+2. Dado que el lead no ha sido clasificado aún, cuando el representante intenta convertirlo en oportunidad de venta, entonces el sistema impide la conversión y le indica que primero debe calificarlo.
+Dado que un representante filtra la lista de leads por temperatura, cuando selecciona "calientes", entonces solo se muestran los leads con esa clasificación.
 
 **Escenarios de Aceptación**:
 
@@ -210,6 +215,8 @@ Como usuario de negocio, quiero una navegación persistente y un espacio de trab
 4. **Dada** una ventana gráfica estrecha, **cuando** el usuario usa la aplicación en un dispositivo pequeño, **entonces** la navegación sigue siendo operable y accesible.
 
 ---
+
+
 
 ### Casos Límite
 
