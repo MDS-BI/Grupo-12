@@ -92,122 +92,28 @@ Como representante de ventas, quiero clasificar un lead registrado como caliente
 1. Dado que un representante de ventas está viendo el detalle de un lead, cuando le asigna una temperatura (caliente, tibio o frío), entonces la clasificación se guarda y se muestra tanto en el detalle como en la lista de leads.
 2. Dado que el lead no ha sido clasificado aún, cuando el representante intenta convertirlo en oportunidad de venta, entonces el sistema impide la conversión y le indica que primero debe calificarlo.
 Dado que un representante filtra la lista de leads por temperatura, cuando selecciona "calientes", entonces solo se muestran los leads con esa clasificación.
+
 ---
 
-### Historia de Usuario 5 - Gestionar clientes (Prioridad: P1)
+### Historia de Usuario 5 - Detectar oportunidades vencidas y priorizar el seguimiento (Prioridad: P2)
 
-Como ejecutivo comercial, quiero registrar, editar y consultar clientes con su información de contacto y estado, para mantener una ficha única y actualizada de cada relación comercial.
+Como ejecutivo comercial, quiero ver de forma destacada las oportunidades abiertas cuya fecha estimada de cierre ya pasó, para retomarlas o actualizarlas antes de que se pierdan.
 
-**Por qué esta prioridad**: Los clientes son el dato maestro central del CRM. Sin ellos no es posible registrar interacciones ni oportunidades, por lo que esta historia entrega el valor mínimo del producto.
+**Por qué esta prioridad**: El pipeline solo es útil si refleja la realidad. Hoy el sistema calcula "próximos cierres" (30 días) y excluye las vencidas, pero no ofrece ninguna forma de verlas ni de corregirlas: quedan invisibles en el dashboard y siguen contando como oportunidades abiertas, inflando el monto del pipeline. Detectarlas permite limpiar la proyección comercial sin necesidad de campos ni entidades nuevas.
 
-**Prueba Independiente**: Un usuario puede abrir el módulo, crear un cliente con los campos obligatorios, verlo en la lista, editar sus datos y comprobar que los cambios se reflejan.
+**Prueba Independiente**: Se crea una oportunidad en etapa `Propuesta` con fecha de cierre de ayer; el usuario la encuentra en el listado de vencidas, actualiza su fecha o la marca como `Perdido`, y comprueba que deja de aparecer.
 
 **Escenarios de Aceptación**:
 
-1. **Dado** que el usuario está viendo la lista de clientes, **cuando** crea un cliente con nombre de empresa, persona de contacto, correo y teléfono, **entonces** el cliente se guarda y aparece en la lista.
-2. **Dado** que el usuario está creando un cliente, **cuando** deja un campo obligatorio en blanco o introduce un correo con formato inválido, **entonces** el sistema impide guardar y explica qué debe corregir.
-3. **Dado** un cliente existente, **cuando** el usuario edita sus datos, **entonces** la información actualizada se guarda y se muestra en la lista.
-4. **Dado** un cliente recién creado, **cuando** el usuario consulta su estado, **entonces** el estado es `Posible` por defecto.
-5. **Dado** un cliente existente, **cuando** el usuario cambia su estado a `Activo` o `Inactivo`, **entonces** el nuevo estado se guarda y se muestra de forma visible.
-6. **Dado** un cliente ya registrado con un correo, **cuando** el usuario intenta crear otro cliente con el mismo correo, **entonces** el sistema impide guardar y explica que el correo ya está en uso.
+1. **Dado** el dashboard, **cuando** el usuario lo abre, **entonces** ve un indicador de "oportunidades vencidas" con su cantidad y monto acumulado.
+2. **Dada** una oportunidad abierta (`Evaluación`, `Propuesta` o `Negociación`) con `fecha_estimada_cierre` anterior a la fecha actual, **cuando** el usuario consulta el indicador, **entonces** esa oportunidad se cuenta como vencida.
+3. **Dada** una oportunidad en etapa terminal `Ganado` o `Perdido`, **cuando** el usuario consulta el indicador, **entonces** no se cuenta como vencida, aunque su fecha ya haya pasado.
+4. **Dada** una oportunidad vencida, **cuando** el usuario abre su detalle, **entonces** puede actualizar la fecha estimada de cierre o marcarla como `Perdido` respetando las transiciones permitidas.
+5. **Dada** una oportunidad vencida cuya fecha se actualiza a una fecha futura, **cuando** el usuario vuelve al indicador, **entonces** deja de contarse como vencida.
+6. **Dado** que no existen oportunidades vencidas, **cuando** el usuario consulta el dashboard, **entonces** el indicador muestra cero con un estado claro, sin errores.
+7. **Dada** la lista de oportunidades, **cuando** el usuario activa el filtro "vencidas", **entonces** solo ve las que cumplen la condición, y puede combinarlo con el filtro por etapa.
 
 ---
-
-### Historia de Usuario 6 - Dashboard comercial (Prioridad: P1)
-
-Como usuario de negocio, quiero un panel de inicio con indicadores comerciales y accesos rápidos, para priorizar mi trabajo al abrir la aplicación.
-
-**Por qué esta prioridad**: El dashboard es el punto de entrada del CRM y permite detectar de inmediato el volumen de clientes, oportunidades abiertas y monto en pipeline.
-
-**Prueba Independiente**: Un usuario abre la aplicación y ve un dashboard con indicadores calculados desde los datos almacenados y accesos rápidos para crear clientes, oportunidades e interacciones.
-
-**Escenarios de Aceptación**:
-
-1. **Dado** que el usuario abre la aplicación, **cuando** carga el dashboard, **entonces** ve al menos indicadores de clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres en los siguientes 30 días.
-2. **Dado** que el usuario crea o modifica registros, **cuando** vuelve al dashboard, **entonces** los indicadores reflejan los datos actualizados.
-3. **Dado** que no existen clientes ni oportunidades, **cuando** el usuario abre el dashboard, **entonces** los indicadores muestran cero sin errores y se ofrece un acceso rápido para empezar.
-4. **Dado** que el usuario está en el dashboard, **cuando** activa un acceso rápido, **entonces** llega al formulario correspondiente listo para introducir datos.
-5. **Dada** una oportunidad abierta con fecha de cierre dentro de los próximos 30 días, **cuando** el usuario consulta el dashboard, **entonces** esa oportunidad se cuenta en el indicador de próximos cierres.
-6. **Dada** una oportunidad abierta con fecha de cierre posterior a 30 días o ya vencida, **cuando** el usuario consulta el dashboard, **entonces** no se cuenta en próximos cierres, aunque sí permanece en oportunidades abiertas y en el monto del pipeline.
-
----
-
-### Historia de Usuario 7 - Buscar y filtrar registros comerciales (Prioridad: P2)
-
-Como ejecutivo comercial, quiero buscar clientes y filtrar oportunidades por etapa, responsable o fecha, para encontrar rápidamente la información que necesito.
-
-**Por qué esta prioridad**: La búsqueda y los filtros mejoran la productividad cuando el volumen de datos crece, pero no son necesarios para el funcionamiento básico del CRM.
-
-**Prueba Independiente**: Un usuario puede introducir un término de búsqueda y ver solo los clientes coincidentes, o aplicar filtros y ver solo las oportunidades que cumplen los criterios.
-
-**Escenarios de Aceptación**:
-
-1. **Dados** varios clientes almacenados, **cuando** el usuario busca por nombre de empresa, persona de contacto o correo, **entonces** solo se muestran los clientes coincidentes.
-2. **Dada** una búsqueda sin coincidencias, **cuando** el usuario la ejecuta, **entonces** el sistema muestra un estado vacío claro y permite volver a intentarlo.
-3. **Dadas** varias oportunidades, **cuando** el usuario filtra por etapa, **entonces** solo se muestran las oportunidades de esa etapa.
-4. **Dadas** varias oportunidades, **cuando** el usuario filtra por empleado responsable o por rango de fecha de cierre, **entonces** solo se muestran las que cumplen el filtro.
-5. **Dados** varios filtros activos, **cuando** el usuario los combina, **entonces** los resultados respetan todos los criterios seleccionados.
-6. **Dadas** cientos de clientes u oportunidades, **cuando** el usuario busca o filtra, **entonces** los resultados aparecen con prontitud sin retraso perceptible.
-
----
-
-### Historia de Usuario 8 - Validaciones e integridad referencial (Prioridad: P1)
-
-Como usuario de negocio, quiero que el sistema impida registros incompletos o inconsistentes, para mantener la confiabilidad de la información comercial.
-
-**Por qué esta prioridad**: La integridad de los datos es esencial para que los indicadores, el historial y las relaciones entre clientes, empleados, oportunidades e interacciones sean confiables.
-
-**Prueba Independiente**: Un usuario intenta crear registros inválidos y el sistema los rechaza con mensajes claros; también comprueba que no existan oportunidades o interacciones sin cliente o empleado válido.
-
-**Escenarios de Aceptación**:
-
-1. **Dado** que el usuario intenta guardar un cliente sin un campo obligatorio, **cuando** envía el formulario, **entonces** el sistema impide guardar y señala el campo faltante.
-2. **Dado** que el usuario introduce un correo con formato inválido, **cuando** intenta guardar el cliente, **entonces** el sistema rechaza el valor y explica el formato esperado.
-3. **Dado** un cliente existente con un correo registrado, **cuando** el usuario intenta guardar otro cliente con el mismo correo, **entonces** el sistema rechaza el registro e indica que el correo ya está en uso.
-4. **Dado** que el usuario intenta guardar una oportunidad sin cliente o sin empleado, **cuando** envía el formulario, **entonces** el sistema impide guardar y explica que ambas referencias son obligatorias.
-5. **Dado** que el usuario intenta guardar una interacción sin cliente o sin empleado, **cuando** envía el formulario, **entonces** el sistema impide guardar y explica que ambas referencias son obligatorias.
-6. **Dado** un registro almacenado que referencia un cliente o empleado inexistente, **cuando** el sistema carga los datos, **entonces** informa la inconsistencia en lugar de fallar silenciosamente.
-7. **Dado** que el usuario elimina un cliente, **cuando** confirma la acción, **entonces** el cliente se marca como archivado, conserva sus oportunidades e interacciones y deja de aparecer en las listas operativas.
-8. **Dado** que el usuario elimina un empleado con oportunidades o interacciones asociadas, **cuando** confirma la acción, **entonces** el empleado se marca como archivado, conserva sus registros y deja de estar disponible para nuevas asignaciones.
-9. **Dado** un cliente o empleado archivado, **cuando** el usuario consulta su historial, **entonces** puede ver sus datos y registros asociados sin que aparezcan como opciones para nuevos registros.
-
----
-
-### Historia de Usuario 9 - Configurar el módulo CRM (Prioridad: P2)
-
-Como desarrollador de módulos, quiero adaptar la terminología, los campos personalizados, el ciclo de vida y el color de acento mediante configuración, para reutilizar el módulo sin modificar su código central.
-
-**Por qué esta prioridad**: La configuración mantiene el módulo extensible y permite que otros módulos ERP reutilicen la misma base; no es necesaria para demostrar el flujo principal del CRM.
-
-**Prueba Independiente**: Un desarrollador aplica una configuración que cambia el nombre del módulo, las etiquetas y un campo personalizado, y la aplicación se presenta con esos valores sin modificar el código central.
-
-**Escenarios de Aceptación**:
-
-1. **Dada** una configuración con nombre, etiquetas y campos personalizados, **cuando** la aplicación carga, **entonces** todas las pantallas usan los valores configurados.
-2. **Dado** que no se proporciona configuración, **cuando** la aplicación carga, **entonces** se usan los valores predeterminados del CRM sin errores.
-3. **Dada** una configuración inválida o conflictiva, **cuando** la aplicación carga, **entonces** el sistema informa el problema con claridad en lugar de fallar silenciosamente.
-4. **Dado** un campo personalizado declarado, **cuando** el usuario crea o edita un registro, **entonces** el campo aparece en el formulario, se valida y se incluye en la búsqueda.
-
----
-
-### Historia de Usuario 10 - Espacio de trabajo CRM consistente (Prioridad: P2)
-
-Como usuario de negocio, quiero una navegación persistente y un espacio de trabajo con marca, para acceder a las áreas del CRM de forma clara en cualquier pantalla.
-
-**Por qué esta prioridad**: La navegación consistente mejora la usabilidad y da identidad al módulo, pero el valor principal se entrega con las historias de gestión de datos.
-
-**Prueba Independiente**: En cada pantalla, el usuario ve una barra superior con el nombre del módulo y una barra lateral con accesos a Dashboard, Clientes, Empleados, Oportunidades, Interacciones y Búsqueda, con el área activa resaltada.
-
-**Escenarios de Aceptación**:
-
-1. **Dada** cualquier pantalla, **cuando** el usuario la consulta, **entonces** ve una barra superior con el nombre del módulo y una barra lateral de navegación.
-2. **Dada** cualquier pantalla, **cuando** el usuario mira la barra lateral, **entonces** el área activa está resaltada visualmente.
-3. **Dado** que el usuario navega entre áreas, **cuando** vuelve a un listado, **entonces** los datos permanecen intactos y consistentes.
-4. **Dada** una ventana gráfica estrecha, **cuando** el usuario usa la aplicación en un dispositivo pequeño, **entonces** la navegación sigue siendo operable y accesible.
-
----
-
-
 
 ### Casos Límite
 
@@ -225,8 +131,8 @@ Como usuario de negocio, quiero una navegación persistente y un espacio de trab
 - ¿Qué ocurre cuando un registro referencia un cliente o empleado que ya no existe?
 - ¿Qué ocurre cuando la búsqueda no devuelve coincidencias?
 - ¿Qué ocurre cuando el dashboard se abre sin clientes ni oportunidades?
-- ¿Qué ocurre con una oportunidad abierta cuya fecha estimada de cierre ya pasó?
-- ¿Qué ocurre con una oportunidad abierta cuya fecha de cierre está a más de 30 días?
+- ¿Qué ocurre con una oportunidad abierta cuya fecha estimada de cierre ya pasó? Se cuenta como **vencida** en el indicador del dashboard y puede filtrarse como tal; no se incluye en próximos cierres.
+- ¿Qué ocurre con una oportunidad abierta cuya fecha de cierre está a más de 30 días? No se cuenta como vencida ni en próximos cierres, pero permanece en oportunidades abiertas y en el monto del pipeline.
 - ¿Qué ocurre cuando la configuración declara un campo personalizado con una clave que choca con un campo base?
 - ¿Qué ocurre cuando la configuración referencia un tipo de campo o una transición de ciclo de vida inválida?
 - ¿Qué ocurre cuando los registros almacenados contienen valores de campos personalizados que ya no están declarados?
@@ -283,6 +189,9 @@ Como usuario de negocio, quiero una navegación persistente y un espacio de trab
 - **FR-044**: El sistema DEBE permitir consultar el historial de clientes y empleados archivados sin ofrecerlos como opciones para nuevos registros.
 - **FR-045**: El sistema DEBE impedir registrar dos clientes con el mismo correo electrónico, comparando el valor sin distinguir mayúsculas de minúsculas.
 - **FR-046**: El sistema DEBE calcular el indicador de próximos cierres con las oportunidades abiertas cuya fecha estimada de cierre esté entre la fecha actual y los 30 días siguientes, excluyendo las vencidas.
+- **FR-047**: El sistema DEBE identificar como vencidas las oportunidades abiertas (`Evaluación`, `Propuesta`, `Negociación`) cuya fecha estimada de cierre sea anterior a la fecha actual, excluyendo las etapas terminales `Ganado` y `Perdido`.
+- **FR-048**: El sistema DEBE mostrar en el dashboard un indicador de oportunidades vencidas con su cantidad y su monto acumulado, actualizado cada vez que se muestra la pantalla.
+- **FR-049**: El sistema DEBE permitir filtrar el listado de oportunidades por condición "vencidas", combinable con el resto de filtros disponibles.
 
 ### Requisitos de Extensibilidad
 
@@ -315,6 +224,7 @@ Como usuario de negocio, quiero una navegación persistente y un espacio de trab
 - **SC-009**: Un desarrollador puede adaptar el módulo mediante configuración sin modificar el código central.
 - **SC-010**: Cada pantalla presenta el mismo espacio de trabajo con marca y el usuario puede identificar el área activa de un vistazo.
 - **SC-011**: El sistema rechaza el 100% de los intentos de registrar un cliente con un correo ya existente.
+- **SC-012**: El indicador de oportunidades vencidas coincide exactamente con las oportunidades abiertas cuya fecha estimada de cierre es anterior a la fecha actual, y se actualiza al modificar la fecha de cierre o la etapa.
 
 ## Suposiciones
 
