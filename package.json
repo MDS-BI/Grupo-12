@@ -6,10 +6,16 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "test": "vitest"
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint .",
+    "format": "prettier --write ."
   },
   "devDependencies": {
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
     "jsdom": "^30.0.1",
+    "prettier": "^3.10.1",
     "vite": "^8.2.1",
     "vitest": "^4.1.10"
   }

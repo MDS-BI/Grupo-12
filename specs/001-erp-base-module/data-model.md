@@ -1,105 +1,151 @@
-# Modelo de Datos: Módulo Base de Software de Planificación de Recursos Empresariales (ERP)
+# Modelo de Datos: Módulo CRM (Customer Relationship Management)
 
-## Entidad: Entity (registro de datos maestros)
+**Funcionalidad**: `001-erp-base-module` | **Especificación**: [spec.md](spec.md)
+**MER de referencia**: [`../../Primer Avance/crm_mer.md`](../../Primer%20Avance/crm_mer.md)
 
-Representa el dato maestro central del módulo (p. ej., cliente, proveedor, artículo) con su identidad fiscal, contacto y condiciones comerciales.
+## Visión General
 
-| Campo | Tipo | Descripción | Restricciones |
-|---|---|---|---|
-| id | string | Identificador interno único del registro de entidad | Obligatorio, generado automáticamente |
-| entity_id | string | Identificador público usado para vincular documentos a esta entidad | Obligatorio, generado automáticamente, único |
-| name | string | Nombre o razón social de la entidad | Obligatorio, no vacío |
-| code | string | Código o clave de negocio que identifica la entidad | Obligatorio, no vacío |
-| taxId | string | Identificación fiscal de la entidad (p. ej., RFC, NIT, CUIT) | Opcional; se almacena recortada cuando se proporciona |
-| email | string | Correo electrónico principal de contacto | Opcional; debe tener formato de correo válido si se proporciona |
-| phone | string | Teléfono de contacto | Opcional |
-| address | string | Dirección fiscal o comercial | Opcional |
-| category | string | Clasificación opcional como tipo, grupo o clase | Opcional |
-| description | string | Descripción corta o notas | Opcional |
-| targetDate | string | Fecha objetivo opcional en formato YYYY-MM-DD; los módulos personalizados definen su significado (p. ej., fecha de vencimiento, fecha de revisión) | Opcional, debe ser una fecha de calendario válida si se proporciona |
-| creditLimit | number | Límite de crédito extendido a la entidad en la moneda configurada | Opcional, debe ser un número no negativo |
-| paymentTerms | string | Condiciones de pago acordadas (p. ej., contado, neto 30) | Opcional |
-| createdAt | string | Marca de tiempo de cuándo se creó la entidad | Obligatorio |
-| updatedAt | string | Marca de tiempo de la última actualización de la entidad | Obligatorio |
+El modelo se compone de cuatro entidades de dominio —**Cliente**, **Empleado**, **Oportunidad** e **Interacción**— más un objeto de configuración **ModuleConfig**. Todas las relaciones son 1:N: un cliente y un empleado acumulan muchas oportunidades e interacciones, y cada oportunidad o interacción referencia exactamente un cliente y un empleado.
 
-## Entidad: Document (registro transaccional)
+El **estado del cliente** (`Posible`, `Activo`, `Inactivo`) describe la relación comercial; la **etapa de la oportunidad** (`Evaluación`, `Propuesta`, `Negociación`, `Ganado`, `Perdido`) describe el avance de una venta. Ambos ciclos son independientes.
 
-Representa un documento transaccional vinculado a una entidad (p. ej., pedido, factura, contrato), identificado por serie y folio y con desglose económico.
+La **eliminación de clientes y empleados es lógica** (`archived`): el registro conserva sus oportunidades e interacciones, deja de mostrarse en las listas operativas y no puede asignarse a nuevos registros. **No existe eliminación en cascada** de oportunidades ni interacciones.
+
+## Entidad: Cliente
+
+Ficha maestra de la relación comercial.
 
 | Campo | Tipo | Descripción | Restricciones |
 |---|---|---|---|
-| id | string | Identificador único del documento | Obligatorio, generado automáticamente |
-| entity_id | string | Identificador de la entidad a la que pertenece este documento | Obligatorio, debe referenciar el entity_id de una entidad existente |
-| series | string | Serie del documento (p. ej., FAC, A, NV) que agrupa folios consecutivos | Opcional |
-| folio | number | Folio consecutivo que, junto con la serie, forma el número oficial del documento | Obligatorio, debe ser un entero positivo |
-| startDate | string | Fecha de inicio en formato YYYY-MM-DD | Obligatorio, debe ser una fecha de calendario válida |
-| endDate | string | Fecha de fin en formato YYYY-MM-DD | Obligatorio, debe ser una fecha de calendario válida, debe ser igual o posterior a startDate |
-| quantity | number | Cantidad asociada al documento | Opcional, debe ser un entero positivo |
-| subtotal | number | Importe antes de descuentos e impuestos | Opcional, debe ser un número no negativo |
-| discount | number | Descuento aplicado sobre el subtotal | Opcional, debe ser un número no negativo y no puede superar el subtotal |
-| taxAmount | number | Impuesto calculado para el documento | Opcional, debe ser un número no negativo |
-| totalAmount | number | Importe total del documento en la moneda configurada | Opcional, debe ser un número no negativo |
-| currency | string | Código de moneda para los importes del documento (p. ej., MXN, USD, EUR) | Opcional |
-| paymentTerms | string | Condiciones de pago del documento (p. ej., contado, neto 30) | Opcional |
-| notes | string | Notas u observaciones libres del documento | Opcional |
-| status | string | Estado del documento como borrador, pendiente, aprobado o cancelado | Opcional |
-| createdAt | string | Marca de tiempo de cuándo se creó el documento | Obligatorio |
-| updatedAt | string | Marca de tiempo de la última actualización del documento | Obligatorio |
+| id | string | Identificador único del cliente | Obligatorio, generado automáticamente |
+| nombreEmpresa | string | Razón social o nombre comercial | Obligatorio, no vacío |
+| personaContacto | string | Nombre del contacto principal | Obligatorio, no vacío |
+| correo | string | Correo electrónico de contacto | Obligatorio, formato válido, **único sin distinguir mayúsculas** |
+| telefono | string | Teléfono de contacto | Obligatorio, no vacío |
+| estado | string | Estado en el ciclo de vida | `Posible` \| `Activo` \| `Inactivo`; por defecto `Posible` |
+| archived | boolean | Marca de eliminación lógica | Por defecto `false` |
+| createdAt | string | Marca de tiempo ISO de creación | Obligatorio |
+| updatedAt | string | Marca de tiempo ISO de última actualización | Obligatorio |
+
+**Reglas**
+- La unicidad de `correo` se evalúa normalizando a minúsculas y recortando espacios; dos clientes activos o archivados no pueden compartir el mismo correo.
+- Un cliente archivado conserva sus oportunidades e interacciones y permanece consultable, pero no aparece en listas operativas ni en selectores de nuevos registros.
+- `nombreEmpresa` puede repetirse entre clientes.
+
+## Entidad: Empleado
+
+Catálogo de responsables comerciales.
+
+| Campo | Tipo | Descripción | Restricciones |
+|---|---|---|---|
+| id | string | Identificador único del empleado | Obligatorio, generado automáticamente |
+| nombre | string | Nombre completo del ejecutivo | Obligatorio, no vacío |
+| cargo | string | Cargo o función | Obligatorio, no vacío |
+| archived | boolean | Marca de eliminación lógica | Por defecto `false` |
+| createdAt | string | Marca de tiempo ISO de creación | Obligatorio |
+| updatedAt | string | Marca de tiempo ISO de última actualización | Obligatorio |
+
+**Reglas**
+- Un empleado archivado conserva sus oportunidades e interacciones, permanece consultable, pero no aparece en selectores de nuevas oportunidades o interacciones.
+
+## Entidad: Oportunidad
+
+Negociación en curso asociada a un cliente y a un empleado.
+
+| Campo | Tipo | Descripción | Restricciones |
+|---|---|---|---|
+| id | string | Identificador único de la oportunidad | Obligatorio, generado automáticamente |
+| clienteId | string | Cliente que origina la negociación | Obligatorio, debe referenciar un `Cliente.id` existente y **no archivado** |
+| empleadoId | string | Ejecutivo responsable | Obligatorio, debe referenciar un `Empleado.id` existente y **no archivado** |
+| descripcion | string | Detalle de la negociación | Opcional |
+| montoEstimado | number | Monto estimado de la venta | Obligatorio, número `>= 0` |
+| etapa | string | Etapa de la venta | `Evaluación` \| `Propuesta` \| `Negociación` \| `Ganado` \| `Perdido`; por defecto `Evaluación` |
+| fechaEstimadaCierre | string | Fecha estimada de cierre (`YYYY-MM-DD`) | Obligatoria, fecha de calendario válida |
+| createdAt | string | Marca de tiempo ISO de creación | Obligatorio |
+| updatedAt | string | Marca de tiempo ISO de última actualización | Obligatorio |
+
+**Reglas de transición de etapa**
+- `Evaluación → Propuesta`
+- `Propuesta → Negociación`
+- `Perdido` puede marcarse desde `Evaluación`, `Propuesta` o `Negociación`.
+- `Ganado` solo puede marcarse desde `Negociación`.
+- `Ganado` y `Perdido` son terminales: no admiten ninguna transición posterior.
+- Las transiciones pueden redefinirse mediante `ModuleConfig.opportunityLifecycle`; los valores por defecto son los anteriores.
+
+## Entidad: Interacción
+
+Comunicación registrada con un cliente.
+
+| Campo | Tipo | Descripción | Restricciones |
+|---|---|---|---|
+| id | string | Identificador único de la interacción | Obligatorio, generado automáticamente |
+| clienteId | string | Cliente con quien se comunica | Obligatorio, debe referenciar un `Cliente.id` existente y **no archivado** |
+| empleadoId | string | Empleado que realiza la gestión | Obligatorio, debe referenciar un `Empleado.id` existente y **no archivado** |
+| fecha | string | Fecha de la comunicación (`YYYY-MM-DD`) | Obligatoria, fecha de calendario válida |
+| tipo | string | Tipo de comunicación | `Llamada` \| `Correo` \| `Reunión`; obligatorio |
+| descripcion | string | Notas adicionales | Opcional |
+| createdAt | string | Marca de tiempo ISO de creación | Obligatorio |
+| updatedAt | string | Marca de tiempo ISO de última actualización | Obligatorio |
 
 ## Entidad: ModuleConfig
 
-Objeto de configuración cargado al arrancar que adapta el módulo base en un módulo específico.
+Objeto de configuración cargado al arrancar que adapta la terminología, los campos y el tema del módulo.
 
 | Campo | Tipo | Descripción | Restricciones |
 |---|---|---|---|
-| moduleName | string | Nombre visible del módulo adaptado | Obligatorio, no vacío |
-| labels | object | Mapeos de términos como `{ entity: "Cliente", entities: "Clientes", document: "Pedido de Venta", documents: "Pedidos de Venta" }` | Opcional; retrocede a Entidad/Documento |
-| customFields | array | Definiciones de campos por tipo de registro: `{ target: "entity"\|"document", key, label, type: "text"\|"number"\|"date"\|"select", required: boolean, options?: string[] }` | Opcional; las claves NO DEBEN chocar con nombres de campos base |
-| statusLifecycle | object | Estados ordenados y transiciones permitidas para documentos, p. ej., `{ statuses: ["cotización", "pedido", "facturado"], transitions: { cotización: ["pedido"], pedido: ["facturado"], facturado: [] } }` | Opcional |
-| theme | object | Opciones de marca, p. ej., `{ accentColor: "#0f62fe" }`; aplicado como propiedad personalizada de CSS en todo el marco del espacio de trabajo | Opcional; accentColor debe ser un color CSS válido o retrocede al predeterminado |
+| moduleName | string | Nombre visible del módulo | Obligatorio, no vacío; por defecto `Módulo CRM` |
+| labels | object | Reetiquetado de términos, p. ej. `{ cliente: "Cuenta", clientes: "Cuentas", oportunidad: "Venta", ... }` | Opcional; retrocede a los términos CRM |
+| customFields | array | `{ target: "cliente"\|"empleado"\|"oportunidad"\|"interaccion", key, label, type: "text"\|"number"\|"date"\|"select", required: boolean, options?: string[] }` | Opcional; las claves NO DEBEN chocar con campos base |
+| opportunityLifecycle | object | Etapas ordenadas y transiciones permitidas, p. ej. `{ stages: ["Evaluación","Propuesta","Negociación","Ganado","Perdido"], transitions: { ... } }` | Opcional; retrocede a las transiciones por defecto |
+| theme | object | `{ accentColor: "#0f62fe" }` aplicado como propiedad personalizada de CSS | Opcional; `accentColor` debe ser un color CSS válido |
 
-## Reglas de ModuleConfig
-
+**Reglas**
 - La configuración se carga una vez al arrancar y se aplica en todas las pantallas.
-- Cuando la configuración está ausente, se aplican los valores predeterminados integrados: etiquetas Entidad/Documento, sin campos personalizados, estado de texto libre, color de acento predeterminado.
-- Los valores inválidos o conflictivos deben informarse con claridad en lugar de fallar silenciosamente.
-- Las claves de campos personalizados no deben chocar con los nombres de campos base (`id`, `entity_id`, `name`, `code`, `taxId`, `email`, `phone`, `address`, `category`, `description`, `targetDate`, `creditLimit`, `paymentTerms`, `series`, `folio`, `startDate`, `endDate`, `quantity`, `subtotal`, `discount`, `taxAmount`, `totalAmount`, `currency`, `notes`, `status`).
-- Los valores de campos personalizados se persisten junto a los campos base sin cambios de esquema en el almacenamiento.
-- Un ciclo de vida configurado reemplaza la entrada de estado de texto libre; sin uno, el estado permanece como texto libre.
-
-## Reglas de Validación
-
-### Entidad
-
-- Una entidad debe incluir un nombre no vacío.
-- Una entidad debe incluir un código no vacío.
-- La identificación fiscal, teléfono, dirección, categoría, descripción y condiciones de pago son opcionales pero deben almacenarse como cadenas recortadas.
-- El correo electrónico es opcional pero, cuando está presente, debe tener formato de correo válido.
-- El límite de crédito es opcional pero, cuando está presente, debe ser un número no negativo.
-- La fecha objetivo es opcional pero, cuando está presente, debe ser una fecha de calendario válida en formato YYYY-MM-DD.
-- Un entity_id debe generarse automáticamente y debe ser único entre todas las entidades.
-
-### Documento
-
-- Un documento debe referenciar una entidad existente mediante entity_id.
-- Un documento debe incluir un folio entero positivo; la serie es opcional y, cuando existe, se combina con el folio para formar el número oficial del documento (p. ej., `FAC-1001`).
-- Un documento debe incluir fechas de inicio y fin válidas; la fecha de fin debe ser igual o posterior a la fecha de inicio.
-- La cantidad es opcional y debe ser un entero positivo.
-- Subtotal, descuento, impuesto e importe total son opcionales y deben ser números no negativos; el descuento no puede superar el subtotal.
-- La aplicación debe normalizar el texto para un comportamiento de búsqueda consistente.
-
-> Nota: el cálculo automático de totales (p. ej., `total = subtotal - descuento + impuesto`) queda como punto de extensión; el módulo base valida cada importe de forma independiente para evitar sorpresas por redondeo.
+- Sin configuración se usan los valores predeterminados del CRM.
+- Los valores inválidos o conflictivos se informan con claridad; nunca fallan en silencio.
+- Las claves de campos personalizados no deben chocar con los campos base (`id`, `nombreEmpresa`, `personaContacto`, `correo`, `telefono`, `estado`, `archived`, `nombre`, `cargo`, `clienteId`, `empleadoId`, `descripcion`, `montoEstimado`, `etapa`, `fechaEstimadaCierre`, `fecha`, `tipo`, `createdAt`, `updatedAt`).
+- Los valores de campos personalizados se persisten junto a los campos base sin cambios de esquema.
 
 ## Relaciones
 
-- Cada entidad se almacena independientemente y aparece como una única fila en la lista de entidades.
-- Cada entidad tiene un entity_id usado para conectarse a sus documentos.
-- Cada documento pertenece exactamente a una entidad, vinculada por el entity_id de la entidad.
-- Cuando se elimina una entidad, todos los documentos que referencian su entity_id también se eliminan.
-- Las operaciones de búsqueda se realizan sobre los registros de entidad almacenados, incluyendo identidad fiscal, contacto y condiciones comerciales.
+| Relación | Cardinalidad | Descripción |
+|---|---|---|
+| `Cliente` → `Oportunidad` | 1 : N | Un cliente puede originar cero o muchas oportunidades. |
+| `Empleado` → `Oportunidad` | 1 : N | Un empleado puede gestionar cero o muchas oportunidades. |
+| `Cliente` → `Interacción` | 1 : N | Un cliente puede registrar cero o muchas interacciones. |
+| `Empleado` → `Interacción` | 1 : N | Un empleado puede realizar cero o muchas interacciones. |
+
+## Reglas de Integridad Referencial
+
+- Toda oportunidad debe referenciar un `clienteId` y un `empleadoId` existentes y no archivados.
+- Toda interacción debe referenciar un `clienteId` y un `empleadoId` existentes y no archivados.
+- Archivar un cliente o un empleado **no elimina** sus oportunidades ni interacciones.
+- Si al cargar los datos se detecta una referencia a un cliente o empleado inexistente, el sistema informa la inconsistencia en lugar de fallar en silencio.
+- Los clientes y empleados archivados se excluyen de las listas operativas y de los selectores de nuevos registros, pero siguen siendo consultables desde su historial.
+
+## Reglas de Validación (resumen)
+
+### Cliente
+- `nombreEmpresa`, `personaContacto`, `correo` y `telefono` son obligatorios.
+- `correo` debe tener formato válido y ser único sin distinguir mayúsculas.
+- `estado` pertenece a `Posible | Activo | Inactivo`; por defecto `Posible`.
+
+### Empleado
+- `nombre` y `cargo` son obligatorios.
+
+### Oportunidad
+- `clienteId` y `empleadoId` son obligatorios y deben ser referencias válidas y no archivadas.
+- `montoEstimado` es obligatorio y `>= 0`.
+- `fechaEstimadaCierre` es obligatoria y debe ser una fecha de calendario válida.
+- `etapa` por defecto `Evaluación`; solo se permiten las transiciones definidas.
+
+### Interacción
+- `clienteId` y `empleadoId` son obligatorios y deben ser referencias válidas y no archivadas.
+- `fecha` y `tipo` son obligatorios; `tipo` pertenece a `Llamada | Correo | Reunión`.
+- `descripcion` es opcional.
 
 ## Notas de Extensibilidad
 
-- Los módulos personalizados pueden añadir campos específicos del dominio a cualquiera de los dos tipos de registro; los campos base anteriores deben mantener sus nombres y semántica para que el almacenamiento, la validación y la integridad referencial permanezcan intactos.
-- El campo `status` es intencionadamente de texto libre a nivel base para que cada módulo personalizado pueda imponer su propio ciclo de vida (p. ej., estados de pedidos, estados de aprobación).
-- La unicidad de folio por serie, las partidas de documento (líneas con producto, cantidad y precio) y la numeración automática son puntos de extensión naturales para módulos que los requieran.
+- Los módulos personalizados pueden añadir campos específicos del dominio a cualquiera de las cuatro entidades sin cambiar la estructura base de almacenamiento.
+- Los nombres y la semántica de los campos base deben permanecer estables para conservar la validación, la integridad referencial y la lógica de archivado.
+- El reetiquetado y el ciclo de vida configurable permiten reutilizar el módulo sin editar el código central.

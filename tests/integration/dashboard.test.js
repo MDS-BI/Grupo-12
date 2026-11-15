@@ -1,119 +1,77 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { JSDOM } from 'jsdom';
-import { normalizeConfig } from '../../src/module-config.js';
-import { addEntity, addDocument, loadEntities } from '../../src/storage.js';
+import { describe, expect, it } from 'vitest';
+import { click, getForm, mountApp } from '../helpers.js';
+import { addClient, addEmployee, addOpportunity } from '../../src/storage.js';
+import { addDays, toDateOnly } from '../../src/domain.js';
 
-const html = fs.readFileSync(fileURLToPath(new URL('../../index.html', import.meta.url)), 'utf8');
-
-let dom;
-
-function qs(id){ return document.getElementById(id); }
-
-const salesConfig = {
-  moduleName: 'Ventas',
-  labels: { entity: 'Cliente', entities: 'Clientes', document: 'Pedido de Venta', documents: 'Pedidos de Venta' }
-};
-
-beforeEach(async () => {
-  dom = new JSDOM(html, { url: 'http://localhost/' });
-  const w = dom.window;
-  globalThis.window = w;
-  globalThis.document = w.document;
-  globalThis.localStorage = w.localStorage;
-  globalThis.alert = vi.fn();
-  globalThis.confirm = vi.fn(() => true);
-  w.scrollTo = vi.fn();
-  w.localStorage.clear();
-});
-
-afterEach(() => {
-  dom.window.close();
-});
-
-async function bootWith(configOverride){
-  vi.resetModules();
-  const { initApp } = await import('../../src/app.js');
-  await initApp(normalizeConfig(configOverride));
+function statValue(root, key) {
+  return root.querySelector(`[data-stat="${key}"] .stat-value`)?.textContent.trim() ?? '';
 }
 
-describe('User Story 3 - home dashboard with quick actions and record stats', () => {
-  it('opens on the dashboard with all other views hidden', async () => {
-    await bootWith(undefined);
-    expect(qs('view-dashboard').hidden).toBe(false);
-    expect(qs('view-entities').hidden).toBe(true);
-    expect(qs('view-documents').hidden).toBe(true);
-    expect(qs('view-search').hidden).toBe(true);
+describe('US7 - panel de indicadores', () => {
+  it('shows zeroed indicators and quick actions with no data', () => {
+    const { root } = mountApp();
+
+    expect(statValue(root, 'activeClients')).toBe('0');
+    expect(statValue(root, 'openOpportunities')).toBe('0');
+    expect(statValue(root, 'upcomingCloses')).toBe('0');
+    expect(root.querySelectorAll('.quick-action')).toHaveLength(4);
   });
 
-  it('shows at least four quick-action buttons covering key ERP tasks', async () => {
-    await bootWith(undefined);
-    expect(qs('action-new-entity-title').textContent).toBe('Nueva Entidad');
-    expect(qs('action-new-document-title').textContent).toBe('Nuevo Documento');
-    expect(qs('action-open-entities-title').textContent).toBe('Entidades');
-    expect(qs('action-find-title').textContent).toBe('Buscar registros');
+  it('reflects active clients, open opportunities, pipeline and upcoming closes', () => {
+    const activeClient = addClient({
+      nombreEmpresa: 'Activa',
+      personaContacto: 'Ana',
+      correo: 'activa@acme.cl',
+      telefono: '1',
+      estado: 'Activo'
+    });
+    addClient({
+      nombreEmpresa: 'Posible',
+      personaContacto: 'Beto',
+      correo: 'posible@acme.cl',
+      telefono: '2'
+    });
+    const employee = addEmployee({ nombre: 'Luis', cargo: 'Ejecutivo' });
+
+    const soon = toDateOnly(addDays(new Date(), 10));
+    const far = toDateOnly(addDays(new Date(), 60));
+    addOpportunity({
+      clienteId: activeClient.id,
+      empleadoId: employee.id,
+      montoEstimado: 1000,
+      fechaEstimadaCierre: soon
+    });
+    addOpportunity({
+      clienteId: activeClient.id,
+      empleadoId: employee.id,
+      montoEstimado: 500,
+      fechaEstimadaCierre: far
+    });
+    addOpportunity({
+      clienteId: activeClient.id,
+      empleadoId: employee.id,
+      montoEstimado: 3000,
+      etapa: 'Ganado',
+      fechaEstimadaCierre: soon
+    });
+
+    const { root } = mountApp();
+    expect(statValue(root, 'activeClients')).toBe('1');
+    expect(statValue(root, 'openOpportunities')).toBe('2');
+    expect(statValue(root, 'pipelineTotal').replace(/\D/g, '')).toBe('1500');
+    expect(statValue(root, 'upcomingCloses')).toBe('1');
   });
 
-  it('uses configured terminology on quick actions and stat cards', async () => {
-    await bootWith(salesConfig);
-    expect(qs('action-new-entity-title').textContent).toBe('Nuevo Cliente');
-    expect(qs('action-new-document-title').textContent).toBe('Nuevo Pedido de Venta');
-    expect(qs('stat-entities-label').textContent).toBe('Clientes');
-    expect(qs('stat-documents-label').textContent).toBe('Pedidos de Venta');
+  it('uses quick actions to open the creation forms', () => {
+    const { root } = mountApp();
+    click(root, '[data-action="new-client"]');
+    expect(getForm(root, 'client')).toBeTruthy();
   });
 
-  it('shows live statistics that match stored records', async () => {
-    await bootWith(undefined);
-    expect(qs('stat-entities').textContent).toBe('0');
-    expect(qs('stat-documents').textContent).toBe('0');
-
-    const entity = addEntity({ name: 'Acme', code: 'AC-001' });
-    addEntity({ name: 'Globex', code: 'GL-002' });
-    addDocument({ entityId: entity.entity_id, folio: 1001, startDate: '2026-08-01', endDate: '2026-08-05' });
-
-    qs('nav-dashboard').click();
-    expect(qs('stat-entities').textContent).toBe('2');
-    expect(qs('stat-documents').textContent).toBe('1');
-  });
-
-  it('refreshes statistics after creating records elsewhere in the app', async () => {
-    await bootWith(undefined);
-    qs('nav-entities').click();
-    qs('name').value = 'Acme';
-    qs('code').value = 'AC-001';
-    qs('entity-form').dispatchEvent(new dom.window.Event('submit', { bubbles: true, cancelable: true }));
-    expect(loadEntities().length).toBe(1);
-
-    qs('nav-dashboard').click();
-    expect(qs('stat-entities').textContent).toBe('1');
-  });
-
-  it('opens the entity management area with a cleared form via the new-entity action', async () => {
-    await bootWith(undefined);
-    qs('name').value = 'Stale draft';
-    qs('nav-dashboard').click();
-
-    qs('action-new-entity').click();
-    expect(qs('view-entities').hidden).toBe(false);
-    expect(qs('view-dashboard').hidden).toBe(true);
-    expect(qs('entity-id').value).toBe('');
-    expect(qs('name').value).toBe('');
-    expect(document.activeElement).toBe(qs('name'));
-  });
-
-  it('opens the document management area via the new-document action', async () => {
-    await bootWith(undefined);
-    qs('action-new-document').click();
-    expect(qs('view-documents').hidden).toBe(false);
-    expect(qs('document-id').value).toBe('');
-    expect(document.activeElement).toBe(qs('document-entity'));
-  });
-
-  it('opens the search screen with a focused search field via the find action', async () => {
-    await bootWith(undefined);
-    qs('action-find').click();
-    expect(qs('view-search').hidden).toBe(false);
-    expect(document.activeElement).toBe(qs('search-input'));
+  it('uses the clients quick action to reach the list', () => {
+    const { root } = mountApp();
+    click(root, '[data-action="nav-clients"]');
+    expect(root.querySelector('[data-action="new-client"]')).toBeTruthy();
+    expect(root.textContent).toContain('Clientes');
   });
 });
