@@ -61,9 +61,9 @@ describe('User Story 13 - branded ERP workspace shell', () => {
 
   it('offers sidebar module buttons using configured terminology', async () => {
     await bootWith(brandedConfig);
-    expect(qs('nav-dashboard-label').textContent).toBe('Panel');
-    expect(qs('nav-entities-label').textContent).toBe('Entidades');
-    expect(qs('nav-documents-label').textContent).toBe('Documentos');
+    expect(qs('nav-dashboard-label').textContent).toBe('Dashboard');
+    expect(qs('nav-entities-label').textContent).toBe('Clientes');
+    expect(qs('nav-documents-label').textContent).toBe('Oportunidades');
     expect(qs('nav-search-label').textContent).toBe('Búsqueda');
     expect(document.querySelectorAll('.nav-module').length).toBe(4);
   });

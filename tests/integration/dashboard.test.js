@@ -47,11 +47,11 @@ describe('User Story 3 - home dashboard with quick actions and record stats', ()
     expect(qs('view-search').hidden).toBe(true);
   });
 
-  it('shows at least four quick-action buttons covering key ERP tasks', async () => {
+  it('shows at least four quick-action buttons covering key CRM tasks', async () => {
     await bootWith(undefined);
-    expect(qs('action-new-entity-title').textContent).toBe('Nueva Entidad');
-    expect(qs('action-new-document-title').textContent).toBe('Nuevo Documento');
-    expect(qs('action-open-entities-title').textContent).toBe('Entidades');
+    expect(qs('action-new-entity-title').textContent).toBe('Nuevo Cliente');
+    expect(qs('action-new-document-title').textContent).toBe('Nueva Oportunidad');
+    expect(qs('action-open-entities-title').textContent).toBe('Clientes');
     expect(qs('action-find-title').textContent).toBe('Buscar registros');
   });
 

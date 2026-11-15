@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRM</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="CRM">
+          <div id="logo-mark" class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Logo del módulo">
+              <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">CRM</text>
+            </svg>
+          </div>
+          <span id="brand-name" class="brand-name">CRM</span>
+        </div>
+      </header>
+
+      <aside class="sidebar" aria-label="Navegación principal">
+        <button id="nav-dashboard" class="nav-module" data-module="dashboard" aria-current="page">
+          <span class="nav-icon" aria-hidden="true">◫</span>
+          <span id="nav-dashboard-label" class="nav-label">Dashboard</span>
+        </button>
+        <button id="nav-entities" class="nav-module" data-module="entities">
+          <span class="nav-icon" aria-hidden="true">▣</span>
+          <span id="nav-entities-label" class="nav-label">Clientes</span>
+        </button>
+        <button id="nav-documents" class="nav-module" data-module="documents">
+          <span class="nav-icon" aria-hidden="true">▤</span>
+          <span id="nav-documents-label" class="nav-label">Oportunidades</span>
+        </button>
+        <button id="nav-search" class="nav-module" data-module="search">
+          <span class="nav-icon" aria-hidden="true">⌕</span>
+          <span id="nav-search-label" class="nav-label">Búsqueda</span>
+        </button>
+      </aside>
+
+      <main class="content-area">
+        <section id="view-dashboard" class="view">
+          <h1 id="dashboard-heading">CRM</h1>
+
+          <div class="quick-actions">
+            <button id="action-new-entity" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">＋</span>
+              <span id="action-new-entity-title">Nuevo Cliente</span>
+            </button>
+            <button id="action-open-entities" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">◫</span>
+              <span id="action-open-entities-title">Clientes</span>
+            </button>
+            <button id="action-new-document" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">＋</span>
+              <span id="action-new-document-title">Nueva Oportunidad</span>
+            </button>
+            <button id="action-find" class="action-button" type="button">
+              <span class="action-icon" aria-hidden="true">⌕</span>
+              <span id="action-find-title">Buscar registros</span>
+            </button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span id="stat-entities-label" class="stat-label">Clientes</span>
+              <strong id="stat-entities">0</strong>
+            </div>
+            <div class="stat-card">
+              <span id="stat-documents-label" class="stat-label">Oportunidades</span>
+              <strong id="stat-documents">0</strong>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-entities" class="view" hidden>
+          <h2 id="entities-view-heading">Clientes</h2>
+          <form id="entity-form" novalidate>
+            <h3 id="entity-form-heading">Agregar / Editar Cliente</h3>
+            <input id="entity-id" type="hidden" />
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="name">Nombre</label>
+                <input id="name" name="name" type="text" />
+                <div id="error-name" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="code">Código</label>
+                <input id="code" name="code" type="text" />
+                <div id="error-code" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="taxId">RFC / Tax ID</label>
+                <input id="taxId" name="taxId" type="text" />
+                <div id="error-taxId" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" type="email" />
+                <div id="error-email" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="phone">Teléfono</label>
+                <input id="phone" name="phone" type="tel" />
+                <div id="error-phone" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="address">Dirección</label>
+                <input id="address" name="address" type="text" />
+                <div id="error-address" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="category">Categoría</label>
+                <input id="category" name="category" type="text" />
+                <div id="error-category" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="targetDate">Fecha objetivo</label>
+                <input id="targetDate" name="targetDate" type="date" />
+                <div id="error-targetDate" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="creditLimit">Límite de crédito</label>
+                <input id="creditLimit" name="creditLimit" type="number" step="0.01" />
+                <div id="error-creditLimit" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="paymentTerms">Plazos de pago</label>
+                <input id="paymentTerms" name="paymentTerms" type="text" />
+                <div id="error-paymentTerms" class="validation-error"></div>
+              </div>
+            </div>
+
+            <div id="entity-custom-fields" class="custom-fields" hidden></div>
+
+            <div class="actions-row">
+              <button id="submit-button" type="submit">Guardar</button>
+              <button id="delete-entity" type="button">Eliminar la entidad seleccionada</button>
+            </div>
+          </form>
+
+          <div class="selector-panel">
+            <h3 id="edit-entity-heading">Editar o eliminar la entidad</h3>
+            <label for="edit-entity">Selecciona la entidad</label>
+            <select id="edit-entity">
+              <option value="">Seleccionar...</option>
+            </select>
+          </div>
+        </section>
+
+        <section id="view-documents" class="view" hidden>
+          <h2 id="documents-view-heading">Oportunidades</h2>
+          <form id="document-form" novalidate>
+            <h3 id="document-form-heading">Agregar / Editar Oportunidad</h3>
+            <input id="document-id" type="hidden" />
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="document-entity">Entidad</label>
+                <select id="document-entity"></select>
+                <div id="error-document-entity" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="series">Serie</label>
+                <input id="series" name="series" type="text" />
+                <div id="error-series" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="folio">Folio</label>
+                <input id="folio" name="folio" type="number" min="1" step="1" />
+                <div id="error-folio" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="startDate">Fecha de inicio</label>
+                <input id="startDate" name="startDate" type="date" />
+                <div id="error-startDate" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="endDate">Fecha final</label>
+                <input id="endDate" name="endDate" type="date" />
+                <div id="error-endDate" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="quantity">Cantidad</label>
+                <input id="quantity" name="quantity" type="number" min="1" step="1" />
+                <div id="error-quantity" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="subtotal">Subtotal</label>
+                <input id="subtotal" name="subtotal" type="number" step="0.01" />
+                <div id="error-subtotal" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="discount">Descuento</label>
+                <input id="discount" name="discount" type="number" step="0.01" />
+                <div id="error-discount" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="taxAmount">Impuesto</label>
+                <input id="taxAmount" name="taxAmount" type="number" step="0.01" />
+                <div id="error-taxAmount" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="totalAmount">Monto total</label>
+                <input id="totalAmount" name="totalAmount" type="number" step="0.01" />
+                <div id="error-totalAmount" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="currency">Moneda</label>
+                <input id="currency" name="currency" type="text" />
+                <div id="error-currency" class="validation-error"></div>
+              </div>
+              <div class="field">
+                <label for="docPaymentTerms">Plazos</label>
+                <input id="docPaymentTerms" name="docPaymentTerms" type="text" />
+                <div id="error-docPaymentTerms" class="validation-error"></div>
+              </div>
+              <div class="field field-full">
+                <label for="notes">Notas</label>
+                <textarea id="notes" name="notes"></textarea>
+              </div>
+              <div class="field">
+                <label for="status">Estado</label>
+                <select id="status" name="status">
+                  <option value="">Sin estado</option>
+                </select>
+                <div id="error-status" class="validation-error"></div>
+              </div>
+            </div>
+
+            <div id="document-custom-fields" class="custom-fields" hidden></div>
+
+            <div class="actions-row">
+              <button id="document-submit-button" type="submit">Guardar</button>
+              <button id="delete-document" type="button">Eliminar el documento seleccionado</button>
+            </div>
+          </form>
+
+          <div class="selector-panel">
+            <h3 id="edit-document-heading">Editar o eliminar el documento</h3>
+            <label for="edit-document">Selecciona el documento</label>
+            <select id="edit-document">
+              <option value="">Seleccionar...</option>
+            </select>
+          </div>
+        </section>
+
+        <section id="view-search" class="view" hidden>
+          <h2 id="search-view-heading">Buscar Clientes</h2>
+          <div class="search-wrapper">
+            <input id="search-input" type="search" placeholder="Buscar registros..." aria-label="Buscar registros" />
+          </div>
+          <div id="search-empty" class="empty-state" hidden>
+            No hay coincidencias para su búsqueda.
+          </div>
+          <ul id="search-results-list" class="search-results"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
