@@ -1,39 +1,45 @@
-import { describe, it, expect } from 'vitest';
-import { DEFAULT_CONFIG, BASE_FIELDS, FIELD_TYPES, normalizeConfig, loadModuleConfig, setActiveConfig, getConfig, labelFor } from '../../src/module-config.js';
+import { describe, expect, it } from 'vitest';
+import {
+  customFieldsFor,
+  loadModuleConfig,
+  resolveLabel
+} from '../../src/module-config.js';
 
-const salesConfig = {
-  moduleName: 'Ventas',
-  labels: { entity: 'Cliente', entities: 'Clientes', document: 'Pedido de Venta', documents: 'Pedidos de Venta' },
-  customFields: [
-    { target: 'entity', key: 'riesgo', label: 'Riesgo', type: 'number', required: true },
-    { target: 'document', key: 'metodoEnvio', label: 'Método de envío', type: 'select', options: ['estándar', 'exprés'] }
-  ],
-  statusLifecycle: {
-    statuses: ['cotización', 'pedido', 'facturado'],
-    transitions: { cotización: ['pedido'], pedido: ['facturado'], facturado: [] }
-  }
-};
-
-describe('module-config', () => {
-  it('falls back to built-in defaults when no configuration is provided', () => {
-    const { config, errors } = normalizeConfig(null);
+describe('module configuration', () => {
+  it('falls back to CRM defaults when no configuration is provided', () => {
+    const { config, errors } = loadModuleConfig(undefined);
     expect(errors).toEqual([]);
-    expect(config).toEqual(DEFAULT_CONFIG);
+    expect(config.moduleName).toBe('Módulo CRM');
+    expect(config.opportunityLifecycle.stages).toEqual([
+      'Evaluación',
+      'Propuesta',
+      'Negociación',
+      'Ganado',
+      'Perdido'
+    ]);
+    expect(config.theme.accentColor).toBe('#0f62fe');
   });
 
-  it('returns defaults for undefined configuration too', () => {
-    const { config, errors } = normalizeConfig(undefined);
-    expect(errors).toEqual([]);
-    expect(config.moduleName).toBe(DEFAULT_CONFIG.moduleName);
-  });
-
-  it('accepts a complete sales-style profile', () => {
-    const { config, errors } = normalizeConfig(salesConfig);
+  it('applies labels, custom fields, lifecycle and accent colour', () => {
+    const { config, errors } = loadModuleConfig({
+      moduleName: 'Ventas',
+      labels: { cliente: 'Cuenta', clientes: 'Cuentas' },
+      customFields: [
+        { target: 'cliente', key: 'segmento', label: 'Segmento', type: 'select', options: ['A', 'B'], required: true }
+      ],
+      opportunityLifecycle: {
+        stages: ['Evaluación', 'Propuesta', 'Ganado'],
+        transitions: { Evaluación: ['Propuesta'], Propuesta: ['Ganado'], Ganado: [] }
+      },
+      theme: { accentColor: '#ff0000' }
+    });
     expect(errors).toEqual([]);
     expect(config.moduleName).toBe('Ventas');
-    expect(config.labels.entity).toBe('Cliente');
-    expect(config.customFields.length).toBe(2);
-    expect(config.statusLifecycle.statuses).toEqual(['cotización', 'pedido', 'facturado']);
+    expect(resolveLabel(config, 'cliente', 'Cliente')).toBe('Cuenta');
+    expect(resolveLabel(config, 'empleado', 'Empleado')).toBe('Empleado');
+    expect(customFieldsFor(config, 'cliente')).toHaveLength(1);
+    expect(config.opportunityLifecycle.transitions.Propuesta).toEqual(['Ganado']);
+    expect(config.theme.accentColor).toBe('#ff0000');
   });
 
   it('reports an invalid module name instead of failing silently', () => {
@@ -166,5 +172,11 @@ describe('module-config', () => {
       expect(errors).toEqual([]);
       expect(config.theme.accentColor).toBe(DEFAULT_CONFIG.theme.accentColor);
     });
+    expect(errors.length).toBeGreaterThanOrEqual(5);
+    expect(errors.join(' ')).toMatch(/moduleName/);
+    expect(errors.join(' ')).toMatch(/choca con un campo base/);
+    expect(errors.join(' ')).toMatch(/tipo no soportado/);
+    expect(errors.join(' ')).toMatch(/destino desconocido/);
+    expect(errors.join(' ')).toMatch(/accentColor/);
   });
 });
