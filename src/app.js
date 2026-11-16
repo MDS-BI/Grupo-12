@@ -780,20 +780,14 @@ async function boot() {
   });
 }
 
+let appInitialized = false;
+
 export async function initApp(configOverride) {
   const result = configOverride && configOverride.config ? configOverride : normalizeConfig(configOverride ?? null);
   setActiveConfig(result);
+  if (appInitialized) return;
   await boot();
-}
-
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      void initApp();
-    }, { once: true });
-  } else {
-    void initApp();
-  }
+  appInitialized = true;
 }
 
 export { boot };

@@ -2,10 +2,107 @@ import './styles.css';
 import { loadModuleConfig } from './module-config.js';
 import { initApp } from './app.js';
 
-const { config, errors } = loadModuleConfig();
+const AUTH_KEY = 'erp.authenticatedUser';
+const VALID_USER = 'Cliente1';
+const VALID_PASSWORD = '1234';
 
-initApp({
-  root: document.getElementById('app'),
-  config,
-  configErrors: errors
-});
+const { config } = loadModuleConfig();
+
+function isAuthenticated() {
+  return localStorage.getItem(AUTH_KEY) === VALID_USER;
+}
+
+function setAuthenticated() {
+  localStorage.setItem(AUTH_KEY, VALID_USER);
+}
+
+function clearAuthenticated() {
+  localStorage.removeItem(AUTH_KEY);
+}
+
+function navigate(path) {
+  if (window.location.pathname !== path) {
+    window.history.pushState({}, '', path);
+  }
+  renderRoute();
+}
+
+function showLogin(errorMessage = '') {
+  const loginView = document.getElementById('login-view');
+  const appShell = document.getElementById('app-shell');
+  const errorNode = document.getElementById('login-error');
+  const password = document.getElementById('login-password');
+  if (appShell) appShell.hidden = true;
+  if (loginView) loginView.hidden = false;
+  if (errorNode) errorNode.textContent = errorMessage;
+  if (password) password.value = '';
+  document.title = 'Iniciar sesión';
+}
+
+async function showApp() {
+  const loginView = document.getElementById('login-view');
+  const appShell = document.getElementById('app-shell');
+  if (loginView) loginView.hidden = true;
+  if (appShell) appShell.hidden = false;
+  await initApp({ config });
+}
+
+async function renderRoute() {
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  const authed = isAuthenticated();
+
+  if (path === '/' || path === '/index.html') {
+    if (authed) {
+      navigate('/inicio');
+      return;
+    }
+    showLogin();
+    return;
+  }
+
+  if (path === '/inicio') {
+    if (!authed) {
+      navigate('/');
+      return;
+    }
+    await showApp();
+    return;
+  }
+
+  navigate(authed ? '/inicio' : '/');
+}
+
+function bindAuthHandlers() {
+  const form = document.getElementById('login-form');
+  const logout = document.getElementById('logout-button');
+
+  if (form && !form.dataset.bound) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const username = document.getElementById('login-username')?.value ?? '';
+      const password = document.getElementById('login-password')?.value ?? '';
+      if (username === VALID_USER && password === VALID_PASSWORD) {
+        setAuthenticated();
+        navigate('/inicio');
+      } else {
+        showLogin('Usuario o contraseña incorrectos.');
+      }
+    });
+    form.dataset.bound = 'true';
+  }
+
+  if (logout && !logout.dataset.bound) {
+    logout.addEventListener('click', () => {
+      clearAuthenticated();
+      navigate('/');
+    });
+    logout.dataset.bound = 'true';
+  }
+
+  window.addEventListener('popstate', () => {
+    void renderRoute();
+  });
+}
+
+bindAuthHandlers();
+void renderRoute();

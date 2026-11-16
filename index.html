@@ -7,7 +7,35 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
-    <div class="app-shell">
+    <section id="login-view" class="login-view" hidden>
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="logo-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Logo del módulo">
+              <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">CRM</text>
+            </svg>
+          </div>
+          <div>
+            <h1>Iniciar sesión</h1>
+            <p class="login-subtitle">Accede para continuar al panel principal.</p>
+          </div>
+        </div>
+        <form id="login-form" class="login-form" novalidate>
+          <div class="field">
+            <label for="login-username">Usuario</label>
+            <input id="login-username" name="username" type="text" autocomplete="username" />
+          </div>
+          <div class="field">
+            <label for="login-password">Contraseña</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" />
+          </div>
+          <div id="login-error" class="validation-error login-error" role="alert" aria-live="polite"></div>
+          <button id="login-submit" type="submit">Ingresar</button>
+        </form>
+      </div>
+    </section>
+
+    <div id="app-shell" class="app-shell" hidden>
       <header class="topbar">
         <div class="brand" aria-label="CRM">
           <div id="logo-mark" class="logo-mark" aria-hidden="true">
@@ -16,6 +44,9 @@
             </svg>
           </div>
           <span id="brand-name" class="brand-name">CRM</span>
+        </div>
+        <div class="topbar-actions">
+          <button id="logout-button" type="button" class="logout-button">Cerrar sesión</button>
         </div>
       </header>
 
@@ -259,6 +290,6 @@
       </main>
     </div>
 
-    <script type="module" src="./src/app.js"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
