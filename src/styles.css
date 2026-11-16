@@ -47,6 +47,7 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   background: var(--panel);
   border-bottom: 1px solid var(--border);
   padding: 0 1.5rem;
@@ -54,6 +55,42 @@ button, input, select, textarea {
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.menu-toggle svg {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px;
+  min-height: 22px;
+  display: block;
+  stroke: #1e293b;
+}
+
+.menu-toggle:hover {
+  background: var(--panel-alt);
+  color: var(--text);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
 .brand {
@@ -71,22 +108,26 @@ button, input, select, textarea {
   height: 36px;
   display: grid;
   place-items: center;
-  background: var(--accent);
   border-radius: 10px;
   color: white;
   flex-shrink: 0;
 }
 
+.logo-mark--pro {
+  background: linear-gradient(135deg, #2563eb, #4338ca);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
 .logo-mark svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
-.logo-mark text {
-  fill: white;
-  font-size: 14px;
+.brand-name {
   font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
 }
 
 /* Sidebar */
@@ -97,6 +138,27 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.app-shell.sidebar-collapsed .topbar {
+  grid-column: 1;
+}
+
+.app-shell.sidebar-collapsed .sidebar {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .content-area {
+  display: flex;
+  justify-content: center;
+}
+
+.app-shell.sidebar-collapsed .content-area .view {
+  width: 100%;
 }
 
 .nav-module {
@@ -131,8 +193,16 @@ button, input, select, textarea {
   align-items: center;
   justify-content: center;
   width: 1.25rem;
-  font-size: 1rem;
-  opacity: 0.9;
+  height: 1.25rem;
+  color: currentColor;
+  opacity: 0.95;
+}
+
+.nav-icon svg,
+.action-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .nav-label {
@@ -168,6 +238,27 @@ button, input, select, textarea {
 }
 
 /* Dashboard */
+.welcome-banner {
+  margin: 1.25rem 0 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid #dbeafe;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+}
+
+.welcome-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.welcome-text {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -205,7 +296,7 @@ button, input, select, textarea {
   border-radius: 8px;
   background: var(--accent-soft);
   color: var(--accent);
-  font-size: 0.95rem;
+  padding: 0.4rem;
 }
 
 .stats-grid {

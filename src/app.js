@@ -78,23 +78,10 @@ function renderBranding() {
   const config = getActiveConfig();
   const brandName = qs('brand-name');
   const dashboardHeading = qs('dashboard-heading');
-  if (brandName) brandName.textContent = config.moduleName;
-  if (dashboardHeading) dashboardHeading.textContent = config.moduleName;
-  document.title = config.moduleName;
-
-  const logoMark = qs('logo-mark');
-  if (logoMark) {
-    const svg = logoMark.querySelector('svg');
-    const textNode = svg?.querySelector('text');
-    const text = config.moduleName
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((segment) => segment[0]?.toUpperCase() || '')
-      .join('') || 'ER';
-
-    if (textNode) textNode.textContent = text;
-  }
+  const displayName = config.moduleName || 'CRM Pro';
+  if (brandName) brandName.textContent = displayName;
+  if (dashboardHeading) dashboardHeading.textContent = displayName;
+  document.title = displayName;
 
   const accent = config.theme?.accentColor || '#2563eb';
   document.documentElement.style.setProperty('--accent', accent);
@@ -651,6 +638,16 @@ async function boot() {
   updateDashboardStats();
   renderSearchResults();
   showView('dashboard');
+
+  const menuToggle = qs('menu-toggle');
+  const appShell = qs('app-shell');
+  if (menuToggle && appShell && !menuToggle.dataset.bound) {
+    menuToggle.addEventListener('click', () => {
+      const collapsed = appShell.classList.toggle('sidebar-collapsed');
+      menuToggle.setAttribute('aria-expanded', String(!collapsed));
+    });
+    menuToggle.dataset.bound = 'true';
+  }
 
   const entityForm = qs('entity-form');
   if (entityForm && !entityForm.dataset.bound) {

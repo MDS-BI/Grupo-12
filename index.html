@@ -1,18 +1,20 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CRM</title>
+    <title>CRM Pro</title>
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
     <section id="login-view" class="login-view" hidden>
       <div class="login-card">
         <div class="login-brand">
-          <div class="logo-mark" aria-hidden="true">
-            <svg viewBox="0 0 64 64" role="img" aria-label="Logo del módulo">
-              <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">CRM</text>
+          <div class="logo-mark logo-mark--pro" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 6V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" />
+              <rect x="3" y="6" width="18" height="14" rx="2" />
+              <path d="M3 11h18" />
             </svg>
           </div>
           <div>
@@ -37,57 +39,85 @@
 
     <div id="app-shell" class="app-shell" hidden>
       <header class="topbar">
-        <div class="brand" aria-label="CRM">
-          <div id="logo-mark" class="logo-mark" aria-hidden="true">
-            <svg viewBox="0 0 64 64" role="img" aria-label="Logo del módulo">
-              <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle">CRM</text>
-            </svg>
+        <div class="topbar-left">
+          <button id="menu-toggle" class="menu-toggle" type="button" aria-label="Abrir o cerrar menú" aria-expanded="true" aria-controls="sidebar">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>
+          </button>
+          <div class="brand" aria-label="CRM Pro">
+            <div id="logo-mark" class="logo-mark logo-mark--pro" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 6V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" />
+                <rect x="3" y="6" width="18" height="14" rx="2" />
+                <path d="M3 11h18" />
+              </svg>
+            </div>
+            <span id="brand-name" class="brand-name">CRM Pro</span>
           </div>
-          <span id="brand-name" class="brand-name">CRM</span>
         </div>
         <div class="topbar-actions">
           <button id="logout-button" type="button" class="logout-button">Cerrar sesión</button>
         </div>
       </header>
 
-      <aside class="sidebar" aria-label="Navegación principal">
+      <aside id="sidebar" class="sidebar" aria-label="Navegación principal">
         <button id="nav-dashboard" class="nav-module" data-module="dashboard" aria-current="page">
-          <span class="nav-icon" aria-hidden="true">◫</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>
+          </span>
           <span id="nav-dashboard-label" class="nav-label">Dashboard</span>
         </button>
         <button id="nav-entities" class="nav-module" data-module="entities">
-          <span class="nav-icon" aria-hidden="true">▣</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
           <span id="nav-entities-label" class="nav-label">Clientes</span>
         </button>
         <button id="nav-documents" class="nav-module" data-module="documents">
-          <span class="nav-icon" aria-hidden="true">▤</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+          </span>
           <span id="nav-documents-label" class="nav-label">Oportunidades</span>
         </button>
         <button id="nav-search" class="nav-module" data-module="search">
-          <span class="nav-icon" aria-hidden="true">⌕</span>
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          </span>
           <span id="nav-search-label" class="nav-label">Búsqueda</span>
         </button>
       </aside>
 
       <main class="content-area">
         <section id="view-dashboard" class="view">
-          <h1 id="dashboard-heading">CRM</h1>
+          <h1 id="dashboard-heading">CRM Pro</h1>
+
+          <div class="welcome-banner" aria-label="Bienvenida">
+            <h2 class="welcome-title">Bienvenido al sistema CRM</h2>
+            <p class="welcome-text">Este sistema le permite registrar y gestionar su cartera de clientes, dar seguimiento a las oportunidades comerciales y consultar información rápidamente desde los accesos directos o el menú lateral.</p>
+          </div>
 
           <div class="quick-actions">
             <button id="action-new-entity" class="action-button" type="button">
-              <span class="action-icon" aria-hidden="true">＋</span>
+              <span class="action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg>
+              </span>
               <span id="action-new-entity-title">Nuevo Cliente</span>
             </button>
             <button id="action-open-entities" class="action-button" type="button">
-              <span class="action-icon" aria-hidden="true">◫</span>
+              <span class="action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
               <span id="action-open-entities-title">Clientes</span>
             </button>
             <button id="action-new-document" class="action-button" type="button">
-              <span class="action-icon" aria-hidden="true">＋</span>
+              <span class="action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/><path d="M17 7h3v3"/></svg>
+              </span>
               <span id="action-new-document-title">Nueva Oportunidad</span>
             </button>
             <button id="action-find" class="action-button" type="button">
-              <span class="action-icon" aria-hidden="true">⌕</span>
+              <span class="action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              </span>
               <span id="action-find-title">Buscar registros</span>
             </button>
           </div>
