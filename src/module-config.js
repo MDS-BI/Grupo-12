@@ -35,12 +35,26 @@ export const BASE_FIELDS = Object.freeze({
 export const FIELD_TYPES = Object.freeze(['text', 'number', 'date', 'select']);
 
 export const CRM_DEFAULT_STAGE_SEQUENCE = Object.freeze([
+  'Prospección',
+  'Calificación',
   'Evaluación',
   'Propuesta',
   'Negociación',
+  'Cierre',
   'Ganado',
   'Perdido'
 ]);
+
+export const CRM_DEFAULT_STAGE_TRANSITIONS = Object.freeze({
+  Prospección: ['Calificación', 'Perdido'],
+  Calificación: ['Evaluación', 'Perdido'],
+  Evaluación: ['Propuesta', 'Perdido'],
+  Propuesta: ['Negociación', 'Perdido'],
+  Negociación: ['Cierre', 'Ganado', 'Perdido'],
+  Cierre: ['Ganado', 'Perdido'],
+  Ganado: [],
+  Perdido: []
+});
 
 export const CRM_DEFAULT_INTERACTION_TYPES = Object.freeze([
   'Llamada',
@@ -74,12 +88,8 @@ export const DEFAULT_CONFIG = Object.freeze({
   }),
   customFields: [],
   statusLifecycle: Object.freeze({
-    statuses: [...CRM_DEFAULT_CUSTOMER_STATUSES],
-    transitions: {
-      Posible: ['Activo', 'Inactivo'],
-      Activo: ['Inactivo'],
-      Inactivo: ['Activo']
-    }
+    statuses: [...CRM_DEFAULT_STAGE_SEQUENCE],
+    transitions: { ...CRM_DEFAULT_STAGE_TRANSITIONS }
   }),
   theme: Object.freeze({ accentColor: '#2563eb' }),
   moduleType: 'crm'
@@ -103,12 +113,8 @@ export const CRM_DEFAULT_CONFIG = Object.freeze({
   }),
   customFields: [],
   statusLifecycle: Object.freeze({
-    statuses: [...CRM_DEFAULT_CUSTOMER_STATUSES],
-    transitions: {
-      Posible: ['Activo', 'Inactivo'],
-      Activo: ['Inactivo'],
-      Inactivo: ['Activo']
-    }
+    statuses: [...CRM_DEFAULT_STAGE_SEQUENCE],
+    transitions: { ...CRM_DEFAULT_STAGE_TRANSITIONS }
   }),
   theme: Object.freeze({ accentColor: '#2563eb' }),
   moduleType: 'crm'

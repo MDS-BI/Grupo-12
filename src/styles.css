@@ -482,6 +482,90 @@ button[type="button"]:hover {
   font-size: 0.95rem;
 }
 
+/* Status & stage badges */
+.status-badge,
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--panel-alt);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.status-badge::before,
+.badge::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.status-badge--prospeccion,
+.badge--stage-prospeccion {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.status-badge--calificacion,
+.badge--stage-calificacion {
+  color: #4338ca;
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.status-badge--evaluacion,
+.badge--stage-evaluacion {
+  color: #0369a1;
+  background: #e0f2fe;
+  border-color: #bae6fd;
+}
+
+.status-badge--propuesta,
+.badge--stage-propuesta {
+  color: #6d28d9;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+
+.status-badge--negociacion,
+.badge--stage-negociacion {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.status-badge--cierre,
+.badge--stage-cierre {
+  color: #c2410c;
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.status-badge--ganado,
+.badge--stage-ganado {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.status-badge--perdido,
+.badge--stage-perdido {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
 .custom-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

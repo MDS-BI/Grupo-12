@@ -420,8 +420,13 @@ function renderSearchResults() {
     item.appendChild(text);
 
     if (status) {
+      const modifier = String(status)
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-');
       const badge = document.createElement('span');
-      badge.className = 'status-badge';
+      badge.className = `status-badge status-badge--${modifier}`;
       badge.textContent = status;
       item.appendChild(badge);
     }

@@ -434,12 +434,24 @@ const CRM_KEYS = Object.freeze({
 });
 
 const CRM_CUSTOMER_STATUSES = ['Posible', 'Activo', 'Inactivo'];
-const CRM_OPPORTUNITY_STAGES = ['Evaluación', 'Propuesta', 'Negociación', 'Ganado', 'Perdido'];
+const CRM_OPPORTUNITY_STAGES = [
+  'Prospección',
+  'Calificación',
+  'Evaluación',
+  'Propuesta',
+  'Negociación',
+  'Cierre',
+  'Ganado',
+  'Perdido'
+];
 const CRM_INTERACTION_TYPES = ['Llamada', 'Correo', 'Reunión'];
 const CRM_STAGE_TRANSITIONS = Object.freeze({
+  Prospección: ['Calificación', 'Perdido'],
+  Calificación: ['Evaluación', 'Perdido'],
   Evaluación: ['Propuesta', 'Perdido'],
   Propuesta: ['Negociación', 'Perdido'],
-  Negociación: ['Ganado', 'Perdido'],
+  Negociación: ['Cierre', 'Ganado', 'Perdido'],
+  Cierre: ['Ganado', 'Perdido'],
   Ganado: [],
   Perdido: []
 });

@@ -2,7 +2,16 @@ export const CLIENT_STATES = ['Posible', 'Activo', 'Inactivo'];
 
 export const DEFAULT_CLIENT_STATE = 'Posible';
 
-export const OPPORTUNITY_STAGES = ['Evaluación', 'Propuesta', 'Negociación', 'Ganado', 'Perdido'];
+export const OPPORTUNITY_STAGES = [
+  'Prospección',
+  'Calificación',
+  'Evaluación',
+  'Propuesta',
+  'Negociación',
+  'Cierre',
+  'Ganado',
+  'Perdido'
+];
 
 export const DEFAULT_STAGE = 'Evaluación';
 
@@ -11,9 +20,12 @@ export const INTERACTION_TYPES = ['Llamada', 'Correo', 'Reunión'];
 export const TERMINAL_STAGES = ['Ganado', 'Perdido'];
 
 export const DEFAULT_STAGE_TRANSITIONS = {
+  Prospección: ['Calificación', 'Perdido'],
+  Calificación: ['Evaluación', 'Perdido'],
   Evaluación: ['Propuesta', 'Perdido'],
   Propuesta: ['Negociación', 'Perdido'],
-  Negociación: ['Ganado', 'Perdido'],
+  Negociación: ['Cierre', 'Ganado', 'Perdido'],
+  Cierre: ['Ganado', 'Perdido'],
   Ganado: [],
   Perdido: []
 };
