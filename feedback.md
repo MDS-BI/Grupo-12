@@ -27,7 +27,7 @@ Feedback Avance 03 (16/11/26)
 
 - No hubo implementacion a la fecha de revision, fue ingresada manualmente por el profesor.
 - spec.md y tasks.md pasaron del módulo base ERP al módulo CRM (10 historias, FR-001 a FR-046, tareas T001–T074). Son coherentes entre sí y se referencian por ID. Pero todas las tareas siguen sin marcar [ ], aunque hay código implementado.
-- La carpeta sigue llamándose 001-erp-base-module, y spec.md aún dice "Rama: 001-erp-base-module".
+- La carpeta sigue llamándose 001-crm-module, y spec.md aún dice "Rama: 001-crm-module".
 
 Consistencia sitio–especificación:
 

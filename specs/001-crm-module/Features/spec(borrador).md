@@ -1,6 +1,6 @@
 # Especificación de la Funcionalidad: Módulo CRM (Customer Relationship Management)
 
-**Rama de la funcionalidad**: 001-erp-base-module  
+**Rama de la funcionalidad**: 001-crm-module  
 **Creada**: 2026-07-08  
 **Estado**: Borrador  
 **Entrada**: Descripción del usuario: "Construir un módulo CRM integrado a un ERP que permita administrar clientes, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta, con datos ficticios y un alcance inicial acotado."

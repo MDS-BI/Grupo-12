@@ -1,7 +1,7 @@
 # Plan de Implementación: Módulo CRM (Customer Relationship Management)
 
-**Rama**: `001-erp-base-module` | **Fecha**: 2026-07-08 | **Especificación**: [spec.md](spec.md)
-**Entrada**: Especificación de la funcionalidad desde `/specs/001-erp-base-module/spec.md`
+**Rama**: `001-crm-module` | **Fecha**: 2026-07-08 | **Especificación**: [spec.md](spec.md)
+**Entrada**: Especificación de la funcionalidad desde `/specs/001-crm-module/spec.md`
 
 ## Resumen
 
@@ -37,7 +37,7 @@ El modelo de dominio y las reglas se documentan en [data-model.md](data-model.md
 ### Documentación (esta funcionalidad)
 
 ```text
-specs/001-erp-base-module/
+specs/001-crm-module/
 ├── plan.md
 ├── research.md
 ├── data-model.md

@@ -1,6 +1,6 @@
 # Tareas: Módulo CRM (Customer Relationship Management)
 
-**Entrada**: Documentos de diseño desde `/specs/001-erp-base-module/`
+**Entrada**: Documentos de diseño desde `/specs/001-crm-module/`
 **Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/crm-storage.md
 
 ## Formato: `[ID] [P?] [Historia] Descripción`
@@ -15,10 +15,10 @@
 
 **Propósito**: Inicializar la estructura del proyecto Vite y las herramientas compartidas.
 
-- [ ] T001 Crear la estructura de la aplicación Vite con `index.html`, `src/`, `tests/` y archivos de configuración
-- [ ] T002 Instalar las dependencias Vite y Vitest del proyecto
-- [ ] T003 [P] Configurar linting y formateo para la aplicación JavaScript ligera
-- [ ] T004 [P] Configurar Vitest con jsdom y el entorno de pruebas en `tests/setup/`
+- [x] T001 Crear la estructura de la aplicación Vite con `index.html`, `src/`, `tests/` y archivos de configuración
+- [x] T002 Instalar las dependencias Vite y Vitest del proyecto
+- [x] T003 [P] Configurar linting y formateo para la aplicación JavaScript ligera
+- [x] T004 [P] Configurar Vitest con jsdom y el entorno de pruebas en `tests/setup/`
 
 ---
 
@@ -26,17 +26,17 @@
 
 **Propósito**: Crear la lógica de dominio, la capa de almacenamiento, la configuración y el esqueleto de los que dependen todas las historias.
 
-- [ ] T005 Crear `src/domain.js` con enumeraciones (`Posible/Activo/Inactivo`, `Evaluación/Propuesta/Negociación/Ganado/Perdido`, `Llamada/Correo/Reunión`), la tabla de transiciones de etapa y los cálculos de indicadores (FR-005, FR-006, FR-014, FR-015, FR-016, FR-020, FR-046)
-- [ ] T006 [P] Añadir pruebas unitarias de dominio: transiciones válidas/inválidas, etapas terminales y cálculos del dashboard en `tests/unit/domain.test.js` (FR-015, FR-016, FR-046, SC-007)
-- [ ] T007 Crear `src/storage.js` con los repositorios de clientes, empleados, oportunidades e interacciones (ids, timestamps, persistencia en localStorage) (FR-001, FR-007, FR-010, FR-018, FR-033)
-- [ ] T008 Implementar en `src/storage.js` las validaciones base y la unicidad de correo sin distinguir mayúsculas (FR-004, FR-009, FR-012, FR-013, FR-021, FR-045)
-- [ ] T009 Implementar en `src/storage.js` la integridad referencial y el bloqueo de referencias a clientes/empleados inexistentes o archivados (FR-025, FR-043)
-- [ ] T010 Implementar en `src/storage.js` el archivado lógico de clientes y empleados preservando sus oportunidades e interacciones (FR-024, FR-044)
-- [ ] T011 [P] Añadir pruebas unitarias de almacenamiento: CRUD, validaciones, unicidad, integridad y archivado en `tests/unit/storage.test.js` (FR-004, FR-009, FR-012, FR-013, FR-021, FR-024, FR-025, FR-043, FR-044, FR-045)
-- [ ] T012 [P] Crear `src/sanitize.js` y sus pruebas unitarias de escape de contenido en `tests/unit/sanitize.test.js` (FR-041)
-- [ ] T013 [P] Crear `src/module-config.js` con valores predeterminados, validación y reporte de errores, más pruebas en `tests/unit/module-config.test.js` (FR-034, FR-037, XR-005)
-- [ ] T014 Crear el esqueleto de la aplicación y el enrutamiento por módulos en `src/main.js` y `src/app.js` (FR-033, FR-038)
-- [ ] T015 [P] Construir la hoja de estilos base (tokens de diseño, formularios, listas, estados vacíos y mensajes) en `src/styles.css`
+- [x] T005 Crear `src/domain.js` con enumeraciones (`Posible/Activo/Inactivo`, `Evaluación/Propuesta/Negociación/Ganado/Perdido`, `Llamada/Correo/Reunión`), la tabla de transiciones de etapa y los cálculos de indicadores (FR-005, FR-006, FR-014, FR-015, FR-016, FR-020, FR-046)
+- [x] T006 [P] Añadir pruebas unitarias de dominio: transiciones válidas/inválidas, etapas terminales y cálculos del dashboard en `tests/unit/domain.test.js` (FR-015, FR-016, FR-046, SC-007)
+- [x] T007 Crear `src/storage.js` con los repositorios de clientes, empleados, oportunidades e interacciones (ids, timestamps, persistencia en localStorage) (FR-001, FR-007, FR-010, FR-018, FR-033)
+- [x] T008 Implementar en `src/storage.js` las validaciones base y la unicidad de correo sin distinguir mayúsculas (FR-004, FR-009, FR-012, FR-013, FR-021, FR-045)
+- [x] T009 Implementar en `src/storage.js` la integridad referencial y el bloqueo de referencias a clientes/empleados inexistentes o archivados (FR-025, FR-043)
+- [x] T010 Implementar en `src/storage.js` el archivado lógico de clientes y empleados preservando sus oportunidades e interacciones (FR-024, FR-044)
+- [x] T011 [P] Añadir pruebas unitarias de almacenamiento: CRUD, validaciones, unicidad, integridad y archivado en `tests/unit/storage.test.js` (FR-004, FR-009, FR-012, FR-013, FR-021, FR-024, FR-025, FR-043, FR-044, FR-045)
+- [x] T012 [P] Crear `src/sanitize.js` y sus pruebas unitarias de escape de contenido en `tests/unit/sanitize.test.js` (FR-041)
+- [x] T013 [P] Crear `src/module-config.js` con valores predeterminados, validación y reporte de errores, más pruebas en `tests/unit/module-config.test.js` (FR-034, FR-037, XR-005)
+- [x] T014 Crear el esqueleto de la aplicación y el enrutamiento por módulos en `src/main.js` y `src/app.js` (FR-033, FR-038)
+- [x] T015 [P] Construir la hoja de estilos base (tokens de diseño, formularios, listas, estados vacíos y mensajes) en `src/styles.css`
 
 **Punto de control**: Dominio, almacenamiento, configuración, sanitización y esqueleto listos; los cimientos están cubiertos por pruebas.
 
@@ -50,15 +50,15 @@
 
 ### Pruebas para la Historia de Usuario 1
 
-- [ ] T016 [P] [US1] Añadir pruebas unitarias de alta/edición de cliente, estado por defecto `Posible` y unicidad de correo en `tests/unit/storage.test.js` (FR-001, FR-002, FR-005, FR-045)
-- [ ] T017 [P] [US1] Añadir pruebas de integración de alta, validación de campos/correo y edición de clientes en `tests/integration/clients.test.js` (FR-001, FR-002, FR-003, FR-004, FR-032, FR-045)
+- [x] T016 [P] [US1] Añadir pruebas unitarias de alta/edición de cliente, estado por defecto `Posible` y unicidad de correo en `tests/unit/storage.test.js` (FR-001, FR-002, FR-005, FR-045)
+- [x] T017 [P] [US1] Añadir pruebas de integración de alta, validación de campos/correo y edición de clientes en `tests/integration/clients.test.js` (FR-001, FR-002, FR-003, FR-004, FR-032, FR-045)
 
 ### Implementación de la Historia de Usuario 1
 
-- [ ] T018 [P] [US1] Crear `src/components/client-form.js` con campos obligatorios, selector de estado y campos personalizados (FR-001, FR-002, FR-006, FR-036)
-- [ ] T019 [P] [US1] Crear `src/components/client-list.js` con información clave y estado visible (FR-003)
+- [x] T018 [P] [US1] Crear `src/components/client-form.js` con campos obligatorios, selector de estado y campos personalizados (FR-001, FR-002, FR-006, FR-036)
+- [x] T019 [P] [US1] Crear `src/components/client-list.js` con información clave y estado visible (FR-003)
 - [ ] T020 [US1] Conectar alta/edición de clientes, mensajes de validación y refresco de lista en `src/app.js` (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-032)
-- [ ] T021 [US1] Aplicar sanitización a los datos de cliente antes de renderizarlos (FR-041)
+- [x] T021 [US1] Aplicar sanitización a los datos de cliente antes de renderizarlos (FR-041)
 
 **Punto de control**: La Historia de Usuario 1 está funcional y es comprobable de forma independiente.
 
@@ -72,12 +72,12 @@
 
 ### Pruebas para la Historia de Usuario 2
 
-- [ ] T022 [P] [US2] Añadir pruebas unitarias del catálogo y validación de nombre/cargo en `tests/unit/storage.test.js` (FR-007, FR-008, FR-009)
-- [ ] T023 [P] [US2] Añadir pruebas de integración de alta, edición, listado y selección de empleados en `tests/integration/employees.test.js` (FR-007, FR-008, FR-009)
+- [x] T022 [P] [US2] Añadir pruebas unitarias del catálogo y validación de nombre/cargo en `tests/unit/storage.test.js` (FR-007, FR-008, FR-009)
+- [x] T023 [P] [US2] Añadir pruebas de integración de alta, edición, listado y selección de empleados en `tests/integration/employees.test.js` (FR-007, FR-008, FR-009)
 
 ### Implementación de la Historia de Usuario 2
 
-- [ ] T024 [P] [US2] Crear `src/components/employee-form.js` y `src/components/employee-list.js` (FR-007, FR-008, FR-009)
+- [x] T024 [P] [US2] Crear `src/components/employee-form.js` y `src/components/employee-list.js` (FR-007, FR-008, FR-009)
 - [ ] T025 [US2] Conectar el CRUD de empleados y exponer selectores de empleados activos en `src/app.js` (FR-008)
 
 **Punto de control**: Las Historias de Usuario 1 y 2 funcionan de forma independiente.
@@ -92,15 +92,15 @@
 
 ### Pruebas para la Historia de Usuario 3
 
-- [ ] T026 [P] [US3] Añadir pruebas unitarias de validación de oportunidad (monto, fecha, referencias) y transiciones permitidas en `tests/unit/opportunity.test.js` (FR-010, FR-011, FR-012, FR-013, FR-015, FR-016)
-- [ ] T027 [P] [US3] Añadir pruebas de integración de alta, avance de etapas y rechazo de transiciones inválidas en `tests/integration/opportunities.test.js` (FR-010, FR-014, FR-015, FR-016, FR-017, FR-032)
+- [x] T026 [P] [US3] Añadir pruebas unitarias de validación de oportunidad (monto, fecha, referencias) y transiciones permitidas en `tests/unit/opportunity.test.js` (FR-010, FR-011, FR-012, FR-013, FR-015, FR-016)
+- [x] T027 [P] [US3] Añadir pruebas de integración de alta, avance de etapas y rechazo de transiciones inválidas en `tests/integration/opportunities.test.js` (FR-010, FR-014, FR-015, FR-016, FR-017, FR-032)
 
 ### Implementación de la Historia de Usuario 3
 
-- [ ] T028 [P] [US3] Crear `src/components/opportunity-form.js` con cliente, empleado, descripción, monto, fecha y etapa (FR-010, FR-011, FR-012, FR-013, FR-014, FR-036)
-- [ ] T029 [P] [US3] Crear `src/components/opportunity-list.js` que muestre etapa, monto y fecha estimada de cierre (FR-017)
+- [x] T028 [P] [US3] Crear `src/components/opportunity-form.js` con cliente, empleado, descripción, monto, fecha y etapa (FR-010, FR-011, FR-012, FR-013, FR-014, FR-036)
+- [x] T029 [P] [US3] Crear `src/components/opportunity-list.js` que muestre etapa, monto y fecha estimada de cierre (FR-017)
 - [ ] T030 [US3] Conectar alta/edición, transición de etapa y validaciones en `src/app.js` (FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-032)
-- [ ] T031 [US3] Aplicar sanitización a los datos de oportunidad antes de renderizarlos (FR-041)
+- [x] T031 [US3] Aplicar sanitización a los datos de oportunidad antes de renderizarlos (FR-041)
 
 **Punto de control**: El pipeline de oportunidades es funcional con transiciones controladas.
 
@@ -114,15 +114,15 @@
 
 ### Pruebas para la Historia de Usuario 4
 
-- [ ] T032 [P] [US4] Añadir pruebas unitarias de validación de interacción (fecha, tipo, referencias) y tipos permitidos en `tests/unit/interaction.test.js` (FR-018, FR-019, FR-020, FR-021)
-- [ ] T033 [P] [US4] Añadir pruebas de integración de registro, historial y edición de interacciones en `tests/integration/interactions.test.js` (FR-018, FR-019, FR-020, FR-021, FR-022)
+- [x] T032 [P] [US4] Añadir pruebas unitarias de validación de interacción (fecha, tipo, referencias) y tipos permitidos en `tests/unit/interaction.test.js` (FR-018, FR-019, FR-020, FR-021)
+- [x] T033 [P] [US4] Añadir pruebas de integración de registro, historial y edición de interacciones en `tests/integration/interactions.test.js` (FR-018, FR-019, FR-020, FR-021, FR-022)
 
 ### Implementación de la Historia de Usuario 4
 
-- [ ] T034 [P] [US4] Crear `src/components/interaction-form.js` con tipos `Llamada/Correo/Reunión` y descripción opcional (FR-018, FR-019, FR-020, FR-021, FR-036)
-- [ ] T035 [P] [US4] Crear `src/components/interaction-list.js` con fecha, tipo y responsable (FR-022)
+- [x] T034 [P] [US4] Crear `src/components/interaction-form.js` con tipos `Llamada/Correo/Reunión` y descripción opcional (FR-018, FR-019, FR-020, FR-021, FR-036)
+- [x] T035 [P] [US4] Crear `src/components/interaction-list.js` con fecha, tipo y responsable (FR-022)
 - [ ] T036 [US4] Conectar registro/edición de interacciones y refresco del historial en `src/app.js` (FR-018, FR-019, FR-020, FR-021, FR-022, FR-032)
-- [ ] T037 [US4] Aplicar sanitización a las descripciones de interacción antes de renderizarlas (FR-041)
+- [x] T037 [US4] Aplicar sanitización a las descripciones de interacción antes de renderizarlas (FR-041)
 
 **Punto de control**: El historial de interacciones es funcional y trazable.
 
@@ -136,14 +136,14 @@
 
 ### Pruebas para la Historia de Usuario 5
 
-- [ ] T038 [P] [US5] Añadir pruebas unitarias de `getClientDetail` (cliente + oportunidades + interacciones) en `tests/unit/storage.test.js` (FR-023)
-- [ ] T039 [P] [US5] Añadir pruebas de integración de la ficha 360° con registros y con estados vacíos en `tests/integration/client-detail.test.js` (FR-023, FR-031)
+- [x] T038 [P] [US5] Añadir pruebas unitarias de `getClientDetail` (cliente + oportunidades + interacciones) en `tests/unit/storage.test.js` (FR-023)
+- [x] T039 [P] [US5] Añadir pruebas de integración de la ficha 360° con registros y con estados vacíos en `tests/integration/client-detail.test.js` (FR-023, FR-031)
 
 ### Implementación de la Historia de Usuario 5
 
-- [ ] T040 [US5] Crear `src/components/client-detail.js` con datos del cliente, oportunidades e interacciones (FR-023)
+- [x] T040 [US5] Crear `src/components/client-detail.js` con datos del cliente, oportunidades e interacciones (FR-023)
 - [ ] T041 [US5] Conectar la navegación lista → ficha → lista preservando los datos en `src/app.js` (FR-023, FR-033)
-- [ ] T042 [US5] Renderizar estados vacíos claros en la ficha cuando no haya registros (FR-031)
+- [x] T042 [US5] Renderizar estados vacíos claros en la ficha cuando no haya registros (FR-031)
 
 **Punto de control**: La ficha 360° es el punto de consulta consolidado del CRM.
 
@@ -157,14 +157,14 @@
 
 ### Pruebas para la Historia de Usuario 6
 
-- [ ] T043 [P] [US6] Añadir pruebas unitarias de cálculo de clientes activos, oportunidades abiertas, pipeline y próximos cierres (30 días, excluye vencidas) en `tests/unit/dashboard.test.js` (FR-026, FR-046)
-- [ ] T044 [P] [US6] Añadir pruebas de integración del dashboard con datos, sin datos y tras cambios en registros en `tests/integration/dashboard.test.js` (FR-026, FR-027, FR-028, FR-046)
+- [x] T043 [P] [US6] Añadir pruebas unitarias de cálculo de clientes activos, oportunidades abiertas, pipeline y próximos cierres (30 días, excluye vencidas) en `tests/unit/dashboard.test.js` (FR-026, FR-046)
+- [x] T044 [P] [US6] Añadir pruebas de integración del dashboard con datos, sin datos y tras cambios en registros en `tests/integration/dashboard.test.js` (FR-026, FR-027, FR-028, FR-046)
 
 ### Implementación de la Historia de Usuario 6
 
-- [ ] T045 [P] [US6] Crear `src/components/dashboard.js` con indicadores y accesos rápidos para crear clientes, oportunidades e interacciones (FR-026, FR-028)
+- [x] T045 [P] [US6] Crear `src/components/dashboard.js` con indicadores y accesos rápidos para crear clientes, oportunidades e interacciones (FR-026, FR-028)
 - [ ] T046 [US6] Recalcular los indicadores cada vez que se muestra el dashboard y conectar los accesos rápidos en `src/app.js` (FR-027, FR-028)
-- [ ] T047 [US6] Mostrar indicadores en cero sin errores y acceso rápido para empezar cuando no haya datos (FR-026, FR-031)
+- [x] T047 [US6] Mostrar indicadores en cero sin errores y acceso rápido para empezar cuando no haya datos (FR-026, FR-031)
 
 **Punto de control**: La aplicación abre en un dashboard funcional y coherente con los datos.
 
@@ -178,12 +178,12 @@
 
 ### Pruebas para la Historia de Usuario 7
 
-- [ ] T048 [P] [US7] Añadir pruebas unitarias de búsqueda parcial de clientes (empresa/contacto/correo/estado) y filtros de oportunidad (etapa, empleado, rango de fecha) en `tests/unit/search.test.js` (FR-029, FR-030)
-- [ ] T049 [P] [US7] Añadir pruebas de integración de búsqueda, combinación de filtros y estado vacío en `tests/integration/search.test.js` (FR-029, FR-030, FR-031)
+- [x] T048 [P] [US7] Añadir pruebas unitarias de búsqueda parcial de clientes (empresa/contacto/correo/estado) y filtros de oportunidad (etapa, empleado, rango de fecha) en `tests/unit/search.test.js` (FR-029, FR-030)
+- [x] T049 [P] [US7] Añadir pruebas de integración de búsqueda, combinación de filtros y estado vacío en `tests/integration/search.test.js` (FR-029, FR-030, FR-031)
 
 ### Implementación de la Historia de Usuario 7
 
-- [ ] T050 [P] [US7] Crear `src/components/search.js` con búsqueda de clientes y filtros de oportunidades (FR-029, FR-030)
+- [x] T050 [P] [US7] Crear `src/components/search.js` con búsqueda de clientes y filtros de oportunidades (FR-029, FR-030)
 - [ ] T051 [US7] Conectar búsqueda/filtros y estado vacío, manteniendo sincronía con las acciones de crear/editar/archivar en `src/app.js` (FR-029, FR-030, FR-031)
 - [ ] T052 [US7] Optimizar búsqueda, filtros y renderizado para 500 clientes y sus registros asociados (FR-042, SC-004)
 
@@ -199,8 +199,8 @@
 
 ### Pruebas para la Historia de Usuario 8
 
-- [ ] T053 [P] [US8] Añadir pruebas unitarias de rechazo de referencias inexistentes/archivadas y de reporte de inconsistencias al cargar en `tests/unit/integrity.test.js` (FR-025, FR-043, FR-044)
-- [ ] T054 [P] [US8] Añadir pruebas de integración de archivado con preservación de historial, exclusión de selectores y mensajes claros en `tests/integration/archive-integrity.test.js` (FR-024, FR-025, FR-032, FR-043, FR-044)
+- [x] T053 [P] [US8] Añadir pruebas unitarias de rechazo de referencias inexistentes/archivadas y de reporte de inconsistencias al cargar en `tests/unit/integrity.test.js` (FR-025, FR-043, FR-044)
+- [x] T054 [P] [US8] Añadir pruebas de integración de archivado con preservación de historial, exclusión de selectores y mensajes claros en `tests/integration/archive-integrity.test.js` (FR-024, FR-025, FR-032, FR-043, FR-044)
 
 ### Implementación de la Historia de Usuario 8
 
@@ -221,7 +221,7 @@
 
 ### Pruebas para la Historia de Usuario 9
 
-- [ ] T059 [P] [US9] Añadir pruebas de integración de etiquetas, campos personalizados, ciclo de vida y color de acento, incluida la configuración inválida en `tests/integration/module-config.test.js` (FR-034, FR-035, FR-036, FR-037, XR-001, XR-002, XR-003, XR-004, XR-005, SC-009)
+- [x] T059 [P] [US9] Añadir pruebas de integración de etiquetas, campos personalizados, ciclo de vida y color de acento, incluida la configuración inválida en `tests/integration/module-config.test.js` (FR-034, FR-035, FR-036, FR-037, XR-001, XR-002, XR-003, XR-004, XR-005, SC-009)
 
 ### Implementación de la Historia de Usuario 9
 
@@ -243,13 +243,13 @@
 
 ### Pruebas para la Historia de Usuario 10
 
-- [ ] T065 [P] [US10] Añadir pruebas de integración del marco (logotipo, nombre del módulo, barra lateral, área activa) y del comportamiento responsivo en `tests/integration/workspace-shell.test.js` (FR-038, FR-039, FR-040)
+- [x] T065 [P] [US10] Añadir pruebas de integración del marco (logotipo, nombre del módulo, barra lateral, área activa) y del comportamiento responsivo en `tests/integration/workspace-shell.test.js` (FR-038, FR-039, FR-040)
 
 ### Implementación de la Historia de Usuario 10
 
-- [ ] T066 [P] [US10] Crear `src/components/shell.js` con logotipo SVG, barra superior y barra lateral de módulos (FR-038, FR-039)
+- [x] T066 [P] [US10] Crear `src/components/shell.js` con logotipo SVG, barra superior y barra lateral de módulos (FR-038, FR-039)
 - [ ] T067 [US10] Envolver todas las vistas en el marco y resaltar visualmente el área activa (FR-038, FR-039)
-- [ ] T068 [US10] Contraer la barra lateral a una columna de iconos en ventanas gráficas estrechas (FR-040)
+- [x] T068 [US10] Contraer la barra lateral a una columna de iconos en ventanas gráficas estrechas (FR-040)
 
 **Punto de control**: Todas las pantallas comparten un espacio de trabajo consistente y navegable.
 
@@ -259,8 +259,8 @@
 
 **Propósito**: Accesibilidad, UX, rendimiento y verificación final contra los criterios de éxito.
 
-- [ ] T069 [P] Añadir refinamientos de accesibilidad (etiquetas, foco de teclado, `aria-current`, estructura semántica)
-- [ ] T070 [P] Pulir estados vacíos, mensajes de validación y diseño responsivo en todas las vistas
+- [x] T069 [P] Añadir refinamientos de accesibilidad (etiquetas, foco de teclado, `aria-current`, estructura semántica)
+- [x] T070 [P] Pulir estados vacíos, mensajes de validación y diseño responsivo en todas las vistas
 - [ ] T071 [P] Añadir pruebas de rendimiento con 500 clientes y sus oportunidades e interacciones asociadas (FR-042, SC-004)
 - [ ] T072 Ejecutar la suite completa y verificar SC-005, SC-006, SC-007, SC-008, SC-010 y SC-011
 - [ ] T073 Actualizar `README.md` con los flujos CRM, el archivado lógico y la configuración del módulo

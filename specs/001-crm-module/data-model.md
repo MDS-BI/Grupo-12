@@ -1,6 +1,6 @@
 # Modelo de Datos: Módulo CRM (Customer Relationship Management)
 
-**Funcionalidad**: `001-erp-base-module` | **Especificación**: [spec.md](spec.md)
+**Funcionalidad**: `001-crm-module` | **Especificación**: [spec.md](spec.md)
 **MER de referencia**: [`../../Primer Avance/crm_mer.md`](../../Primer%20Avance/crm_mer.md)
 
 ## Visión General
