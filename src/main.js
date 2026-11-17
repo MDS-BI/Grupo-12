@@ -1,23 +1,23 @@
 import './styles.css';
 import { loadModuleConfig } from './module-config.js';
-import { initApp } from './app.js';
+import { AUTH_STORAGE_KEY, SIDEBAR_STORAGE_KEY, initApp } from './app.js';
 
-const AUTH_KEY = 'erp.authenticatedUser';
 const VALID_USER = 'Cliente1';
 const VALID_PASSWORD = '1234';
 
 const { config } = loadModuleConfig();
 
 function isAuthenticated() {
-  return localStorage.getItem(AUTH_KEY) === VALID_USER;
+  return localStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER;
 }
 
 function setAuthenticated() {
-  localStorage.setItem(AUTH_KEY, VALID_USER);
+  localStorage.setItem(AUTH_STORAGE_KEY, VALID_USER);
 }
 
 function clearAuthenticated() {
-  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(SIDEBAR_STORAGE_KEY);
 }
 
 function navigate(path) {

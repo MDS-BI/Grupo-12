@@ -12,6 +12,7 @@ export const BASE_FIELDS = Object.freeze({
     'category',
     'targetDate',
     'creditLimit',
+    'currency',
     'paymentTerms'
   ],
   document: [

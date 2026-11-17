@@ -19,6 +19,15 @@ export const INTERACTION_TYPES = ['Llamada', 'Correo', 'Reunión'];
 
 export const TERMINAL_STAGES = ['Ganado', 'Perdido'];
 
+export function computeConversionRate(opportunities = []) {
+  const records = Array.isArray(opportunities) ? opportunities : [];
+  const stageOf = (record) => record?.stage ?? record?.etapa;
+  const won = records.filter((record) => stageOf(record) === 'Ganado').length;
+  const lost = records.filter((record) => stageOf(record) === 'Perdido').length;
+  const closed = won + lost;
+  return closed === 0 ? 0 : Math.round((won / closed) * 100);
+}
+
 export const DEFAULT_STAGE_TRANSITIONS = {
   Prospección: ['Calificación', 'Perdido'],
   Calificación: ['Evaluación', 'Perdido'],
