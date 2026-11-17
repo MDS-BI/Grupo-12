@@ -1,4 +1,4 @@
-import { labelFor, normalizeConfig, setActiveConfig, getConfig } from './module-config.js';
+import { labelFor, normalizeConfig, setActiveConfig, getConfig, PHONE_PREFIXES } from './module-config.js';
 import { addDocument, addEntity, deleteDocument, deleteDocumentsForEntity, deleteEntity, loadDocuments, loadEntities, searchEntities, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
 
 const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'search'];
@@ -9,6 +9,131 @@ const defaultFormState = {
 
 function qs(id) {
   return document.getElementById(id);
+}
+
+const RUT_LENGTH_ERROR = 'El Rut debe tener entre 8 y 9 dígitos.';
+
+function rutLength(value) {
+  return String(value ?? '').replace(/[^\dKk]/g, '').length;
+}
+
+function formatRut(value) {
+  const cleaned = String(value ?? '').replace(/[^\dKk]/g, '').slice(0, 9);
+  const letter = cleaned.match(/[Kk]/)?.[0] ?? '';
+  const numbers = cleaned.replace(/[Kk]/g, '');
+
+  if (letter) return numbers ? `${numbers}-${letter}` : letter;
+  if (numbers.length < 2) return numbers;
+  return `${numbers.slice(0, -1)}-${numbers.slice(-1)}`;
+}
+
+function bindRutInput() {
+  const input = qs('taxId');
+  if (!input || input.dataset.bound) return;
+
+  input.addEventListener('input', () => {
+    const value = input.value;
+    const caret = input.selectionStart ?? value.length;
+    const relevantBefore = value.slice(0, caret).replace(/[^\dKk]/g, '').length;
+    const formatted = formatRut(value);
+    setErrorText('error-taxId');
+
+    if (formatted === value) return;
+
+    input.value = formatted;
+
+    let nextCaret = formatted.length;
+    if (relevantBefore === 0) {
+      nextCaret = 0;
+    } else {
+      let seen = 0;
+      for (let index = 0; index < formatted.length; index += 1) {
+        if (/[\dKk]/.test(formatted[index])) seen += 1;
+        if (seen >= relevantBefore) {
+          nextCaret = index + 1;
+          break;
+        }
+      }
+    }
+    input.setSelectionRange(nextCaret, nextCaret);
+  });
+
+  input.addEventListener('blur', () => {
+    const length = rutLength(input.value);
+    setErrorText('error-taxId', length && length < 8 ? RUT_LENGTH_ERROR : '');
+  });
+
+  input.dataset.bound = 'true';
+}
+
+const PHONE_LENGTH_ERROR = 'El teléfono debe tener entre 8 y 10 dígitos.';
+
+function formatPhone(value) {
+  return String(value ?? '').replace(/\D/g, '').slice(0, 10);
+}
+
+function splitStoredPhone(value) {
+  const raw = String(value ?? '').trim();
+  const digits = raw.replace(/\D/g, '');
+  if (!raw.includes('+') && digits.length <= 10) {
+    return { prefix: '+56', number: digits };
+  }
+
+  const match = [...PHONE_PREFIXES]
+    .sort((a, b) => b.code.length - a.code.length)
+    .find(({ code }) => digits.startsWith(code.slice(1)));
+  const number = match ? digits.slice(match.code.length - 1) : digits;
+  return { prefix: match?.code ?? '+56', number: number.slice(0, 10) };
+}
+
+function setPhonePrefix(code) {
+  const value = PHONE_PREFIXES.some((item) => item.code === code) ? code : '+56';
+  const select = qs('phonePrefix');
+  if (select) select.value = value;
+  const label = qs('phonePrefixLabel');
+  if (label) label.textContent = value;
+}
+
+function populatePhonePrefixes() {
+  const select = qs('phonePrefix');
+  if (!select || select.options.length) return;
+
+  for (const { code, country } of PHONE_PREFIXES) {
+    const option = document.createElement('option');
+    option.value = code;
+    option.textContent = `${code} ${country}`;
+    select.appendChild(option);
+  }
+  setPhonePrefix('+56');
+
+  if (!select.dataset.bound) {
+    select.addEventListener('change', () => setPhonePrefix(select.value));
+    select.dataset.bound = 'true';
+  }
+}
+
+function bindPhoneInput() {
+  const input = qs('phone');
+  if (!input || input.dataset.bound) return;
+
+  input.addEventListener('input', () => {
+    const formatted = formatPhone(input.value);
+    setErrorText('error-phone');
+    if (formatted === input.value) return;
+
+    const caret = input.selectionStart ?? input.value.length;
+    const relevantBefore = input.value.slice(0, caret).replace(/\D/g, '').length;
+    input.value = formatted;
+    const nextCaret = Math.min(relevantBefore, formatted.length);
+    input.setSelectionRange(nextCaret, nextCaret);
+  });
+
+  input.addEventListener('blur', () => {
+    const length = input.value.length;
+    setErrorText('error-phone', length >= 8 && length <= 10 ? '' : PHONE_LENGTH_ERROR);
+  });
+
+  input.dataset.bound = 'true';
 }
 
 function getActiveConfig() {
@@ -297,6 +422,7 @@ function resetEntityForm() {
   form.reset();
   qs('entity-id').value = '';
   qs('submit-button').textContent = 'Guardar';
+  setPhonePrefix('+56');
   clearFormErrors('entity');
   const customNodes = document.querySelectorAll('#entity-custom-fields .custom-field');
   customNodes.forEach((node) => node.querySelector('input, select') && (node.querySelector('input, select').value = ''));
@@ -322,9 +448,11 @@ function fillEntityForm(entity) {
   qs('entity-id').value = entity.id;
   qs('name').value = entity.name || '';
   qs('code').value = entity.code || '';
-  qs('taxId').value = entity.taxId || '';
+  qs('taxId').value = formatRut(entity.taxId || '');
   qs('email').value = entity.email || '';
-  qs('phone').value = entity.phone || '';
+  const phone = splitStoredPhone(entity.phone);
+  setPhonePrefix(entity.phonePrefix || phone.prefix);
+  qs('phone').value = phone.number;
   qs('address').value = entity.address || '';
   qs('category').value = entity.category || '';
   qs('targetDate').value = entity.targetDate || '';
@@ -507,9 +635,10 @@ function mapEntityValues(form) {
     id: form.querySelector('#entity-id')?.value || undefined,
     name: form.querySelector('#name')?.value || '',
     code: form.querySelector('#code')?.value || '',
-    taxId: form.querySelector('#taxId')?.value || '',
+    taxId: formatRut(form.querySelector('#taxId')?.value || ''),
     email: form.querySelector('#email')?.value || '',
-    phone: form.querySelector('#phone')?.value || '',
+    phone: formatPhone(form.querySelector('#phone')?.value || ''),
+    phonePrefix: form.querySelector('#phonePrefix')?.value || '+56',
     address: form.querySelector('#address')?.value || '',
     category: form.querySelector('#category')?.value || '',
     targetDate: form.querySelector('#targetDate')?.value || '',
@@ -659,6 +788,10 @@ async function boot() {
     entityForm.addEventListener('submit', (event) => handleEntitySubmit(event));
     entityForm.dataset.bound = 'true';
   }
+
+  bindRutInput();
+  populatePhonePrefixes();
+  bindPhoneInput();
 
   const documentForm = qs('document-form');
   if (documentForm && !documentForm.dataset.bound) {

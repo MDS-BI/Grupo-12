@@ -152,8 +152,8 @@
                 <div id="error-code" class="validation-error"></div>
               </div>
               <div class="field">
-                <label for="taxId">RFC / Tax ID</label>
-                <input id="taxId" name="taxId" type="text" />
+                <label for="taxId">Rut</label>
+                <input id="taxId" name="taxId" type="text" placeholder="12345678-9" />
                 <div id="error-taxId" class="validation-error"></div>
               </div>
               <div class="field">
@@ -163,7 +163,13 @@
               </div>
               <div class="field">
                 <label for="phone">Teléfono</label>
-                <input id="phone" name="phone" type="tel" />
+                <div class="phone-input">
+                  <div class="phone-prefix">
+                    <span id="phonePrefixLabel" class="phone-prefix-code" aria-hidden="true">+56</span>
+                    <select id="phonePrefix" name="phonePrefix" aria-label="Prefijo telefónico"></select>
+                  </div>
+                  <input id="phone" name="phone" type="tel" placeholder="9123456789" />
+                </div>
                 <div id="error-phone" class="validation-error"></div>
               </div>
               <div class="field">

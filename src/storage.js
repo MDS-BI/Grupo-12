@@ -193,6 +193,17 @@ export function validateEntity(data = {}) {
     errors.code = 'El código es obligatorio.';
   }
 
+  if (values.taxId) {
+    const length = String(values.taxId).replace(/[^\dKk]/g, '').length;
+    if (length < 8 || length > 9) {
+      errors.taxId = 'El Rut debe tener entre 8 y 9 dígitos.';
+    }
+  }
+
+  if (values.phone && !/^\d{8,10}$/.test(String(values.phone).trim())) {
+    errors.phone = 'El teléfono debe tener entre 8 y 10 dígitos.';
+  }
+
   if (values.email && String(values.email).trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(values.email).trim())) {
     errors.email = 'Introduce un correo electrónico válido.';
   }

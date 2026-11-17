@@ -7,6 +7,7 @@ export const BASE_FIELDS = Object.freeze({
     'taxId',
     'email',
     'phone',
+    'phonePrefix',
     'address',
     'category',
     'targetDate',
@@ -33,6 +34,32 @@ export const BASE_FIELDS = Object.freeze({
 });
 
 export const FIELD_TYPES = Object.freeze(['text', 'number', 'date', 'select']);
+
+export const PHONE_PREFIXES = Object.freeze([
+  { code: '+56', country: 'Chile' },
+  { code: '+54', country: 'Argentina' },
+  { code: '+57', country: 'Colombia' },
+  { code: '+51', country: 'Perú' },
+  { code: '+52', country: 'México' },
+  { code: '+34', country: 'España' },
+  { code: '+1', country: 'EE. UU. / Canadá' },
+  { code: '+55', country: 'Brasil' },
+  { code: '+598', country: 'Uruguay' },
+  { code: '+593', country: 'Ecuador' },
+  { code: '+591', country: 'Bolivia' },
+  { code: '+595', country: 'Paraguay' },
+  { code: '+502', country: 'Guatemala' },
+  { code: '+503', country: 'El Salvador' },
+  { code: '+504', country: 'Honduras' },
+  { code: '+505', country: 'Nicaragua' },
+  { code: '+506', country: 'Costa Rica' },
+  { code: '+507', country: 'Panamá' },
+  { code: '+53', country: 'Cuba' },
+  { code: '+44', country: 'Reino Unido' },
+  { code: '+49', country: 'Alemania' },
+  { code: '+33', country: 'Francia' },
+  { code: '+39', country: 'Italia' }
+]);
 
 export const CRM_DEFAULT_STAGE_SEQUENCE = Object.freeze([
   'Prospección',
