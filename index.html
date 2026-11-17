@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
@@ -9,31 +9,89 @@
   <body>
     <section id="login-view" class="login-view" hidden>
       <div class="login-card">
-        <div class="login-brand">
-          <div class="logo-mark logo-mark--pro" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 6V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" />
-              <rect x="3" y="6" width="18" height="14" rx="2" />
-              <path d="M3 11h18" />
-            </svg>
+        <div class="login-brand-panel">
+          <div class="login-panel-shapes" aria-hidden="true">
+            <span class="shape shape--circle"></span>
+            <span class="shape shape--ring"></span>
+            <span class="shape shape--square"></span>
           </div>
-          <div>
-            <h1>Iniciar sesión</h1>
-            <p class="login-subtitle">Accede para continuar al panel principal.</p>
+          <div class="login-panel-content">
+            <div class="login-brand">
+              <div class="logo-mark logo-mark--pro" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 6V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1" />
+                  <rect x="3" y="6" width="18" height="14" rx="2" />
+                  <path d="M3 11h18" />
+                </svg>
+              </div>
+              <span class="login-brand-name">CRM Pro</span>
+            </div>
+            <h2 class="login-panel-title">Gestiona tus clientes y cierra más oportunidades</h2>
+            <p class="login-panel-text">Centraliza tu información comercial, sigue cada etapa del proceso y toma mejores decisiones desde un solo lugar.</p>
+            <ul class="login-features">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+                <span>Control centralizado de clientes</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+                <span>Seguimiento de oportunidades en tiempo real</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+                <span>Búsqueda rápida de historial</span>
+              </li>
+            </ul>
           </div>
         </div>
-        <form id="login-form" class="login-form" novalidate>
-          <div class="field">
-            <label for="login-username">Usuario</label>
-            <input id="login-username" name="username" type="text" autocomplete="username" />
+        <div class="login-form-panel">
+          <div class="login-heading">
+            <h1>Iniciar sesión</h1>
+            <p class="login-subtitle">Accede con tus credenciales para gestionar clientes y oportunidades.</p>
           </div>
-          <div class="field">
-            <label for="login-password">Contraseña</label>
-            <input id="login-password" name="password" type="password" autocomplete="current-password" />
-          </div>
-          <div id="login-error" class="validation-error login-error" role="alert" aria-live="polite"></div>
-          <button id="login-submit" type="submit">Ingresar</button>
-        </form>
+          <form id="login-form" class="login-form" novalidate>
+            <div class="field login-field">
+              <label for="login-username">Usuario</label>
+              <div class="login-input-wrap">
+                <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 21a8 8 0 0 1 16 0" />
+                </svg>
+                <input id="login-username" name="username" type="text" autocomplete="username" placeholder="Ingresa tu usuario" />
+              </div>
+            </div>
+            <div class="field login-field">
+              <label for="login-password">Contraseña</label>
+              <div class="login-input-wrap">
+                <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="4" y="10" width="16" height="11" rx="2" />
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                  <path d="M12 15v2" />
+                </svg>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" />
+                <button id="login-password-toggle" class="login-password-toggle" type="button" aria-label="Mostrar contraseña" aria-pressed="false">
+                  <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                  <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 6.2A10.6 10.6 0 0 1 12 6c6.5 0 10 6 10 6a17.6 17.6 0 0 1-3.2 3.7" />
+                    <path d="M6.2 7.3A17 17 0 0 0 2 12s3.5 6 10 6a10.7 10.7 0 0 0 4.2-.8" />
+                    <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <label class="login-remember" for="login-remember">
+              <input id="login-remember" name="remember" type="checkbox" />
+              <span>Recordar mi sesión</span>
+            </label>
+            <div id="login-error" class="validation-error login-error" role="alert" aria-live="polite"></div>
+            <button id="login-submit" type="submit">Ingresar</button>
+            <p class="login-footer">Acceso seguro &bull; Gestión Empresarial</p>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -55,7 +113,10 @@
           </div>
         </div>
         <div class="topbar-actions">
-          <button id="logout-button" type="button" class="logout-button">Cerrar sesión</button>
+          <button id="logout-button" type="button" class="logout-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+            <span>Cerrar sesión</span>
+          </button>
         </div>
       </header>
 
@@ -91,8 +152,13 @@
           <h1 id="dashboard-heading">CRM Pro</h1>
 
           <div class="welcome-banner" aria-label="Bienvenida">
-            <h2 class="welcome-title">Bienvenido al sistema CRM</h2>
-            <p class="welcome-text">Este sistema le permite registrar y gestionar su cartera de clientes, dar seguimiento a las oportunidades comerciales y consultar información rápidamente desde los accesos directos o el menú lateral.</p>
+            <div class="welcome-content">
+              <h2 class="welcome-title">Bienvenido al sistema CRM</h2>
+              <p class="welcome-text">Este sistema le permite registrar y gestionar su cartera de clientes, dar seguimiento a las oportunidades comerciales y consultar información rápidamente desde los accesos directos o el menú lateral.</p>
+            </div>
+            <span class="welcome-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/><path d="M16 8h3v3"/></svg>
+            </span>
           </div>
 
           <div class="quick-actions">
@@ -124,32 +190,85 @@
 
           <div class="stats-grid">
             <div class="stat-card">
-              <span id="stat-entities-label" class="stat-label">Clientes</span>
-              <strong id="stat-entities">0</strong>
+              <div class="stat-card-body">
+                <span id="stat-entities-label" class="stat-label">Clientes</span>
+                <strong id="stat-entities">0</strong>
+                <span class="stat-caption">Registrados en la cartera</span>
+              </div>
+              <span class="stat-icon stat-icon--clients" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
             </div>
             <div class="stat-card">
-              <span id="stat-documents-label" class="stat-label">Oportunidades</span>
-              <strong id="stat-documents">0</strong>
+              <div class="stat-card-body">
+                <span id="stat-documents-label" class="stat-label">Oportunidades</span>
+                <strong id="stat-documents">0</strong>
+                <span class="stat-caption">En seguimiento activo</span>
+              </div>
+              <span class="stat-icon stat-icon--opportunities" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/><path d="M19 7h-3v3"/></svg>
+              </span>
             </div>
           </div>
         </section>
 
         <section id="view-entities" class="view" hidden>
           <h2 id="entities-view-heading">Clientes</h2>
+          <p class="view-subtitle">Administra la información de tu cartera comercial.</p>
           <form id="entity-form" novalidate>
             <h3 id="entity-form-heading">Agregar / Editar Cliente</h3>
             <input id="entity-id" type="hidden" />
 
-            <div class="form-grid">
-              <div class="field">
-                <label for="name">Nombre</label>
-                <input id="name" name="name" type="text" />
-                <div id="error-name" class="validation-error"></div>
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg>
+                Datos del cliente
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="name">Nombre</label>
+                  <input id="name" name="name" type="text" placeholder="Ej. Empresa Comercial S.A." />
+                  <div id="error-name" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="code">Código</label>
+                  <input id="code" name="code" type="text" placeholder="Ej. CLI-001" />
+                  <div id="error-code" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="taxId">RFC / Tax ID</label>
+                  <input id="taxId" name="taxId" type="text" placeholder="Ej. 123456789ABC" />
+                  <div id="error-taxId" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="category">Categoría</label>
+                  <input id="category" name="category" type="text" placeholder="Ej. Empresa, PYME, Proveedor" />
+                  <div id="error-category" class="validation-error"></div>
+                </div>
               </div>
-              <div class="field">
-                <label for="code">Código</label>
-                <input id="code" name="code" type="text" />
-                <div id="error-code" class="validation-error"></div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                Información de contacto
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="email">Correo electrónico</label>
+                  <input id="email" name="email" type="email" placeholder="contacto@empresa.com" />
+                  <div id="error-email" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="phone">Teléfono</label>
+                  <input id="phone" name="phone" type="tel" placeholder="+56 9 1234 5678" />
+                  <div id="error-phone" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="address">Dirección</label>
+                  <input id="address" name="address" type="text" placeholder="Ej. Av. Principal 123, Santiago" />
+                  <div id="error-address" class="validation-error"></div>
+                </div>
               </div>
               <div class="field">
                 <label for="taxId">Rut</label>
@@ -196,6 +315,29 @@
                 <label for="paymentTerms">Plazos de pago</label>
                 <input id="paymentTerms" name="paymentTerms" type="text" />
                 <div id="error-paymentTerms" class="validation-error"></div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M3 10h18"/></svg>
+                Condiciones comerciales
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="targetDate">Fecha objetivo</label>
+                  <input id="targetDate" name="targetDate" type="date" />
+                  <div id="error-targetDate" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="creditLimit">Límite de crédito</label>
+                  <input id="creditLimit" name="creditLimit" type="number" step="0.01" placeholder="Ej. 1000000" />
+                  <div id="error-creditLimit" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="paymentTerms">Plazos de pago</label>
+                  <input id="paymentTerms" name="paymentTerms" type="text" placeholder="Ej. 30 días" />
+                  <div id="error-paymentTerms" class="validation-error"></div>
+                </div>
               </div>
             </div>
 
@@ -218,81 +360,115 @@
 
         <section id="view-documents" class="view" hidden>
           <h2 id="documents-view-heading">Oportunidades</h2>
+          <p class="view-subtitle">Gestiona cada oportunidad y su seguimiento comercial.</p>
           <form id="document-form" novalidate>
             <h3 id="document-form-heading">Agregar / Editar Oportunidad</h3>
             <input id="document-id" type="hidden" />
 
-            <div class="form-grid">
-              <div class="field">
-                <label for="document-entity">Entidad</label>
-                <select id="document-entity"></select>
-                <div id="error-document-entity" class="validation-error"></div>
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg>
+                Identificación
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="document-entity">Entidad</label>
+                  <select id="document-entity"></select>
+                  <div id="error-document-entity" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="series">Serie</label>
+                  <input id="series" name="series" type="text" placeholder="Ej. OPO" />
+                  <div id="error-series" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="folio">Folio</label>
+                  <input id="folio" name="folio" type="number" min="1" step="1" placeholder="Ej. 1001" />
+                  <div id="error-folio" class="validation-error"></div>
+                </div>
               </div>
-              <div class="field">
-                <label for="series">Serie</label>
-                <input id="series" name="series" type="text" />
-                <div id="error-series" class="validation-error"></div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M3 10h18"/></svg>
+                Cronograma
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="startDate">Fecha de inicio</label>
+                  <input id="startDate" name="startDate" type="date" />
+                  <div id="error-startDate" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="endDate">Fecha final</label>
+                  <input id="endDate" name="endDate" type="date" />
+                  <div id="error-endDate" class="validation-error"></div>
+                </div>
               </div>
-              <div class="field">
-                <label for="folio">Folio</label>
-                <input id="folio" name="folio" type="number" min="1" step="1" />
-                <div id="error-folio" class="validation-error"></div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Detalle de montos
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="quantity">Cantidad</label>
+                  <input id="quantity" name="quantity" type="number" min="1" step="1" placeholder="Ej. 10" />
+                  <div id="error-quantity" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="subtotal">Subtotal</label>
+                  <input id="subtotal" name="subtotal" type="number" step="0.01" placeholder="Ej. 500000" />
+                  <div id="error-subtotal" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="discount">Descuento</label>
+                  <input id="discount" name="discount" type="number" step="0.01" placeholder="Ej. 0" />
+                  <div id="error-discount" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="taxAmount">Impuesto</label>
+                  <input id="taxAmount" name="taxAmount" type="number" step="0.01" placeholder="Ej. 95000" />
+                  <div id="error-taxAmount" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="totalAmount">Monto total</label>
+                  <input id="totalAmount" name="totalAmount" type="number" step="0.01" placeholder="Ej. 595000" />
+                  <div id="error-totalAmount" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="currency">Moneda</label>
+                  <input id="currency" name="currency" type="text" placeholder="Ej. CLP" />
+                  <div id="error-currency" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="docPaymentTerms">Plazos</label>
+                  <input id="docPaymentTerms" name="docPaymentTerms" type="text" placeholder="Ej. 30 días" />
+                  <div id="error-docPaymentTerms" class="validation-error"></div>
+                </div>
               </div>
-              <div class="field">
-                <label for="startDate">Fecha de inicio</label>
-                <input id="startDate" name="startDate" type="date" />
-                <div id="error-startDate" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="endDate">Fecha final</label>
-                <input id="endDate" name="endDate" type="date" />
-                <div id="error-endDate" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="quantity">Cantidad</label>
-                <input id="quantity" name="quantity" type="number" min="1" step="1" />
-                <div id="error-quantity" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="subtotal">Subtotal</label>
-                <input id="subtotal" name="subtotal" type="number" step="0.01" />
-                <div id="error-subtotal" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="discount">Descuento</label>
-                <input id="discount" name="discount" type="number" step="0.01" />
-                <div id="error-discount" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="taxAmount">Impuesto</label>
-                <input id="taxAmount" name="taxAmount" type="number" step="0.01" />
-                <div id="error-taxAmount" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="totalAmount">Monto total</label>
-                <input id="totalAmount" name="totalAmount" type="number" step="0.01" />
-                <div id="error-totalAmount" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="currency">Moneda</label>
-                <input id="currency" name="currency" type="text" />
-                <div id="error-currency" class="validation-error"></div>
-              </div>
-              <div class="field">
-                <label for="docPaymentTerms">Plazos</label>
-                <input id="docPaymentTerms" name="docPaymentTerms" type="text" />
-                <div id="error-docPaymentTerms" class="validation-error"></div>
-              </div>
-              <div class="field field-full">
-                <label for="notes">Notas</label>
-                <textarea id="notes" name="notes"></textarea>
-              </div>
-              <div class="field">
-                <label for="status">Estado</label>
-                <select id="status" name="status">
-                  <option value="">Sin estado</option>
-                </select>
-                <div id="error-status" class="validation-error"></div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+                Notas y estado
+              </h4>
+              <div class="form-grid">
+                <div class="field field-full">
+                  <label for="notes">Notas</label>
+                  <textarea id="notes" name="notes" placeholder="Detalles adicionales de la oportunidad..."></textarea>
+                </div>
+                <div class="field">
+                  <label for="status">Estado</label>
+                  <select id="status" name="status">
+                    <option value="">Sin estado</option>
+                  </select>
+                  <div id="error-status" class="validation-error"></div>
+                </div>
               </div>
             </div>
 
@@ -315,8 +491,12 @@
 
         <section id="view-search" class="view" hidden>
           <h2 id="search-view-heading">Buscar Clientes</h2>
+          <p class="view-subtitle">Encuentra clientes u oportunidades por nombre, código o correo.</p>
           <div class="search-wrapper">
-            <input id="search-input" type="search" placeholder="Buscar registros..." aria-label="Buscar registros" />
+            <div class="search-field">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <input id="search-input" type="search" placeholder="Buscar registros..." aria-label="Buscar registros" />
+            </div>
           </div>
           <div id="search-empty" class="empty-state" hidden>
             No hay coincidencias para su búsqueda.
