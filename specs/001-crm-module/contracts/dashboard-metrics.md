@@ -1,6 +1,6 @@
 # Contrato de Métricas del Dashboard
 
-**Rama**: `002-crm-saas-ui` | **Especificación**: [spec.md](spec.md) | **Modelo**: [data-model.md](../data-model.md)
+**Funcionalidad**: `001-crm-module` | **Especificación**: [spec.md](../spec.md) | **Modelo**: [data-model.md](../data-model.md)
 
 ## Propósito
 

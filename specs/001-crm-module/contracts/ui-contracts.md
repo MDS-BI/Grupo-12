@@ -1,12 +1,12 @@
 # Contrato de Interfaz: Interfaz SaaS Profesional del CRM
 
-**Rama**: `002-crm-saas-ui` | **Especificación**: [spec.md](spec.md) | **Modelo**: [data-model.md](../data-model.md)
+**Funcionalidad**: `001-crm-module` | **Especificación**: [spec.md](../spec.md) | **Modelo**: [data-model.md](../data-model.md)
 
 ## Propósito
 
 Define los selectores, estados, atributos y textos observables de la interfaz. Es la referencia para las pruebas de contrato con Vitest + jsdom; cualquier cambio de estos identificadores debe actualizar este documento y las pruebas.
 
-## 1. Pantalla de acceso (FR-001 a FR-006)
+## 1. Pantalla de acceso (FR-047 a FR-052)
 
 | Elemento | Selector | Contrato |
 |---|---|---|
@@ -22,7 +22,7 @@ Define los selectores, estados, atributos y textos observables de la interfaz. E
 
 **Responsive**: a ≤ 820 px los paneles se apilan (`src/styles.css`, bloque `@media (max-width: 820px)`) sin desplazamiento horizontal.
 
-## 2. Shell y navegación colapsable (FR-007 a FR-010)
+## 2. Shell y navegación colapsable (FR-053 a FR-056)
 
 | Elemento | Selector | Contrato |
 |---|---|---|
@@ -37,7 +37,7 @@ Define los selectores, estados, atributos y textos observables de la interfaz. E
 
 **Interacción**: contraer/expandir no cambia `#view-*` visible ni `aria-current`; en ≤ 900 px, el overlay se cierra con Escape, clic fuera y nueva activación del botón, devolviendo el foco a `#menu-toggle`.
 
-## 3. Dashboard (FR-011 a FR-014)
+## 3. Dashboard (FR-057 a FR-060)
 
 | Elemento | Selector | Contrato |
 |---|---|---|
@@ -51,7 +51,7 @@ Define los selectores, estados, atributos y textos observables de la interfaz. E
 
 Los valores se recalculan al entrar al Dashboard y tras cada alta/edición que afecte a clientes u oportunidades. La derivación se especifica en [dashboard-metrics.md](dashboard-metrics.md).
 
-## 4. Formularios estandarizados (FR-015 a FR-018)
+## 4. Formularios estandarizados (FR-061 a FR-064)
 
 | Elemento | Selector | Contrato |
 |---|---|---|
@@ -81,7 +81,7 @@ focusable="false"
 
 Sin atributos `width`/`height` en línea: el tamaño se define en CSS (22 px para la hamburguesa, 18 px para el ojo). El nombre accesible y el estado residen en el botón contenedor, nunca en el SVG.
 
-## 6. Codificación (FR-019 a FR-021)
+## 6. Codificación (FR-065 a FR-067)
 
 - `index.html` declara `<html lang="es">` y `<meta charset="UTF-8" />`.
 - Todo texto dinámico se inserta con `textContent`; no se interpolan valores de usuario en `innerHTML`.

@@ -1,12 +1,12 @@
 # Tareas: Módulo CRM (Customer Relationship Management)
 
-**Entrada**: Documentos de diseño desde `/specs/001-crm-module/`
+**Entrada**: Documentos de diseño desde `/specs/001-crm-module/` (módulo CRM + interfaz SaaS profesional)
 **Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/crm-storage.md
 
 ## Formato: `[ID] [P?] [Historia] Descripción`
 
 - **[P]**: Puede ejecutarse en paralelo (archivos distintos, sin dependencias pendientes)
-- **[USn]**: Historia de usuario de `spec.md` (US1–US10)
+- **[USn]**: Historia de usuario de `spec.md` (US1–US15)
 - Toda tarea que cambia comportamiento de negocio se acompaña de sus pruebas (Constitución, Principio II)
 
 ---
@@ -268,6 +268,155 @@
 
 ---
 
+## Fase 14: Configuración (Infraestructura Compartida)
+
+**Propósito**: verificar el entorno existente y preparar el arnés de pruebas sobre el DOM real.
+
+- [x] T075 Verificar toolchain y línea base ejecutando `npm run test:run`, `npm run lint` y `npm run build` según `specs/001-crm-module/quickstart.md`, sin añadir dependencias en `package.json`
+- [x] T076 [P] Crear el helper de montaje JSDOM del HTML real en `tests/integration/live-dom.js`, con `vi.resetModules()` y simulación de recarga dentro de la misma sesión
+- [x] T077 [P] Ampliar `tests/setup/test-setup.js` para limpiar `sessionStorage` y restablecer la URL entre pruebas
+
+---
+
+## Fase 15: Fundacional (Prerrequisitos Bloqueantes)
+
+**Propósito**: infraestructura compartida que debe estar lista antes de cualquier historia.
+
+**⚠️ CRÍTICO**: ninguna historia puede comenzar hasta completar esta fase.
+
+- [x] T078 Añadir los tokens `--sidebar-width`, `--sidebar-width-collapsed` y las reglas base `.icon` con `stroke: currentColor` en `src/styles.css`
+- [x] T079 [P] Crear la prueba estática del contrato SVG en `tests/unit/svg-icon-contract.test.js` sobre `index.html`
+- [x] T080 Centralizar `AUTH_STORAGE_KEY` y `SIDEBAR_STORAGE_KEY` en la cabecera de `src/app.js` para US12 y US13
+
+**Punto de control**: base lista; las historias pueden iniciarse en orden de prioridad.
+
+---
+
+## Fase 16: Historia de Usuario 11 - Iniciar sesión en pantalla dividida con contraseña visible (Prioridad: P1) 🎯 MVP
+
+**Objetivo**: acceso profesional con dos paneles y control fiable de mostrar/ocultar contraseña (FR-047 a FR-052).
+
+**Prueba Independiente**: abrir `index.html` sin sesión, comprobar ambos paneles, alternar visibilidad dos veces conservando el valor, verificar credenciales inválidas y entrar con `Cliente1` / `1234`.
+
+### Pruebas para la Historia de Usuario 11
+
+> Escribir primero y confirmar que fallan antes de la implementación.
+
+- [x] T081 [P] [US11] Añadir pruebas de acceso dividido, visibilidad y errores en `tests/integration/ui-contracts.test.js`
+- [x] T082 [P] [US11] Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en `tests/unit/layout-contract.test.js`
+
+### Implementación de la Historia de Usuario 11
+
+- [x] T083 [US11] Normalizar los SVG `.icon-eye` y `.icon-eye-off` y sus atributos ARIA en `index.html`
+- [x] T084 [US11] Ajustar `setPasswordVisibility()` y `bindPasswordToggle()` para conservar el valor y sincronizar `aria-pressed`/`aria-label` en `src/main.js`
+- [x] T085 [US11] Garantizar la visibilidad de `.login-brand-panel` y `.login-form-panel` y su apilado responsive en `index.html` y `src/styles.css`
+- [x] T086 [US11] Asegurar que `#login-error` muestra un mensaje en español sin incluir la contraseña en `src/main.js`
+
+**Punto de control**: US11 es funcional y verificable de forma aislada.
+
+---
+
+## Fase 17: Historia de Usuario 12 - Navegar con un menú lateral colapsable (Prioridad: P2)
+
+**Objetivo**: hamburguesa SVG accesible, franja de iconos en escritorio, overlay en móvil y persistencia de sesión (FR-053 a FR-056).
+
+**Prueba Independiente**: contraer y expandir desde dos secciones, recargar conservando el estado, comprobar foco y `aria-expanded`, y cerrar sesión para verificar el reinicio.
+
+### Pruebas para la Historia de Usuario 12
+
+- [x] T087 [P] [US12] Añadir pruebas de colapso, persistencia, sección activa y accesibilidad en `tests/integration/sidebar-collapse.test.js`
+- [x] T088 [P] [US12] Añadir prueba de regresión que prohíbe `.sidebar { display: none; }` en `tests/unit/layout-contract.test.js`
+
+### Implementación de la Historia de Usuario 12
+
+- [x] T089 [US12] Sustituir el SVG de `#menu-toggle` por el contrato de iconos y añadir `aria-hidden`, `focusable` y etiqueta dinámica en `index.html`
+- [x] T090 [US12] Implementar lectura/escritura de `sessionStorage['erp.sidebarCollapsed']`, sincronización de ARIA y cierre por Escape/clic fuera en `src/app.js`
+- [x] T091 [US12] Reemplazar `display: none` por la franja de 64 px y el overlay para ≤ 900 px en `src/styles.css`
+- [x] T092 [US12] Eliminar la preferencia del menú al cerrar sesión en `src/main.js`
+
+**Punto de control**: US12 funciona de forma aislada y no altera US11.
+
+---
+
+## Fase 18: Historia de Usuario 13 - Orientarse en el Dashboard con banner y tarjetas KPI (Prioridad: P2)
+
+**Objetivo**: saludo con el usuario autenticado y cuatro KPI derivados del CRM con estados vacíos neutros (FR-057 a FR-060).
+
+**Prueba Independiente**: entrar con `Cliente1`, verificar `#welcome-title` y las cuatro etiquetas/valores, sembrar datos con `addCustomer`/`addOpportunity` y comprobar la actualización y la conversión.
+
+### Pruebas para la Historia de Usuario 13
+
+- [x] T093 [P] [US13] Añadir pruebas unitarias de `computeConversionRate()` con alias `etapa`, denominador cero y sin mutación en `tests/unit/conversion-rate.test.js`
+- [x] T094 [P] [US13] Añadir pruebas de banner, cuatro KPI y estado vacío en `tests/integration/ui-contracts.test.js`
+
+### Implementación de la Historia de Usuario 13
+
+- [x] T095 [US13] Implementar `computeConversionRate(opportunities)` en `src/domain.js`
+- [x] T096 [US13] Añadir `#welcome-title` y las tarjetas `#stat-clients`, `#stat-opportunities`, `#stat-revenue` y `#stat-conversion` con sus etiquetas en `index.html`
+- [x] T097 [US13] Ampliar `updateDashboardStats()` para renderizar los cuatro KPI desde `getCRMOverview()` en `src/app.js`
+- [x] T098 [US13] Añadir `renderWelcomeBanner()` leyendo `AUTH_STORAGE_KEY` en `src/app.js`
+- [x] T099 [US13] Sincronizar el alta/edición de `#entity-form` con `addCustomer()`/`updateCustomer()` para FR-060 en `src/app.js`
+- [x] T100 [US13] Ajustar `.stats-grid` y `.welcome-banner` para 1366 × 768 sin desplazamiento vertical en `src/styles.css`
+
+**Punto de control**: US13 es verificable de forma aislada y refleja datos vigentes.
+
+---
+
+## Fase 19: Historia de Usuario 14 - Capturar datos con formularios estandarizados (Prioridad: P2)
+
+**Objetivo**: dos bloques con encabezados literals en mayúsculas, estructura repetida y errores uniformes (FR-061 a FR-064).
+
+**Prueba Independiente**: comprobar `textContent` exacto de ambos encabezados en alta y edición, enviar con campos vacíos y verificar errores junto al campo sin guardar.
+
+### Pruebas para la Historia de Usuario 14
+
+- [x] T101 [P] [US14] Añadir pruebas de encabezados exactos, agrupación y errores uniformes en `tests/integration/ui-contracts.test.js`
+- [x] T102 [P] [US14] Añadir prueba estática de los literales `DATOS DEL CLIENTE` y `CONDICIONES COMERCIALES` en `tests/unit/form-headings.test.js`
+
+### Implementación de la Historia de Usuario 14
+
+- [x] T103 [US14] Reestructurar `#entity-form` en dos `.form-section` con encabezados literales en mayúsculas en `index.html`
+- [x] T104 [US14] Migrar contacto al primer bloque y moneda/importe/plazos al segundo en `index.html`
+- [x] T105 [US14] Unificar redacción y ubicación de `.validation-error` en `src/app.js`
+- [x] T106 [US14] Igualar jerarquía, alineación y espaciado de `.form-section-title`, `.form-grid` y `.field` en `src/styles.css`
+
+**Punto de control**: US14 es consistente en alta y edición sin afectar a US13.
+
+---
+
+## Fase 20: Historia de Usuario 15 - Leer textos en español sin caracteres mal formados (Prioridad: P3)
+
+**Objetivo**: UTF-8 limpio en encabezados, etiquetas, listados y datos introducidos (FR-065 a FR-067).
+
+**Prueba Independiente**: verificar `<meta charset="UTF-8" />`, recorrer todas las vistas con acentos, «ñ» y símbolos monetarios y round-trip de `Ana García Ñuñez` sin U+FFFD.
+
+### Pruebas para la Historia de Usuario 15
+
+- [x] T107 [P] [US15] Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en `tests/integration/ui-contracts.test.js`
+- [x] T108 [P] [US15] Añadir prueba estática de declaración UTF-8 en `tests/unit/utf8-contract.test.js`
+
+### Implementación de la Historia de Usuario 15
+
+- [x] T109 [US15] Auditar y mantener inserción exclusivamente con `textContent` en `src/app.js` y `src/main.js`
+- [x] T110 [US15] Normalizar literales acentuados y símbolos monetarios de encabezados y etiquetas en `index.html`
+- [x] T111 [US15] Regenerar el artefacto con `npm run build` y verificar la declaración UTF-8 en `dist/index.html`
+
+**Punto de control**: las cinco historias de la interfaz son funcionales y verificables de forma independiente.
+
+---
+
+## Fase 21: Pulido y Consideraciones Transversales
+
+**Propósito**: validación final, accesibilidad y documentación.
+
+- [x] T112 [P] Actualizar los ejemplos de validación con el comportamiento implementado en `specs/001-crm-module/quickstart.md`
+- [x] T113 Ejecutar la verificación completa `npm run test:run`, `npm run lint` y `npm run build` desde `package.json`
+- [x] T114 [P] Revisar `:focus-visible` y contraste de estados expandido/contraído en `src/styles.css`
+- [x] T115 Registrar las suites heredadas fallidas y la deuda de `src/components/*` en `specs/001-crm-module/research.md`
+- [x] T116 Completar la validación manual de los cinco escenarios de `specs/001-crm-module/quickstart.md`
+
+---
+
 ## Dependencias y Orden de Ejecución
 
 ### Dependencias entre Fases
@@ -297,3 +446,109 @@
 - US6 (Fase 8) y US7 (Fase 9) pueden avanzar en paralelo tras la US3
 - US9 (Fase 11) puede avanzar en paralelo con las historias de datos
 - En la Fase 13, T069, T070 y T071 pueden ejecutarse en paralelo antes de T072–T074
+
+- Interfaz SaaS profesional (Fases 14–21): depende de la Fase 13 y actúa sobre el DOM real (`index.html`, `src/`); no revive `src/components/*`
+
+### Dependencias entre Fases (Interfaz SaaS)
+
+- **Configuración (Fase 14)**: sin dependencias; T076/T077 son bloqueantes para las pruebas de todas las historias
+- **Fundacional (Fase 15)**: depende de Configuración; T078 y T080 bloquean la implementación visual y de sesión de US11–US13
+- **Historias de Usuario (Fase 16–20)**: dependen de Fundacional; se ejecutan en orden P1 → P2 → P2 → P2 → P3
+- **Pulido (Fase 21)**: depende de que las cinco historias de la interfaz estén completas
+
+### Dependencias entre Historias de Usuario
+
+- **US11 (P1)**: sin dependencias entre historias; entregable MVP
+- **US12 (P2)**: independiente de US11; comparte `index.html` y `src/styles.css`, por lo que sus ediciones se integran después de US11
+- **US13 (P2)**: depende de T080 y de `getCRMOverview()` en `src/storage.js`; T099 garantiza que US14 tendrá datos coherentes
+- **US14 (P2)**: depende de T096/T097 para que los cambios de `#entity-form` se reflejen en los KPI
+- **US15 (P3)**: transversal; sus pruebas se ejecutan al final porque recorren todas las vistas
+
+### Dentro de Cada Historia de Usuario
+
+1. Pruebas marcadas como [P] primero; deben fallar antes de tocar producción
+2. Cambios de marcado y estilos
+3. Lógica en los módulos conectados (`main.js`, `app.js`, `domain.js`)
+4. Integración y punto de control de la historia
+
+### Oportunidades Paralelas
+
+- T076 y T077 en paralelo; T078, T079 y T080 en paralelo (archivos distintos)
+- US11: T081 + T082 en paralelo
+- US12: T087 + T088 en paralelo
+- US13: T093 + T094 en paralelo; T095 y T096 pueden prepararse en paralelo tras T094
+- US14: T101 + T102 en paralelo
+- US15: T107 + T108 en paralelo
+- T112 y T114 en paralelo durante el pulido
+
+---
+
+## Ejemplo Paralelo: Historia de Usuario 11
+
+```text
+Tarea: "Añadir pruebas de acceso dividido, visibilidad y errores en tests/integration/ui-contracts.test.js" (T081)
+Tarea: "Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en tests/unit/layout-contract.test.js" (T082)
+```
+
+## Ejemplo Paralelo: Historia de Usuario 12
+
+```text
+Tarea: "Añadir pruebas de colapso, persistencia, sección activa y accesibilidad en tests/integration/sidebar-collapse.test.js" (T087)
+Tarea: "Añadir prueba de regresión que prohíbe .sidebar { display: none; } en tests/unit/layout-contract.test.js" (T088)
+```
+
+## Ejemplo Paralelo: Historia de Usuario 13
+
+```text
+Tarea: "Añadir pruebas unitarias de computeConversionRate() en tests/unit/conversion-rate.test.js" (T093)
+Tarea: "Añadir pruebas de banner, cuatro KPI y estado vacío en tests/integration/ui-contracts.test.js" (T094)
+```
+
+## Ejemplo Paralelo: Historia de Usuario 14
+
+```text
+Tarea: "Añadir pruebas de encabezados exactos, agrupación y errores uniformes en tests/integration/ui-contracts.test.js" (T101)
+Tarea: "Añadir prueba estática de los literales en tests/unit/form-headings.test.js" (T102)
+```
+
+## Ejemplo Paralelo: Historia de Usuario 15
+
+```text
+Tarea: "Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en tests/integration/ui-contracts.test.js" (T107)
+Tarea: "Añadir prueba estática de declaración UTF-8 en tests/unit/utf8-contract.test.js" (T108)
+```
+
+---
+
+## Estrategia de Implementación
+
+### MVP primero (Historia de Usuario 11)
+
+1. Completar Fase 14 y Fase 15
+2. Completar Fase 16 (US11)
+3. **DETENER Y VALIDAR**: ejecutar la Prueba Independiente de US11; demostrar acceso dividido y contraseña visible
+4. Desplegar o mostrar el MVP si está listo
+
+### Entrega Incremental
+
+1. Configuración + Fundacional → base lista
+2. US11 → validar → MVP
+3. US12 → validar → navegación colapsable
+4. US13 → validar → banner y KPI
+5. US14 → validar → formularios estandarizados
+6. US15 → validar → UTF-8 limpio
+7. Pulido → verificación completa
+
+### Estrategia de Equipo Paralelo
+
+Con varios desarrolladores, tras la Fase 15: Dev A en US11, Dev B en US12, Dev C en US13; US14 y US15 se asignan al liberarse, coordinando las ediciones de `index.html`, `src/styles.css` y `src/app.js` para evitar conflictos.
+
+---
+
+## Notas
+
+- `[P]` implica archivos distintos y ninguna dependencia pendiente; las ediciones sobre `index.html` o `src/app.js` se secuencian aunque pertenezcan a historias distintas
+- `[USn]` garantiza trazabilidad con los FR de `spec.md`
+- Numeración correlativa T001–T116: 116 tareas totales, sin duplicados ni huecos
+- Todas las tareas incluyen ruta de archivo y son ejecutables sin contexto adicional
+- No se editan `src/components/*` ni `dist/index.html` a mano, según `research.md`
