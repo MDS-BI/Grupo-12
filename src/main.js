@@ -27,6 +27,13 @@ function navigate(path) {
   renderRoute();
 }
 
+function setPasswordVisibility(password, toggle, visible) {
+  if (!password || !toggle) return;
+  password.type = visible ? 'text' : 'password';
+  toggle.setAttribute('aria-pressed', String(visible));
+  toggle.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+}
+
 function showLogin(errorMessage = '') {
   const loginView = document.getElementById('login-view');
   const appShell = document.getElementById('app-shell');
@@ -35,7 +42,10 @@ function showLogin(errorMessage = '') {
   if (appShell) appShell.hidden = true;
   if (loginView) loginView.hidden = false;
   if (errorNode) errorNode.textContent = errorMessage;
-  if (password) password.value = '';
+  if (password) {
+    password.value = '';
+    setPasswordVisibility(password, document.getElementById('login-password-toggle'), false);
+  }
   document.title = 'Iniciar sesión';
 }
 
@@ -104,5 +114,17 @@ function bindAuthHandlers() {
   });
 }
 
+function bindPasswordToggle() {
+  const toggle = document.getElementById('login-password-toggle');
+  const password = document.getElementById('login-password');
+  if (!toggle || !password || toggle.dataset.bound) return;
+  toggle.addEventListener('click', () => {
+    setPasswordVisibility(password, toggle, password.type === 'password');
+    password.focus();
+  });
+  toggle.dataset.bound = 'true';
+}
+
 bindAuthHandlers();
+bindPasswordToggle();
 void renderRoute();
