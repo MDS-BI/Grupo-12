@@ -38,4 +38,4 @@ Los módulos ERP personalizados adaptan el CRM mediante un único archivo de con
 4. Opcionalmente establezca `theme.accentColor` para remarcar los resaltados y controles principales del espacio de trabajo.
 5. Añada reglas de validación específicas del módulo junto a las reglas base donde sea necesario.
 
-La generación de identidad, marcas de tiempo, unicidad de correo, integridad referencial, eliminación lógica, navegación y búsqueda siguen siendo gestionadas por el módulo base. Sin archivo de configuración, la aplicación se ejecuta con el comportamiento predeterminado del CRM. Consulte `specs/001-erp-base-module/` para la especificación completa.
+La generación de identidad, marcas de tiempo, unicidad de correo, integridad referencial, eliminación lógica, navegación y búsqueda siguen siendo gestionadas por el módulo base. Sin archivo de configuración, la aplicación se ejecuta con el comportamiento predeterminado del CRM. Consulte `specs/001-crm-module/` para la especificación completa.

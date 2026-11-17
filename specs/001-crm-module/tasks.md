@@ -1,6 +1,6 @@
 # Tareas: Módulo CRM (Customer Relationship Management)
 
-**Entrada**: Documentos de diseño desde `/specs/001-erp-base-module/`
+**Entrada**: Documentos de diseño desde `/specs/001-crm-module/`
 **Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/crm-storage.md
 
 ## Formato: `[ID] [P?] [Historia] Descripción`

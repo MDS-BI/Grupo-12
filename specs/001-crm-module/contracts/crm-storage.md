@@ -1,6 +1,6 @@
 # Contrato de Almacenamiento del Módulo CRM
 
-**Funcionalidad**: `001-erp-base-module` | **Modelo**: [data-model.md](../data-model.md)
+**Funcionalidad**: `001-crm-module` | **Modelo**: [data-model.md](../data-model.md)
 
 ## Propósito
 
