@@ -1,11 +1,11 @@
 import { labelFor, normalizeConfig, setActiveConfig, getConfig, PHONE_PREFIXES } from './module-config.js';
-import { addDocument, addEntity, deleteDocument, deleteDocumentsForEntity, deleteEntity, loadDocuments, loadEntities, searchEntities, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
+import { computeConversionRate } from './domain.js';
+import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, loadCustomers, loadDocuments, loadEntities, searchEntities, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
+
+export const AUTH_STORAGE_KEY = 'erp.authenticatedUser';
+export const SIDEBAR_STORAGE_KEY = 'erp.sidebarCollapsed';
 
 const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'search'];
-const defaultFormState = {
-  entity: { form: 'entity-form', idField: 'entity-id', selection: 'edit-entity', submit: 'submit-button', delete: 'delete-entity' },
-  document: { form: 'document-form', idField: 'document-id', selection: 'edit-document', submit: 'document-submit-button', delete: 'delete-document' }
-};
 
 function qs(id) {
   return document.getElementById(id);
@@ -150,7 +150,7 @@ function clearFormErrors(scope) {
   if (scope === 'entity') {
     ids.push(
       'error-name', 'error-code', 'error-taxId', 'error-email', 'error-phone', 'error-address', 'error-category',
-      'error-targetDate', 'error-creditLimit', 'error-paymentTerms', 'error-cf-name'
+      'error-targetDate', 'error-creditLimit', 'error-entity-currency', 'error-paymentTerms', 'error-cf-name'
     );
   }
   if (scope === 'document') {
@@ -190,13 +190,34 @@ function showView(name) {
   });
 }
 
+function formatCurrency(value) {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0
+  }).format(Number(value) || 0);
+}
+
+function renderWelcomeBanner() {
+  const node = qs('welcome-title');
+  if (!node) return;
+  const user = localStorage.getItem(AUTH_STORAGE_KEY) || 'Cliente1';
+  node.textContent = `Bienvenido, ${user}`;
+}
+
 function updateDashboardStats() {
-  const entities = loadEntities();
-  const documents = loadDocuments();
-  const entitiesNode = qs('stat-entities');
-  const docsNode = qs('stat-documents');
-  if (entitiesNode) entitiesNode.textContent = String(entities.length);
-  if (docsNode) docsNode.textContent = String(documents.length);
+  const overview = getCRMOverview();
+  const values = {
+    'stat-clients': String(overview.activeCustomers),
+    'stat-opportunities': String(overview.openOpportunities),
+    'stat-revenue': formatCurrency(overview.totalPipeline),
+    'stat-conversion': `${computeConversionRate(overview.opportunities)} %`
+  };
+
+  for (const [id, value] of Object.entries(values)) {
+    const node = qs(id);
+    if (node) node.textContent = value;
+  }
 }
 
 function renderBranding() {
@@ -235,7 +256,6 @@ function nounSelectionSuffix(label) {
 }
 
 function renderModuleLabels() {
-  const config = getActiveConfig();
   const nav = [
     ['nav-dashboard', 'dashboard'],
     ['nav-entities', 'entities'],
@@ -260,8 +280,8 @@ function renderModuleLabels() {
   if (qs('entities-view-heading')) qs('entities-view-heading').textContent = entityLabel;
   if (qs('documents-view-heading')) qs('documents-view-heading').textContent = documentLabel;
   if (qs('search-view-heading')) qs('search-view-heading').textContent = `Buscar ${entityLabel}`;
-  if (qs('stat-entities-label')) qs('stat-entities-label').textContent = entityLabel;
-  if (qs('stat-documents-label')) qs('stat-documents-label').textContent = documentLabel;
+  if (qs('stat-clients-label')) qs('stat-clients-label').textContent = 'Clientes activos';
+  if (qs('stat-opportunities-label')) qs('stat-opportunities-label').textContent = 'Oportunidades activas';
   if (qs('action-new-entity-title')) qs('action-new-entity-title').textContent = `${entityNewArticle} ${entitySingular}`;
   if (qs('action-new-document-title')) qs('action-new-document-title').textContent = `${documentNewArticle} ${documentSingular}`;
   if (qs('action-open-entities-title')) qs('action-open-entities-title').textContent = entityLabel;
@@ -279,7 +299,7 @@ function updateEntitySelect() {
   const select = qs('edit-entity');
   if (!select) return;
   const entities = loadEntities();
-  select.innerHTML = '<option value="">Seleccionar...</option>';
+  select.replaceChildren(new Option('Seleccionar...', ''));
   for (const entity of entities) {
     const option = document.createElement('option');
     option.value = entity.id;
@@ -292,7 +312,7 @@ function updateDocumentSelect() {
   const select = qs('edit-document');
   if (!select) return;
   const documents = loadDocuments();
-  select.innerHTML = '<option value="">Seleccionar...</option>';
+  select.replaceChildren(new Option('Seleccionar...', ''));
   for (const record of documents) {
     const entity = loadEntities().find((item) => item.entity_id === record.entity_id || item.id === record.entity_id);
     const label = [record.series || 'SIN-SERIE', record.folio || '0'].join(' - ');
@@ -308,7 +328,7 @@ function updateEntityFieldOptions() {
   const container = qs('entity-custom-fields');
   if (!container) return;
   const fields = (config.customFields || []).filter((field) => (field.target || 'entity') === 'entity');
-  container.innerHTML = '';
+  container.replaceChildren();
   container.hidden = fields.length === 0;
 
   for (const field of fields) {
@@ -360,7 +380,7 @@ function updateDocumentFieldOptions() {
   const container = qs('document-custom-fields');
   if (!container) return;
   const fields = (config.customFields || []).filter((field) => (field.target || 'entity') === 'document');
-  container.innerHTML = '';
+  container.replaceChildren();
   container.hidden = fields.length === 0;
 
   for (const field of fields) {
@@ -407,7 +427,7 @@ function populateEntityDropdown() {
   const select = qs('document-entity');
   if (!select) return;
   const entities = loadEntities();
-  select.innerHTML = '<option value="">Seleccionar...</option>';
+  select.replaceChildren(new Option('Seleccionar...', ''));
   for (const entity of entities) {
     const option = document.createElement('option');
     option.value = entity.entity_id;
@@ -457,6 +477,7 @@ function fillEntityForm(entity) {
   qs('category').value = entity.category || '';
   qs('targetDate').value = entity.targetDate || '';
   qs('creditLimit').value = entity.creditLimit ?? '';
+  qs('entity-currency').value = entity.currency || 'CLP';
   qs('paymentTerms').value = entity.paymentTerms || '';
 
   const config = getActiveConfig();
@@ -512,12 +533,12 @@ function renderSearchResults() {
 
   const term = input.value.trim();
   const results = searchEntities(term);
-  resultsList.innerHTML = '';
+  resultsList.replaceChildren();
   const matches = results.filter(Boolean);
 
   if (!matches.length) {
     emptyState.hidden = false;
-    resultsList.innerHTML = '';
+    resultsList.replaceChildren();
     return;
   }
 
@@ -601,7 +622,7 @@ function attachStatusOptions(currentStatus = '') {
   const baseOptions = currentStatus ? (transitions[currentStatus] || []) : allStatuses;
   const allowed = currentStatus ? [currentStatus, ...baseOptions.filter((option) => option !== currentStatus)] : ['', ...allStatuses];
   const options = currentStatus ? allowed : ['', ...allStatuses];
-  select.innerHTML = '';
+  select.replaceChildren();
 
   if (!currentStatus) {
     const placeholder = document.createElement('option');
@@ -643,6 +664,7 @@ function mapEntityValues(form) {
     category: form.querySelector('#category')?.value || '',
     targetDate: form.querySelector('#targetDate')?.value || '',
     creditLimit: form.querySelector('#creditLimit')?.value || '',
+    currency: form.querySelector('#entity-currency')?.value || 'CLP',
     paymentTerms: form.querySelector('#paymentTerms')?.value || ''
   };
 
@@ -681,17 +703,60 @@ function mapDocumentValues(form) {
   return payload;
 }
 
+const ERROR_FIELD_ALIASES = {
+  companyName: 'name',
+  contactName: 'category',
+  clientId: 'document-entity',
+  employeeId: 'series',
+  amount: 'subtotal',
+  closeDate: 'endDate',
+  stage: 'status'
+};
+
 function exposeValidationErrors(scope, errors = {}) {
   clearValidationStates();
   const local = Object.entries(errors || {});
   for (const [key, message] of local) {
-    const id = key === 'entity_id' ? 'error-document-entity' : `error-${key}`;
+    const field = ERROR_FIELD_ALIASES[key] || key;
+    const id = field === 'entity_id' ? 'error-document-entity' : `error-${field}`;
     setErrorText(id, message);
   }
 
   for (const field of getActiveConfig().customFields || []) {
     const value = errors[field.key];
     if (value) setErrorText(`error-cf-${field.key}`, value);
+  }
+}
+
+function syncCustomerMirror(entity) {
+  if (!entity) return null;
+  const safeId = String(entity.id || 'cliente').replace(/[^a-zA-Z0-9_-]/g, '');
+  const payload = {
+    name: entity.name || 'Sin nombre',
+    contactName: entity.category || entity.name || 'Contacto',
+    email: entity.email || `cliente-${safeId}@crm.local`,
+    phone: entity.phone || '900000000',
+    status: 'Activo',
+    archived: false,
+    entityId: entity.id,
+    customerId: entity.id,
+    code: entity.code || '',
+    taxId: entity.taxId || '',
+    address: entity.address || '',
+    category: entity.category || '',
+    currency: entity.currency || 'CLP',
+    creditLimit: entity.creditLimit || 0,
+    paymentTerms: entity.paymentTerms || ''
+  };
+
+  const existing = loadCustomers().find((customer) =>
+    customer.entityId === entity.id || customer.customerId === entity.id || customer.id === entity.id
+  );
+
+  try {
+    return existing ? updateCustomer(existing.id, payload) : addCustomer(payload);
+  } catch {
+    return null;
   }
 }
 
@@ -715,6 +780,7 @@ function handleEntitySubmit(event) {
   }
 
   const savedEntity = id ? updateEntity(id, payload) : addEntity(payload);
+  syncCustomerMirror(savedEntity);
 
   updateEntitySelect();
   const selector = qs('edit-entity');
@@ -755,6 +821,62 @@ function handleDocumentSubmit(event) {
   updateDashboardStats();
 }
 
+function isCompactViewport() {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 900px)').matches;
+}
+
+function applySidebarState(collapsed, { persist = false, moveFocus = false } = {}) {
+  const appShell = qs('app-shell');
+  const menuToggle = qs('menu-toggle');
+  if (!appShell || !menuToggle) return;
+
+  appShell.classList.toggle('sidebar-collapsed', collapsed);
+  menuToggle.setAttribute('aria-expanded', String(!collapsed));
+  menuToggle.setAttribute('aria-label', collapsed ? 'Expandir menú lateral' : 'Contraer menú lateral');
+
+  if (persist) {
+    sessionStorage.setItem(SIDEBAR_STORAGE_KEY, String(collapsed));
+  }
+
+  if (moveFocus && isCompactViewport()) {
+    if (collapsed) qs('nav-dashboard')?.focus();
+    else menuToggle.focus();
+  }
+}
+
+function bindSidebarControls() {
+  const menuToggle = qs('menu-toggle');
+  const appShell = qs('app-shell');
+  const backdrop = qs('sidebar-backdrop');
+  if (!menuToggle || !appShell || menuToggle.dataset.bound) return;
+
+  const saved = sessionStorage.getItem(SIDEBAR_STORAGE_KEY);
+  applySidebarState(saved === 'true');
+
+  menuToggle.addEventListener('click', () => {
+    applySidebarState(!appShell.classList.contains('sidebar-collapsed'), { persist: true, moveFocus: true });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (qs('app-shell') !== appShell) return;
+    if (event.key === 'Escape' && isCompactViewport() && appShell.classList.contains('sidebar-collapsed')) {
+      applySidebarState(false, { persist: true, moveFocus: true });
+    }
+  });
+
+  const closeFromOutside = (event) => {
+    if (qs('app-shell') !== appShell) return;
+    if (!isCompactViewport() || !appShell.classList.contains('sidebar-collapsed')) return;
+    const sidebar = qs('sidebar');
+    if (sidebar?.contains(event.target) || menuToggle.contains(event.target)) return;
+    applySidebarState(false, { persist: true, moveFocus: true });
+  };
+
+  document.addEventListener('click', closeFromOutside);
+  backdrop?.addEventListener('click', closeFromOutside);
+  menuToggle.dataset.bound = 'true';
+}
+
 async function boot() {
   const current = getConfig();
   const normalized = current && typeof current === 'object' && !Array.isArray(current)
@@ -762,6 +884,7 @@ async function boot() {
     : normalizeConfig(null).config;
   setActiveConfig(normalized);
   renderBranding();
+  renderWelcomeBanner();
   renderModuleLabels();
   attachStatusOptions();
   updateEntitySelect();
@@ -773,15 +896,7 @@ async function boot() {
   renderSearchResults();
   showView('dashboard');
 
-  const menuToggle = qs('menu-toggle');
-  const appShell = qs('app-shell');
-  if (menuToggle && appShell && !menuToggle.dataset.bound) {
-    menuToggle.addEventListener('click', () => {
-      const collapsed = appShell.classList.toggle('sidebar-collapsed');
-      menuToggle.setAttribute('aria-expanded', String(!collapsed));
-    });
-    menuToggle.dataset.bound = 'true';
-  }
+  bindSidebarControls();
 
   const entityForm = qs('entity-form');
   if (entityForm && !entityForm.dataset.bound) {

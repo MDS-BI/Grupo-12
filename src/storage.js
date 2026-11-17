@@ -294,7 +294,7 @@ export function searchEntities(term = '') {
       entity.paymentTerms,
       entity.entity_id,
       ...Object.entries(entity)
-        .filter(([key, value]) => !BASE_FIELDS.entity.includes(key) || key === 'entity_id')
+        .filter(([key]) => !BASE_FIELDS.entity.includes(key) || key === 'entity_id')
         .map(([, value]) => value)
     ].join(' ').toLowerCase();
 
