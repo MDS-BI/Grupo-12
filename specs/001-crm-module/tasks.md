@@ -9,6 +9,8 @@
 - **[USn]**: Historia de usuario de `spec.md` (US1–US15)
 - Toda tarea que cambia comportamiento de negocio se acompaña de sus pruebas (Constitución, Principio II)
 
+> **Ruta ejecutable**: las Fases 3–13 conservan el registro histórico de la arquitectura basada en `src/components/*`; no son prerrequisitos bloqueantes. La implementación activa se realiza en el DOM real de Fases 14–22 (`index.html`, `src/`) y sus comportamientos se validan allí. Las tareas pendientes de Fases 3–13 se conservan solo como referencia histórica.
+
 ---
 
 ## Fase 1: Configuración (Infraestructura Compartida)
@@ -158,12 +160,12 @@
 ### Pruebas para la Historia de Usuario 6
 
 - [x] T043 [P] [US6] Añadir pruebas unitarias de cálculo de clientes activos, oportunidades abiertas, pipeline y próximos cierres (30 días, excluye vencidas) en `tests/unit/dashboard.test.js` (FR-026, FR-046)
-- [x] T044 [P] [US6] Añadir pruebas de integración del dashboard, de la sección «Próximos cierres» y del estado vacío en `tests/integration/dashboard.test.js` (FR-026, FR-027, FR-028, FR-046)
+- [x] T044 [P] [US6] Añadir pruebas de integración del dashboard, de la sección «Próximos cierres» y del estado vacío, además de verificar que los KPI no se actualizan automáticamente mientras el dashboard permanece abierto (FR-027), en `tests/integration/dashboard.test.js` (FR-026, FR-027, FR-028, FR-046)
 
 ### Implementación de la Historia de Usuario 6
 
 - [x] T045 [P] [US6] Crear `src/components/dashboard.js` con indicadores y accesos rápidos para crear clientes, oportunidades e interacciones (FR-026, FR-028)
-- [ ] T046 [US6] Recalcular los indicadores y la sección «Próximos cierres» cada vez que se muestra el dashboard, y conectar los accesos rápidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046)
+- [ ] T046 [US6] Recalcular los indicadores y la sección «Próximos cierres» cada vez que se muestra el dashboard, sin recalcularlos automáticamente mientras permanece abierto, y conectar los accesos rápidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046)
 - [x] T047 [US6] Mostrar indicadores en cero sin errores y acceso rápido para empezar cuando no haya datos (FR-026, FR-031)
 
 **Punto de control**: La aplicación abre en un dashboard funcional y coherente con los datos.
@@ -346,12 +348,12 @@
 
 ### Pruebas para la Historia de Usuario 13
 
-- [x] T093 [P] [US13] Añadir pruebas unitarias de `computeConversionRate()` con alias `etapa`, denominador cero y sin mutación en `tests/unit/conversion-rate.test.js`
+- [x] T093 [P] [US13] Añadir pruebas unitarias de `computeConversionRate()` que cubran FR-058: `ganadas / (ganadas + perdidas)`, redondeo entero, `0 %` sin oportunidades cerradas, alias `etapa` y sin mutación en `tests/unit/conversion-rate.test.js` (FR-058)
 - [x] T094 [P] [US13] Añadir pruebas de banner, cuatro KPI y estado vacío en `tests/integration/ui-contracts.test.js`
 
 ### Implementación de la Historia de Usuario 13
 
-- [x] T095 [US13] Implementar `computeConversionRate(opportunities)` en `src/domain.js`
+- [x] T095 [US13] Implementar `computeConversionRate(opportunities)` en `src/domain.js` según FR-058, con redondeo entero y `0` cuando no existan oportunidades cerradas (FR-058)
 - [x] T096 [US13] Añadir `#welcome-title` y las tarjetas `#stat-clients`, `#stat-opportunities`, `#stat-revenue` y `#stat-conversion` con sus etiquetas en `index.html`
 - [x] T097 [US13] Ampliar `updateDashboardStats()` para renderizar los cuatro KPI desde `getCRMOverview()` en `src/app.js`
 - [x] T098 [US13] Añadir `renderWelcomeBanner()` leyendo `AUTH_STORAGE_KEY` en `src/app.js`
@@ -417,7 +419,7 @@
 
 ---
 
-## Fase 22: Clarificaciones de 2026-11-21 (FR-068 a FR-072)
+## Fase 22: Clarificaciones de 2026-11-21 (FR-068 a FR-073)
 
 **Propósito**: incorporar al código las decisiones documentadas en `specs/001-crm-module/spec.md` y validarlas con el DOM real (`index.html`, `src/`).
 
@@ -425,19 +427,19 @@
 
 - [ ] T117 [P] [US6] Escribir pruebas unitarias de `getCRMOverview()`/`getDashboardMetrics()` que comprueben que una oportunidad abierta de un cliente archivado cuenta en oportunidades, pipeline y próximos cierres (FR-068) en `tests/unit/dashboard-metrics.test.js`
 - [ ] T118 [P] [US8] Escribir pruebas unitarias de unicidad de correo que incluyan clientes archivados (FR-069) en `tests/unit/client-uniqueness.test.js`
-- [ ] T119 [P] [US14] Escribir la prueba de integración de la confirmación «Permanecer»/«Descartar» al salir de `#entity-form` con cambios (FR-070) en `tests/integration/unsaved-changes.test.js`
+- [ ] T119 [P] [US14] Escribir la prueba de integración de la confirmación «Permanecer»/«Descartar» al salir de cualquier formulario CRM del DOM real con cambios —actualmente `#entity-form`, y cualquier otro formulario que se incorpore— (FR-070) en `tests/integration/unsaved-changes.test.js`
 - [ ] T120 [P] [US9] Escribir la prueba de integración de campos personalizados eliminados: valor conservado en `localStorage` y oculto en formularios, listas y búsqueda (FR-071) en `tests/integration/module-config.test.js`
-- [ ] T121 [P] [US8] Escribir la prueba de integración de arranque con datos corruptos: error visible, sin sobrescritura automática y reinicio explícito (FR-072) en `tests/integration/storage-recovery.test.js`
-- [ ] T122 [P] [US10] Escribir la prueba de integración de la preferencia de tema persistida entre recargas cuando el selector esté presente en `tests/integration/theme.test.js`
+- [ ] T121 [P] [US8] Escribir la prueba de integración de arranque con datos corruptos según el criterio de forma de `contracts/crm-storage.md`: error visible, sin sobrescritura automática y reinicio explícito (FR-072) en `tests/integration/storage-recovery.test.js`
+- [ ] T122 [P] [US10] Escribir la prueba de integración que compruebe que el selector `Claro`/`Oscuro` existe, que la preferencia se conserva entre recargas y que se aplica desde el primer render (FR-073, SC-021) en `tests/integration/theme.test.js`
 
 ### Implementación de las clarificaciones
 
 - [ ] T123 [US6] Ajustar `getCRMOverview()` en `src/storage.js` para seleccionar oportunidades abiertas por etapa sin filtrar por el estado `archived` del cliente, manteniendo la exclusión de archivados en «Clientes activos» (FR-068)
 - [ ] T124 [US8] Reforzar `isEmailAvailable()` y `addCustomer()`/`updateCustomer()` en `src/storage.js` para rechazar correos de clientes archivados (FR-069)
-- [ ] T125 [US14] Centralizar la navegación en `src/app.js` y añadir el diálogo de cambios sin guardar en `index.html`, con opciones «Permanecer» y «Descartar» (FR-070)
+- [ ] T125 [US14] Centralizar la navegación en `src/app.js` y añadir en `index.html` un diálogo de cambios sin guardar, aplicable a cualquier formulario CRM del DOM real, con opciones «Permanecer» y «Descartar» (FR-070)
 - [ ] T126 [US9] Derivar los campos visibles de la configuración activa en `src/module-config.js` y fusionar actualizaciones con el registro almacenado en `src/storage.js` para conservar valores huérfanos (FR-071)
-- [ ] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072)
-- [ ] T128 [US10] Guardar y aplicar la preferencia `Claro`/`Oscuro` desde `localStorage['crm.theme']` antes del primer render en `src/main.js` e `index.html`, sin escribir en las claves `crm_module:*` ni en `erp_*`
+- [ ] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` usando el criterio de forma de `contracts/crm-storage.md`, y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072)
+- [ ] T128 [US10] Añadir el selector `Claro`/`Oscuro` al espacio de trabajo en `index.html`; guardar y aplicar la preferencia desde `localStorage['crm.theme']` antes del primer render en `src/main.js` e `index.html` (FR-073, SC-021), sin escribir en las claves `crm_module:*` ni en `erp_*`
 - [ ] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build` y validar el escenario 6 de `specs/001-crm-module/quickstart.md`
 
 **Punto de control**: las clarificaciones están implementadas y son verificables de forma independiente.
@@ -447,6 +449,8 @@
 ## Dependencias y Orden de Ejecución
 
 ### Dependencias entre Fases
+
+> Las dependencias de Fases 1–13 describen el registro histórico de `src/components/*` y no bloquean la ruta ejecutable. La cadena activa es Fase 14 → Fase 15 → Fases 16–20 → Fase 21 → Fase 22.
 
 - Configuración (Fase 1): sin dependencias
 - Fundacional (Fase 2): depende de la Fase 1
@@ -474,7 +478,7 @@
 - US9 (Fase 11) puede avanzar en paralelo con las historias de datos
 - En la Fase 13, T069, T070 y T071 pueden ejecutarse en paralelo antes de T072–T074
 
-- Interfaz SaaS profesional (Fases 14–21): depende de la Fase 13 y actúa sobre el DOM real (`index.html`, `src/`); no revive `src/components/*`
+- Interfaz SaaS profesional (Fases 14–21): no depende de las Fases 3–13 y actúa sobre el DOM real (`index.html`, `src/`); no revive `src/components/*`
 
 ### Dependencias entre Fases (Interfaz SaaS)
 
@@ -491,7 +495,7 @@
 - **US13 (P2)**: depende de T080 y de `getCRMOverview()` en `src/storage.js`; T099 garantiza que US14 tendrá datos coherentes
 - **US14 (P2)**: depende de T096/T097 para que los cambios de `#entity-form` se reflejen en los KPI
 - **US15 (P3)**: transversal; sus pruebas se ejecutan al final porque recorren todas las vistas
-- **Clarificaciones (FR-068 a FR-072)**: se asignan a US6, US8, US9, US10 y US14; T117–T122 pueden ejecutarse en paralelo, T123–T128 se secuencian por archivo compartido y T129 cierra la fase
+- **Clarificaciones (FR-068 a FR-073)**: se asignan a US6, US8, US9, US10 y US14; T117–T122 pueden ejecutarse en paralelo, T123–T128 se secuencian por archivo compartido y T129 cierra la fase
 
 ### Dentro de Cada Historia de Usuario
 

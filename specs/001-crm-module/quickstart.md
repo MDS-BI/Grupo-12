@@ -34,7 +34,7 @@
 - Verifique que al salir de un formulario con cambios sin guardar se ofrece quedarse o descartar, y que el destino no cambia sin confirmación (FR-070).
 - Verifique que, al eliminar un campo personalizado de la configuración, sus valores guardados permanecen en el almacenamiento pero dejan de aparecer en formularios, listas y búsquedas (FR-071).
 - Verifique que, al iniciar con datos corruptos, aparece un error claro con una acción explícita de reinicio y que los datos no se sobrescriben automáticamente (FR-072).
-- Si el selector de tema está disponible, verifique que `Claro`/`Oscuro` se conserva al recargar en el mismo navegador y se aplica desde el primer render.
+- Verifique que el selector de tema `Claro`/`Oscuro` está disponible, que la elección se conserva al recargar en el mismo navegador y que se aplica desde el primer render (FR-073, SC-021).
 
 ## Extender el Módulo
 
@@ -138,7 +138,7 @@ npm run build
 3. Modificar `#entity-form` y pulsar un enlace del menú: debe aparecer la confirmación «Permanecer»/«Descartar»; al elegir «Permanecer» el formulario conserva los valores y la vista no cambia.
 4. Eliminar un campo personalizado de la configuración, guardar un registro y comprobar que el valor antiguo sigue en `localStorage` pero no aparece en el formulario ni en la búsqueda.
 5. Escribir un valor inválido en una clave del CRM en `localStorage`, recargar y comprobar que aparece el error de datos corruptos con una acción explícita de reinicio; verificar que la clave no se ha sobrescrito antes de pulsar esa acción.
-6. Si el selector de tema está presente, elegir `Oscuro`, recargar y comprobar que el tema se aplica desde el primer render sin cambio visible.
+6. Confirmar que el selector `Claro`/`Oscuro` está presente, elegir `Oscuro`, recargar y comprobar que el tema se aplica desde el primer render sin cambio visible (FR-073, SC-021).
 
 ## Resultado esperado
 

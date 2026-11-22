@@ -81,8 +81,9 @@ Las claves `crm_module:*` contienen arreglos JSON con los registros normalizados
 ## Validación al arrancar y recuperación
 
 - Cada lectura distingue tres resultados: clave ausente (`empty`), datos válidos (`ok`) y dato corrupto o con forma inesperada (`error`). Un JSON sintácticamente válido pero con estructura incorrecta también es `error`.
+- Se considera `error`, además del JSON no analizable, cualquier valor que no sea un arreglo, que contenga elementos `null` o no objeto, o cuyos elementos carezcan de un `id` no vacío o de los campos obligatorios definidos en [data-model.md](../data-model.md) (se aceptan los alias normalizados `companyName`, `email`, `stage`, `amount` y `closeDate`). Un arreglo vacío es `ok`. Los campos adicionales son válidos y deben conservarse (FR-071).
 - El estado `empty` inicializa los datos por defecto sin mensaje; el estado `error` no sobrescribe nada y muestra un error claro con una acción explícita para reiniciar (FR-072).
-- El reinicio elimina solo las claves propias del módulo, nunca todas las claves del mismo origen, y informa si la escritura falla (por ejemplo, por cuota agotada).
+- El reinicio escribe arreglos vacíos solo en las claves de entidad propias del módulo (`crm_module:customers`, `crm_module:employees`, `crm_module:opportunities`, `crm_module:interactions`), nunca modifica las claves de sesión ni `crm.theme`, y informa si la escritura falla (por ejemplo, por cuota agotada).
 
 ## Campos personalizados eliminados
 

@@ -88,14 +88,14 @@ Sin atributos `width`/`height` en línea: el tamaño se define en CSS (22 px par
 - `document.body.textContent` no contiene U+FFFD, `Ã`, `â€` ni entidades HTML de acentos.
 - Los encabezados en mayúsculas se leen completos y sin cortes en los cuatro breakpoints definidos.
 
-## 7. Cambios sin guardar, tema y errores de almacenamiento (FR-070, FR-072)
+## 7. Cambios sin guardar, tema y errores de almacenamiento (FR-070, FR-072, FR-073)
 
 | Situación | Elemento/contrato observable | Comportamiento |
 |---|---|---|
-| Formulario con cambios sin guardar | `#entity-form` y la navegación (`#nav-*`) | Al intentar salir se muestra un diálogo con «Permanecer» y «Descartar»; sin confirmación explícita no se navega ni se pierden los datos |
+| Cualquier formulario CRM con cambios sin guardar | formularios del DOM real y la navegación (`#nav-*`) | Al intentar salir se muestra un diálogo con «Permanecer» y «Descartar»; sin confirmación explícita no se navega ni se pierden los datos (FR-070) |
 | Elección de «Permanecer» | diálogo de confirmación | Cierra el diálogo, mantiene la vista y los valores introducidos |
 | Elección de «Descartar» | diálogo de confirmación | Cierra el diálogo, descarta los cambios y navega al destino solicitado |
-| Preferencia de tema (si el selector está presente) | `localStorage['crm.theme']` | Guarda `Claro`/`Oscuro` en el mismo navegador; la elección se aplica desde el primer render tras recargar |
+| Selector de tema `Claro`/`Oscuro` | selector del espacio de trabajo y `localStorage['crm.theme']` | El selector está disponible en el espacio de trabajo; guarda la elección en el mismo navegador y la aplica desde el primer render tras recargar (FR-073, SC-021) |
 | Datos corruptos al arrancar | `#storage-error`, `#storage-reset` | Se muestra un mensaje comprensible y una acción explícita para reiniciar; no se descartan datos automáticamente |
 
 La navegación interna debe pasar por un único punto de control para que la confirmación no pueda evitarse con enlaces del menú ni con el botón de retroceso.

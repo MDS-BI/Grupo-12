@@ -112,7 +112,7 @@
 
 ## Decisiones derivadas de las clarificaciones de 2026-11-21
 
-Estas decisiones se registraron en la rama `003-spec-clarifications` y se incorporan a la especificación activa como FR-068 a FR-072.
+Estas decisiones se registraron en la rama `003-spec-clarifications` y se incorporan a la especificación activa como FR-068 a FR-073.
 
 ### Oportunidades de clientes archivados en el dashboard
 
@@ -146,6 +146,6 @@ Estas decisiones se registraron en la rama `003-spec-clarifications` y se incorp
 
 ### Preferencia de tema persistente
 
-- **Decisión**: Guardar `Claro`/`Oscuro` en el almacenamiento local del mismo navegador y aplicarlo antes del primer render cuando el selector de tema esté presente.
+- **Decisión**: Exponer el selector `Claro`/`Oscuro` en el espacio de trabajo, guardar la elección en el almacenamiento local del mismo navegador y aplicarla antes del primer render (FR-073).
 - **Justificación**: La clarificación exige conservar la elección entre recargas en el mismo entorno; aplicarla temprano evita un cambio visible de tema.
 - **Alternativas consideradas**: guardarla en la configuración del módulo (es preferencia del usuario, no adaptación); cookies o sesión.

@@ -130,8 +130,8 @@ Objeto de configuración cargado al arrancar que adapta la terminología, los ca
 - **Oportunidades de archivados**: una oportunidad se considera abierta únicamente por su etapa; el estado `archived` del cliente no la excluye de oportunidades abiertas, pipeline ni próximos cierres (FR-068).
 - **Campos huérfanos**: los valores de campos personalizados eliminados de la configuración sobreviven en el registro; las vistas derivan de la configuración activa qué campos son visibles (FR-071).
 - **Salida de formularios**: los cambios sin guardar bloquean la navegación hasta que el usuario elige quedarse o descartar (FR-070).
-- **Preferencia de tema**: `Claro`/`Oscuro` se guarda en el almacenamiento local del mismo navegador y se aplica antes del primer render cuando el selector esté presente.
-- **Datos corruptos**: al arrancar se validan las claves; ante un valor ilegible se informa y se ofrece un reinicio explícito, sin reemplazar la información automáticamente (FR-072).
+- **Preferencia de tema**: el espacio de trabajo expone el selector `Claro`/`Oscuro` (FR-073); la elección se guarda en el almacenamiento local del mismo navegador y se aplica antes del primer render.
+- **Datos corruptos**: al arrancar se validan las claves; se considera corrupto el JSON no analizable o un valor con forma inválida según `contracts/crm-storage.md`. Se informa y se ofrece un reinicio explícito que escribe arreglos vacíos solo en las claves de entidad, sin reemplazar la información automáticamente ni modificar sesión o tema (FR-072).
 
 ## Reglas de Validación (resumen)
 
