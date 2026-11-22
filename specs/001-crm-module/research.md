@@ -109,3 +109,43 @@
 - Las causas dominantes son APIs inexistentes (`addClient`, `ValidationError`, `isEmailAvailable`, `archiveClient`, `loadClients`), selectores `data-nav`/`data-stat`/`data-form`/`.workspace` y variables sin declarar (`bootWith`, `qs`, `brandedConfig`, `root`, `errors`, `normalizeConfig`, `DEFAULT_CONFIG`, `BASE_FIELDS`, `FIELD_TYPES`).
 - Conforme al plan, esas suites quedan documentadas como deuda y se excluyen de `vitest.config.mjs` y `eslint.config.mjs` mediante rutas explícitas; no se eliminan archivos ni se reescribe su intención. Las pruebas vigentes son las 11 restantes, incluidas las nuevas de esta historia.
 - Resultado final de la verificación: `npm run test:run` 11/11 archivos y 40/40 pruebas; `npm run lint` sin errores; `npm run build` correcto con `dist/index.html` UTF-8 y cuatro tarjetas KPI.
+
+## Decisiones derivadas de las clarificaciones de 2026-11-21
+
+Estas decisiones se registraron en la rama `003-spec-clarifications` y se incorporan a la especificación activa como FR-068 a FR-072.
+
+### Oportunidades de clientes archivados en el dashboard
+
+- **Decisión**: Determinar las oportunidades abiertas solo por la etapa; las oportunidades de clientes archivados siguen contando en oportunidades abiertas, pipeline y próximos cierres.
+- **Justificación**: FR-024 conserva esos registros y SC-005 exige que los indicadores coincidan con los datos almacenados; excluirlas exigiría una regla nueva y contradiría la definición vigente.
+- **Alternativas consideradas**: excluirlas del pipeline; mostrarlas en un indicador separado.
+
+### Correo de clientes archivados
+
+- **Decisión**: El correo normalizado permanece reservado después de archivar al cliente.
+- **Justificación**: FR-045 no prevé excepciones y FR-044 mantiene consultable el historial; reutilizarlo crearía registros históricos ambiguos.
+- **Alternativas consideradas**: liberar el correo al archivar; permitir reutilización solo tras eliminación física.
+
+### Salida de formularios con cambios sin guardar
+
+- **Decisión**: Interceptar la salida y ofrecer "Permanecer" / "Descartar"; no navegar sin confirmación explícita.
+- **Justificación**: Evita pérdida accidental de datos y cumple el principio constitucional de recuperación clara ante errores.
+- **Alternativas consideradas**: guardado automático; descarte silencioso.
+
+### Campos personalizados eliminados de la configuración
+
+- **Decisión**: Conservar los valores en el registro y omitirlos de formularios, listas, validación y búsqueda; al guardar, fusionar con el registro existente en lugar de reemplazarlo.
+- **Justificación**: El modelo prioriza la preservación; borrar los valores sería destructivo en un almacenamiento sin esquema.
+- **Alternativas consideradas**: purgar valores al cargar la configuración; mostrarlos como campos desconocidos de solo lectura.
+
+### Recuperación ante almacenamiento corrupto
+
+- **Decisión**: Validar las claves al arrancar; ante datos corruptos mostrar un error claro con una acción explícita de reinicio, sin reinicio automático.
+- **Justificación**: FR-037 exige informar en lugar de fallar en silencio; un reinicio silencioso ocultaría una pérdida de datos.
+- **Alternativas consideradas**: reinicio silencioso; carga parcial; error fatal sin recuperación.
+
+### Preferencia de tema persistente
+
+- **Decisión**: Guardar `Claro`/`Oscuro` en el almacenamiento local del mismo navegador y aplicarlo antes del primer render cuando el selector de tema esté presente.
+- **Justificación**: La clarificación exige conservar la elección entre recargas en el mismo entorno; aplicarla temprano evita un cambio visible de tema.
+- **Alternativas consideradas**: guardarla en la configuración del módulo (es preferencia del usuario, no adaptación); cookies o sesión.

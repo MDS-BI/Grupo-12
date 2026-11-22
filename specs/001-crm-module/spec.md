@@ -2,7 +2,7 @@
 
 **Rama de la funcionalidad**: 001-crm-module  
 **Creada**: 2026-07-08  
-**Actualizada**: 2026-11-17
+**Actualizada**: 2026-11-21
 
 **Estado**: Borrador  
 **Entrada**: Descripción del usuario: "Construir un módulo CRM integrado a un ERP que permita administrar clientes, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta, con datos ficticios y un alcance inicial acotado." Además: "Agrega una nueva Historia de Usuario para la interfaz SaaS profesional del CRM ya implementada: inicio de sesión con diseño dividido (split screen) y mostrar/ocultar contraseña, menú lateral colapsable con botón hamburguesa SVG, banner de bienvenida en el Dashboard, tarjetas KPI, estandarización de formularios ('DATOS DEL CLIENTE' y 'CONDICIONES COMERCIALES') y codificación UTF-8 limpia"
@@ -29,6 +29,15 @@ El alcance cubre únicamente la capa de experiencia de usuario: pantalla de acce
 - Q: ¿Qué campos del cliente deben ser únicos para evitar duplicados en el CRM? → A: Correo único; el nombre de empresa puede repetirse.
 - Q: ¿Qué horizonte debe considerar el indicador de próximos cierres del dashboard? → A: Próximos 30 días.
 
+### Session 2026-11-21
+
+- Q: ¿Dónde debe guardarse la preferencia de tema (Claro/Oscuro) para conservarla entre recargas en el mismo entorno? → A: En el almacenamiento local del navegador de esa misma instancia (mismo entorno/navegador del MVP).
+- Q: ¿Deben seguir contando las oportunidades abiertas de un cliente archivado en los indicadores de oportunidades abiertas y monto total en pipeline del dashboard? → A: Sí, se siguen contando; las oportunidades abiertas se definen únicamente por su etapa, sin excluir las de clientes archivados.
+- Q: ¿Puede reutilizarse el correo de un cliente archivado al registrar uno nuevo? → A: No; el correo permanece reservado y la unicidad se aplica también a los clientes archivados.
+- Q: ¿Qué ocurre cuando el usuario intenta salir de un formulario con cambios sin guardar? → A: Se muestra una confirmación para quedarse o descartar los cambios; la navegación continúa solo si el usuario confirma que desea salir.
+- Q: ¿Qué ocurre con los valores guardados de un campo personalizado que se elimina de la configuración? → A: Se conservan en el almacenamiento, pero dejan de mostrarse o editarse en formularios y listas.
+- Q: ¿Cómo debe reaccionar la aplicación al detectar datos corruptos en el almacenamiento local al iniciar? → A: Muestra un error claro y ofrece una acción explícita para reiniciar con los datos vacíos/iniciales, sin reiniciar silenciosamente.
+
 ## Escenarios de Usuario y Pruebas *(obligatorio)*
 
 ### Historia de Usuario 1 - Gestionar clientes (Prioridad: P1)
@@ -47,6 +56,7 @@ Como ejecutivo comercial, quiero registrar, editar y consultar clientes con su i
 4. **Dado** un cliente recién creado, **cuando** el usuario consulta su estado, **entonces** el estado es `Posible` por defecto.
 5. **Dado** un cliente existente, **cuando** el usuario cambia su estado a `Activo` o `Inactivo`, **entonces** el nuevo estado se guarda y se muestra de forma visible.
 6. **Dado** un cliente ya registrado con un correo, **cuando** el usuario intenta crear otro cliente con el mismo correo, **entonces** el sistema impide guardar y explica que el correo ya está en uso.
+7. **Dado** un cliente archivado, **cuando** el usuario intenta registrar otro cliente con el mismo correo, **entonces** el sistema rechaza el registro porque el correo permanece reservado (FR-069).
 
 ---
 
@@ -140,6 +150,7 @@ Como usuario de negocio, quiero un panel de inicio con indicadores comerciales y
 4. **Dado** que el usuario está en el dashboard, **cuando** activa un acceso rápido, **entonces** llega al formulario correspondiente listo para introducir datos.
 5. **Dada** una oportunidad abierta con fecha de cierre dentro de los próximos 30 días, **cuando** el usuario consulta el dashboard, **entonces** esa oportunidad se cuenta en el indicador de próximos cierres.
 6. **Dada** una oportunidad abierta con fecha de cierre posterior a 30 días o ya vencida, **cuando** el usuario consulta el dashboard, **entonces** no se cuenta en próximos cierres, aunque sí permanece en oportunidades abiertas y en el monto del pipeline.
+7. **Dada** una oportunidad abierta de un cliente archivado, **cuando** el usuario consulta el dashboard, **entonces** esa oportunidad se cuenta en oportunidades abiertas, en el monto del pipeline y en próximos cierres si su fecha está en el horizonte de 30 días (FR-068).
 
 ---
 
@@ -181,6 +192,7 @@ Como usuario de negocio, quiero que el sistema impida registros incompletos o in
 7. **Dado** que el usuario elimina un cliente, **cuando** confirma la acción, **entonces** el cliente se marca como archivado, conserva sus oportunidades e interacciones y deja de aparecer en las listas operativas.
 8. **Dado** que el usuario elimina un empleado con oportunidades o interacciones asociadas, **cuando** confirma la acción, **entonces** el empleado se marca como archivado, conserva sus registros y deja de estar disponible para nuevas asignaciones.
 9. **Dado** un cliente o empleado archivado, **cuando** el usuario consulta su historial, **entonces** puede ver sus datos y registros asociados sin que aparezcan como opciones para nuevos registros.
+10. **Dado** un almacenamiento local con datos corruptos, **cuando** se inicia la aplicación, **entonces** se muestra un error claro y una acción explícita para reiniciar con los datos vacíos/iniciales, sin descartar automáticamente la información (FR-072).
 
 ---
 
@@ -198,6 +210,7 @@ Como desarrollador de módulos, quiero adaptar la terminología, los campos pers
 2. **Dado** que no se proporciona configuración, **cuando** la aplicación carga, **entonces** se usan los valores predeterminados del CRM sin errores.
 3. **Dada** una configuración inválida o conflictiva, **cuando** la aplicación carga, **entonces** el sistema informa el problema con claridad en lugar de fallar silenciosamente.
 4. **Dado** un campo personalizado declarado, **cuando** el usuario crea o edita un registro, **entonces** el campo aparece en el formulario, se valida y se incluye en la búsqueda.
+5. **Dado** un campo personalizado eliminado de la configuración, **cuando** se abre un formulario, una lista o una búsqueda, **entonces** el valor guardado se conserva en el almacenamiento pero deja de mostrarse y editarse (FR-071).
 
 ---
 
@@ -215,6 +228,7 @@ Como usuario de negocio, quiero una navegación persistente y un espacio de trab
 2. **Dada** cualquier pantalla, **cuando** el usuario mira la barra lateral, **entonces** el área activa está resaltada visualmente.
 3. **Dado** que el usuario navega entre áreas, **cuando** vuelve a un listado, **entonces** los datos permanecen intactos y consistentes.
 4. **Dada** una ventana gráfica estrecha, **cuando** el usuario usa la aplicación en un dispositivo pequeño, **entonces** la navegación sigue siendo operable y accesible.
+5. **Dado** que el usuario elige el tema `Claro` u `Oscuro`, **cuando** recarga la aplicación en el mismo entorno, **entonces** se conserva la elección y se aplica desde el primer render.
 
 ---
 
@@ -288,6 +302,7 @@ Como usuario que registra clientes, quiero encontrar los datos de identificació
 3. **Dado** dos formularios estandarizados distintos, **cuando** se comparan visualmente, **entonces** comparten jerarquía de encabezados, alineación de etiquetas, espaciado y estilo de mensajes de error.
 4. **Dado** un campo obligatorio vacío en cualquiera de los dos bloques, **cuando** el usuario intenta guardar, **entonces** el sistema impide el guardado y muestra el mensaje junto al campo con la misma redacción y ubicación en ambos bloques.
 5. **Dado** un formulario largo, **cuando** el usuario se desplaza por él, **entonces** los encabezados de sección siguen siendo claramente distinguibles del resto del contenido.
+6. **Dado** un formulario con cambios sin guardar, **cuando** el usuario intenta navegar a otra sección, **entonces** se le ofrece permanecer o descartar los cambios y solo se navega si confirma la salida (FR-070).
 
 ---
 
@@ -328,9 +343,9 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - ¿Qué ocurre con una oportunidad abierta cuya fecha de cierre está a más de 30 días?
 - ¿Qué ocurre cuando la configuración declara un campo personalizado con una clave que choca con un campo base?
 - ¿Qué ocurre cuando la configuración referencia un tipo de campo o una transición de ciclo de vida inválida?
-- ¿Qué ocurre cuando los registros almacenados contienen valores de campos personalizados que ya no están declarados?
-- ¿Qué ocurre cuando el usuario navega fuera de un formulario con cambios sin guardar?
-- ¿Qué ocurre cuando el almacenamiento local está vacío o contiene datos corruptos?
+- Cuando un registro contiene valores de campos personalizados que ya no están declarados, esos valores se conservan en el almacenamiento pero no se muestran ni se editan.
+- Al navegar fuera de un formulario con cambios sin guardar, el sistema pide confirmación y solo descarta los cambios si el usuario confirma que desea salir.
+- Cuando el almacenamiento local está vacío, los indicadores se muestran en cero; cuando contiene datos corruptos, el sistema muestra un error claro y ofrece una acción explícita para reiniciar con los datos vacíos/iniciales.
 - Contraseñas muy largas o con caracteres especiales al alternar repetidamente la visibilidad: el texto no se trunca ni se pierde.
 - Pantalla de acceso en un viewport estrecho: los dos paneles se apilan y el formulario sigue siendo utilizable sin desplazamiento horizontal.
 - Menú contraído en pantallas estrechas: el botón permanece visible y, si no hay espacio para la franja de iconos, la navegación se presenta como capa superpuesta sin ocultar el contenido activo.
@@ -411,6 +426,11 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - **FR-065**: La interfaz DEBE representar correctamente acentos, la letra "ñ" y símbolos monetarios en encabezados, etiquetas, listados y datos introducidos.
 - **FR-066**: La interfaz DEBE conservar la integridad de los caracteres al guardar y volver a mostrar nombres y condiciones comerciales.
 - **FR-067**: Los encabezados en mayúsculas DEBEN permanecer completos y legibles, sin cortes ni caracteres deformados.
+- **FR-068**: El sistema DEBE incluir en los indicadores de oportunidades abiertas, monto total en pipeline y próximos cierres las oportunidades de clientes archivados, siempre que su etapa no sea terminal.
+- **FR-069**: El sistema DEBE mantener reservado el correo de un cliente archivado, impidiendo que se reutilice al registrar otro cliente.
+- **FR-070**: El sistema DEBE pedir confirmación antes de abandonar un formulario con cambios sin guardar, permitiendo al usuario permanecer en él o descartar los cambios.
+- **FR-071**: El sistema DEBE conservar en el almacenamiento los valores de campos personalizados que ya no estén declarados en la configuración, omitiéndolos de formularios, listas y búsquedas.
+- **FR-072**: El sistema DEBE mostrar un error claro y ofrecer una acción explícita de reinicio cuando detecte datos corruptos en el almacenamiento local al arrancar, en lugar de reiniciar silenciosamente o fallar sin explicación.
 
 ### Requisitos de Extensibilidad
 
@@ -441,13 +461,13 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - **SC-002**: Los usuarios pueden encontrar un cliente existente mediante la búsqueda en menos de 10 segundos tras introducir un término relevante.
 - **SC-003**: Al menos el 90% de los usuarios de prueba pueden completar las tareas de crear, editar y buscar clientes, registrar oportunidades e interacciones sin ayuda.
 - **SC-004**: El sistema sigue siendo utilizable con al menos 500 clientes y sus oportunidades e interacciones asociadas sin pérdida de funcionalidad central.
-- **SC-005**: Los indicadores del dashboard coinciden con los datos almacenados en todo momento.
+- **SC-005**: Los indicadores del dashboard coinciden con los datos almacenados en todo momento, incluidas las oportunidades abiertas de clientes archivados.
 - **SC-006**: El 100% de las oportunidades e interacciones creadas quedan asociadas a un cliente y a un empleado existentes.
 - **SC-007**: El sistema rechaza el 100% de las transiciones de etapa no permitidas y de los valores inválidos definidos en esta especificación.
 - **SC-008**: Los usuarios pueden navegar entre dashboard, clientes, empleados, oportunidades, interacciones y búsqueda sin perder datos.
 - **SC-009**: Un desarrollador puede adaptar el módulo mediante configuración sin modificar el código central.
 - **SC-010**: Cada pantalla presenta el mismo espacio de trabajo con marca y el usuario puede identificar el área activa de un vistazo.
-- **SC-011**: El sistema rechaza el 100% de los intentos de registrar un cliente con un correo ya existente.
+- **SC-011**: El sistema rechaza el 100% de los intentos de registrar un cliente con un correo ya existente, incluidos los archivados.
 - **SC-012**: El 100 % de los usuarios puede revelar y ocultar la contraseña sin perder el texto introducido en una sola acción.
 - **SC-013**: Al menos el 95 % de los usuarios completa el acceso en su primer intento en menos de un minuto.
 - **SC-014**: El 100 % de los usuarios contrae y expande el menú lateral en menos de dos segundos desde cualquier sección.
@@ -463,7 +483,7 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - El módulo gestiona un único espacio de trabajo compartido, sin autenticación ni roles diferenciados en el MVP.
 - La versión inicial es una demostración autónoma con datos ficticios, sin integraciones externas.
 - El catálogo de empleados se carga antes de registrar oportunidades e interacciones.
-- El correo electrónico identifica de forma única a cada cliente; varias empresas pueden compartir un nombre similar o idéntico.
+- El correo electrónico identifica de forma única a cada cliente; varias empresas pueden compartir un nombre similar o idéntico. La unicidad se aplica también a los clientes archivados, cuyo correo permanece reservado.
 - Cada oportunidad pertenece a un único cliente y a un único empleado responsable.
 - Cada interacción pertenece a un único cliente y a un único empleado responsable.
 - El monto estimado de una oportunidad se expresa en una única moneda del módulo; no se gestionan conversiones de moneda.
@@ -475,7 +495,7 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - Los filtros de oportunidades se pueden combinar y se aplican sobre los registros almacenados.
 - El dashboard muestra indicadores calculados en el momento de abrir la pantalla, sin caché persistente.
 - Los clientes activos son aquellos con estado `Activo` y no archivados.
-- Las oportunidades abiertas son aquellas cuya etapa no es `Ganado` ni `Perdido`.
+- Las oportunidades abiertas son aquellas cuya etapa no es `Ganado` ni `Perdido`, incluidas las de clientes archivados.
 - El monto total en pipeline es la suma de los montos estimados de las oportunidades abiertas.
 - Los próximos cierres son las oportunidades abiertas con fecha estimada de cierre entre la fecha actual y los 30 días siguientes; las oportunidades vencidas no se incluyen en este indicador.
 - El módulo no incluye flujos de aprobación, contabilidad, facturación, reportes avanzados ni recordatorios automáticos en el MVP.

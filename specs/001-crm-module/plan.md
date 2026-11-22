@@ -1,6 +1,6 @@
 # Plan de Implementación: Módulo CRM (Customer Relationship Management)
 
-**Rama**: `001-crm-module` | **Fecha**: 2026-07-08 | **Actualizada**: 2026-11-17 | **Especificación**: [spec.md](spec.md)
+**Rama**: `001-crm-module` | **Fecha**: 2026-07-08 | **Actualizada**: 2026-11-21 | **Especificación**: [spec.md](spec.md)
 **Entrada**: Especificaciones de la funcionalidad desde `/specs/001-crm-module/spec.md` (módulo CRM + interfaz SaaS profesional)
 
 ## Resumen
@@ -39,6 +39,15 @@ El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/s
 **Restricciones**: UTF-8 declarado y conservado; iconos SVG en línea con contrato único; sin dependencias nuevas; `dist/` es generado y no se edita a mano
 **Seguridad**: se conserva la autenticación existente; texto dinámico solo con `textContent`; la contraseña nunca aparece en mensajes ni atributos
 **Alcance**: 5 vistas, 4 KPI y 2 bloques de formulario estandarizados
+
+### Implicaciones de las clarificaciones de 2026-11-21 (FR-068 a FR-072)
+
+- **Métricas**: `getCRMOverview()` en `src/storage.js` debe seguir excluyendo clientes archivados del KPI de clientes activos, pero no puede filtrar oportunidades por el estado `archived` del cliente; la regla de «abierta» depende solo de la etapa. `contracts/dashboard-metrics.md` y `data-model.md` reflejan esta corrección.
+- **Almacenamiento**: las lecturas de `src/storage.js` distinguen clave ausente, dato válido y dato corrupto; ante corrupción se informa y se ofrece reinicio explícito sin borrar nada automáticamente.
+- **Navegación**: `src/app.js` concentra el cambio de vista para interceptar salidas de formularios con cambios sin guardar y ofrecer «Permanecer»/«Descartar».
+- **Configuración**: `src/module-config.js` deriva los campos visibles de la configuración activa; las actualizaciones fusionan con el registro almacenado para conservar valores de campos eliminados.
+- **Tema**: si se expone el selector, la preferencia se guarda en `localStorage['crm.theme']` y se aplica antes del primer render.
+- Estas decisiones se incorporaron desde la rama `003-spec-clarifications`; los contratos y las pruebas correspondientes se enumeran en `tasks.md`.
 
 ## Verificación de la Constitución
 

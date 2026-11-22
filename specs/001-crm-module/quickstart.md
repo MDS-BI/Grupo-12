@@ -16,6 +16,8 @@
 6. Busque clientes y filtre oportunidades por etapa, responsable y rango de fecha de cierre.
 7. Archive un cliente o empleado y confirme que sus oportunidades e interacciones se conservan y que deja de ofrecerse para nuevos registros.
 8. Cambie entre módulos usando la barra lateral y actualice la página para confirmar que los datos persisten y que el marco con marca permanece consistente.
+9. Archive un cliente con una oportunidad abierta y confirme en el dashboard que esa oportunidad sigue contando en oportunidades abiertas, pipeline y próximos cierres.
+10. Modifique un formulario sin guardar e intente navegar a otra sección: debe aparecer la confirmación para quedarse o descartar los cambios.
 
 ## Validación
 
@@ -27,6 +29,12 @@
 - Verifique que una búsqueda o filtro sin resultados muestra un estado vacío claro.
 - Verifique que archivar un cliente o empleado no elimina sus oportunidades ni interacciones.
 - Verifique que la lista y los filtros siguen siendo responsivos con 500 clientes y sus registros asociados.
+- Verifique que el correo de un cliente archivado no puede reutilizarse al registrar otro cliente (FR-069).
+- Verifique que una oportunidad abierta de un cliente archivado cuenta en oportunidades abiertas, pipeline y próximos cierres (FR-068).
+- Verifique que al salir de un formulario con cambios sin guardar se ofrece quedarse o descartar, y que el destino no cambia sin confirmación (FR-070).
+- Verifique que, al eliminar un campo personalizado de la configuración, sus valores guardados permanecen en el almacenamiento pero dejan de aparecer en formularios, listas y búsquedas (FR-071).
+- Verifique que, al iniciar con datos corruptos, aparece un error claro con una acción explícita de reinicio y que los datos no se sobrescriben automáticamente (FR-072).
+- Si el selector de tema está disponible, verifique que `Claro`/`Oscuro` se conserva al recargar en el mismo navegador y se aplica desde el primer render.
 
 ## Extender el Módulo
 
@@ -122,6 +130,15 @@ npm run build
 1. Confirmar en el HTML servido `<html lang="es">` y `<meta charset="UTF-8" />`.
 2. Recorrer acceso, shell, Dashboard y formularios buscando acentos, «ñ», diéresis y símbolos monetarios: no deben aparecer `Ã`, `â€` ni caracteres de reemplazo.
 3. Comprobar que los encabezados en mayúsculas no se cortan en ninguno de los breakpoints.
+
+### 6. Clarificaciones de 2026-11-21
+
+1. Archivar un cliente con una oportunidad abierta y confirmar que el dashboard sigue contando esa oportunidad en los KPI correspondientes (`getCRMOverview()` no filtra por `archived` del cliente).
+2. Intentar registrar un cliente con el correo de uno archivado: el formulario debe rechazarlo con un mensaje claro.
+3. Modificar `#entity-form` y pulsar un enlace del menú: debe aparecer la confirmación «Permanecer»/«Descartar»; al elegir «Permanecer» el formulario conserva los valores y la vista no cambia.
+4. Eliminar un campo personalizado de la configuración, guardar un registro y comprobar que el valor antiguo sigue en `localStorage` pero no aparece en el formulario ni en la búsqueda.
+5. Escribir un valor inválido en una clave del CRM en `localStorage`, recargar y comprobar que aparece el error de datos corruptos con una acción explícita de reinicio; verificar que la clave no se ha sobrescrito antes de pulsar esa acción.
+6. Si el selector de tema está presente, elegir `Oscuro`, recargar y comprobar que el tema se aplica desde el primer render sin cambio visible.
 
 ## Resultado esperado
 

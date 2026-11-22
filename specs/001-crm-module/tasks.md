@@ -417,6 +417,33 @@
 
 ---
 
+## Fase 22: Clarificaciones de 2026-11-21 (FR-068 a FR-072)
+
+**Propósito**: incorporar al código las decisiones documentadas en `specs/001-crm-module/spec.md` y validarlas con el DOM real (`index.html`, `src/`).
+
+### Pruebas de las clarificaciones
+
+- [ ] T117 [P] [US6] Escribir pruebas unitarias de `getCRMOverview()`/`getDashboardMetrics()` que comprueben que una oportunidad abierta de un cliente archivado cuenta en oportunidades, pipeline y próximos cierres (FR-068) en `tests/unit/dashboard-metrics.test.js`
+- [ ] T118 [P] [US8] Escribir pruebas unitarias de unicidad de correo que incluyan clientes archivados (FR-069) en `tests/unit/client-uniqueness.test.js`
+- [ ] T119 [P] [US14] Escribir la prueba de integración de la confirmación «Permanecer»/«Descartar» al salir de `#entity-form` con cambios (FR-070) en `tests/integration/unsaved-changes.test.js`
+- [ ] T120 [P] [US9] Escribir la prueba de integración de campos personalizados eliminados: valor conservado en `localStorage` y oculto en formularios, listas y búsqueda (FR-071) en `tests/integration/module-config.test.js`
+- [ ] T121 [P] [US8] Escribir la prueba de integración de arranque con datos corruptos: error visible, sin sobrescritura automática y reinicio explícito (FR-072) en `tests/integration/storage-recovery.test.js`
+- [ ] T122 [P] [US10] Escribir la prueba de integración de la preferencia de tema persistida entre recargas cuando el selector esté presente en `tests/integration/theme.test.js`
+
+### Implementación de las clarificaciones
+
+- [ ] T123 [US6] Ajustar `getCRMOverview()` en `src/storage.js` para seleccionar oportunidades abiertas por etapa sin filtrar por el estado `archived` del cliente, manteniendo la exclusión de archivados en «Clientes activos» (FR-068)
+- [ ] T124 [US8] Reforzar `isEmailAvailable()` y `addCustomer()`/`updateCustomer()` en `src/storage.js` para rechazar correos de clientes archivados (FR-069)
+- [ ] T125 [US14] Centralizar la navegación en `src/app.js` y añadir el diálogo de cambios sin guardar en `index.html`, con opciones «Permanecer» y «Descartar» (FR-070)
+- [ ] T126 [US9] Derivar los campos visibles de la configuración activa en `src/module-config.js` y fusionar actualizaciones con el registro almacenado en `src/storage.js` para conservar valores huérfanos (FR-071)
+- [ ] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072)
+- [ ] T128 [US10] Guardar y aplicar la preferencia `Claro`/`Oscuro` desde `localStorage['crm.theme']` antes del primer render en `src/main.js` e `index.html`, si el selector está presente
+- [ ] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build` y validar el escenario 6 de `specs/001-crm-module/quickstart.md`
+
+**Punto de control**: las clarificaciones están implementadas y son verificables de forma independiente.
+
+---
+
 ## Dependencias y Orden de Ejecución
 
 ### Dependencias entre Fases
@@ -455,6 +482,7 @@
 - **Fundacional (Fase 15)**: depende de Configuración; T078 y T080 bloquean la implementación visual y de sesión de US11–US13
 - **Historias de Usuario (Fase 16–20)**: dependen de Fundacional; se ejecutan en orden P1 → P2 → P2 → P2 → P3
 - **Pulido (Fase 21)**: depende de que las cinco historias de la interfaz estén completas
+- **Clarificaciones (Fase 22)**: depende de la Fase 21 y de los módulos reales (`src/app.js`, `src/storage.js`, `src/main.js`, `index.html`); T129 se ejecuta al final
 
 ### Dependencias entre Historias de Usuario
 
@@ -463,6 +491,7 @@
 - **US13 (P2)**: depende de T080 y de `getCRMOverview()` en `src/storage.js`; T099 garantiza que US14 tendrá datos coherentes
 - **US14 (P2)**: depende de T096/T097 para que los cambios de `#entity-form` se reflejen en los KPI
 - **US15 (P3)**: transversal; sus pruebas se ejecutan al final porque recorren todas las vistas
+- **Clarificaciones (FR-068 a FR-072)**: se asignan a US6, US8, US9, US10 y US14; T117–T122 pueden ejecutarse en paralelo, T123–T128 se secuencian por archivo compartido y T129 cierra la fase
 
 ### Dentro de Cada Historia de Usuario
 
@@ -549,6 +578,6 @@ Con varios desarrolladores, tras la Fase 15: Dev A en US11, Dev B en US12, Dev C
 
 - `[P]` implica archivos distintos y ninguna dependencia pendiente; las ediciones sobre `index.html` o `src/app.js` se secuencian aunque pertenezcan a historias distintas
 - `[USn]` garantiza trazabilidad con los FR de `spec.md`
-- Numeración correlativa T001–T116: 116 tareas totales, sin duplicados ni huecos
+- Numeración correlativa T001–T129: 129 tareas totales, sin duplicados ni huecos
 - Todas las tareas incluyen ruta de archivo y son ejecutables sin contexto adicional
 - No se editan `src/components/*` ni `dist/index.html` a mano, según `research.md`

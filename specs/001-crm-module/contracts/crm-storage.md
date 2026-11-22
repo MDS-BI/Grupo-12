@@ -12,8 +12,9 @@ La aplicación persiste clientes, empleados, oportunidades e interacciones en el
 - `crm.employees`
 - `crm.opportunities`
 - `crm.interactions`
+- `crm.theme` (opcional; preferencia `Claro`/`Oscuro` del mismo navegador)
 
-Cada clave contiene un arreglo JSON con los registros descritos en [data-model.md](../data-model.md).
+Cada clave de entidades contiene un arreglo JSON con los registros descritos en [data-model.md](../data-model.md). `crm.theme` contiene el valor de tema elegido; su ausencia significa que no hay preferencia guardada. Nota: la implementación actual usa además las claves normalizadas `crm_module:*` documentadas en [research.md](../research.md); este contrato describe la forma lógica esperada por las reglas de dominio.
 
 ## Forma de los datos
 
@@ -72,7 +73,18 @@ Cada clave contiene un arreglo JSON con los registros descritos en [data-model.m
 
 ### Consultas agregadas
 - `getClientDetail(clientId)`: devuelve el cliente, sus oportunidades y sus interacciones (incluye asociaciones a registros archivados).
-- `getDashboardMetrics(today)`: calcula clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres dentro de los 30 días siguientes (excluye vencidas).
+- `getDashboardMetrics(today)`: calcula clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres dentro de los 30 días siguientes (excluye vencidas). Las oportunidades se seleccionan únicamente por etapa: las de clientes archivados cuentan (FR-068); los clientes archivados sí se excluyen del recuento de clientes activos.
+
+## Validación al arrancar y recuperación
+
+- Cada lectura distingue tres resultados: clave ausente (`empty`), datos válidos (`ok`) y dato corrupto o con forma inesperada (`error`). Un JSON sintácticamente válido pero con estructura incorrecta también es `error`.
+- El estado `empty` inicializa los datos por defecto sin mensaje; el estado `error` no sobrescribe nada y muestra un error claro con una acción explícita para reiniciar (FR-072).
+- El reinicio elimina solo las claves propias del módulo, nunca todas las claves del mismo origen, y informa si la escritura falla (por ejemplo, por cuota agotada).
+
+## Campos personalizados eliminados
+
+- La capa de almacenamiento no purga valores cuando una definición de campo desaparece de la configuración.
+- Las actualizaciones fusionan el registro existente con los cambios visibles (`{ ...registro, ...cambiosVisibles }`) para conservar los valores ocultos (FR-071).
 
 ## Reglas de eliminación
 
