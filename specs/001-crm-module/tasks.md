@@ -816,3 +816,14 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 
 - [x] T195 [US19] Eliminar el fallback globalThis.confirm en openDeleteConfirmDialog() de src/app.js y usar solo el diálogo modal CRM accesible para confirmación de eliminación; si falta el markup requerido, fallar de forma segura sin ejecutar la eliminación ni invocar window.confirm/globalThis.confirm. Añadir prueba de regresión que verifique que ningún flujo de eliminación invoca window.confirm/globalThis.confirm, incluso ante ausencia del diálogo. (FR-079, SC-025, contradicts)
 
+
+---
+
+## Phase 36: Convergence
+
+**Purpose**: Close remaining gaps found by /speckit.converge after US20/US21 implementation.
+
+- [ ] T196 [US14] Corregir 
+avigateToSearchResult() en src/app.js para usar 
+avigateTo() (o respetar el guard de cambios sin guardar de FR-070) antes de cambiar de vista/cargar registro; si el usuario elige Permanecer, no debe cambiar la vista ni perder el formulario activo. Añadir prueba de regresión en 	ests/integration/search.test.js o 	ests/integration/corrections-us16-us24.test.js. (FR-070, US20/FR-082, partial)
+- [ ] T197 [US21] Añadir filtro/búsqueda dentro de #view-entities y #view-documents para reducir resultados en listas largas sin perder contexto de sección, manteniendo sincronía con selección/formulario y acciones por fila. Añadir controles accesibles en index.html, lógica en src/app.js y prueba de integración. (US21/AC2, FR-083, FR-084, SC-027, partial)
