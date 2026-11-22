@@ -463,12 +463,12 @@
 > **Alcance activo**: Fases 23–33 (T130–T188) son el alcance ejecutable para US16–US24. Fases 1–22 permanecen como registro histórico/read-only, salvo referencias de regresión.
 > **Cobertura fundacional**: T130–T135 cubren prerrequisitos transversales de FR-074–FR-088 (tema, storage/sesión, accesibilidad, búsqueda/listados, navegación y moneda) y habilitan la verificación SC-022–SC-030.
 
-- [ ] T130 Revisar alineaciÃ³n de alcance US16â€“US24 en `specs/001-crm-module/spec.md`, `specs/001-crm-module/plan.md`, `specs/001-crm-module/research.md`, `specs/001-crm-module/data-model.md` y `specs/001-crm-module/contracts/corrections-us16-us24.md` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
-- [ ] T131 [P] AÃ±adir utilidades compartidas de prueba para sesiÃ³n, vista activa, foco y almacenamiento en `tests/integration/live-dom.js` (FR-078, FR-085, FR-086, FR-087, SC-024, SC-028, SC-029)
-- [ ] T132 [P] Crear esqueleto de pruebas de integraciÃ³n para correcciones en `tests/integration/corrections-us16-us24.test.js` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
-- [ ] T133 Definir/normalizar selectores y atributos ARIA de confirmaciÃ³n, bÃºsqueda y listados en `index.html` segÃºn `specs/001-crm-module/contracts/ui-contracts.md` (FR-079, FR-080, FR-081, FR-083, FR-086, FR-087)
-- [ ] T134 Crear helper reutilizable de diÃ¡logo modal accesible (apertura, cierre, focus trap, Escape, restore focus) en `src/app.js` (FR-079, FR-080, FR-087, SC-025, SC-029)
-- [ ] T135 Crear helper de persistencia de sesiÃ³n/vista activa con whitelist y limpieza de storages en `src/main.js` y `src/app.js` (FR-078, FR-085, SC-024, SC-028)
+- [x] T130 Revisar alineaciÃ³n de alcance US16â€“US24 en `specs/001-crm-module/spec.md`, `specs/001-crm-module/plan.md`, `specs/001-crm-module/research.md`, `specs/001-crm-module/data-model.md` y `specs/001-crm-module/contracts/corrections-us16-us24.md` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
+- [x] T131 [P] AÃ±adir utilidades compartidas de prueba para sesiÃ³n, vista activa, foco y almacenamiento en `tests/integration/live-dom.js` (FR-078, FR-085, FR-086, FR-087, SC-024, SC-028, SC-029)
+- [x] T132 [P] Crear esqueleto de pruebas de integraciÃ³n para correcciones en `tests/integration/corrections-us16-us24.test.js` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
+- [x] T133 Definir/normalizar selectores y atributos ARIA de confirmaciÃ³n, bÃºsqueda y listados en `index.html` segÃºn `specs/001-crm-module/contracts/ui-contracts.md` (FR-079, FR-080, FR-081, FR-083, FR-086, FR-087)
+- [x] T134 Crear helper reutilizable de diÃ¡logo modal accesible (apertura, cierre, focus trap, Escape, restore focus) en `src/app.js` (FR-079, FR-080, FR-087, SC-025, SC-029)
+- [x] T135 Crear helper de persistencia de sesiÃ³n/vista activa con whitelist y limpieza de storages en `src/main.js` y `src/app.js` (FR-078, FR-085, SC-024, SC-028)
 
 **Punto de control**: base compartida lista; las historias US16â€“US24 pueden comenzar.
 
@@ -484,15 +484,15 @@
 
 > **NOTA: Escribir estas pruebas PRIMERO, asegurar que FALLAN antes de la implementaciÃ³n**
 
-- [ ] T136 [P] [US23] AÃ±adir pruebas de integraciÃ³n para `aria-invalid`, `aria-describedby` y foco al primer campo invÃ¡lido en `tests/integration/corrections-us16-us24.test.js` (FR-086, SC-029)
-- [ ] T137 [P] [US23] AÃ±adir pruebas de integraciÃ³n para focus trap, Escape y restauraciÃ³n de foco en `#unsaved-dialog` en `tests/integration/unsaved-changes.test.js` (FR-087, SC-029)
+- [x] T136 [P] [US23] AÃ±adir pruebas de integraciÃ³n para `aria-invalid`, `aria-describedby` y foco al primer campo invÃ¡lido en `tests/integration/corrections-us16-us24.test.js` (FR-086, SC-029)
+- [x] T137 [P] [US23] AÃ±adir pruebas de integraciÃ³n para focus trap, Escape y restauraciÃ³n de foco en `#unsaved-dialog` en `tests/integration/unsaved-changes.test.js` (FR-087, SC-029)
 
 ### ImplementaciÃ³n de la Historia de Usuario 23
 
-- [ ] T138 [US23] Asociar errores de validaciÃ³n con campos mediante `aria-invalid` y `aria-describedby` en `src/app.js` (FR-086)
-- [ ] T139 [US23] Mover foco al primer campo invÃ¡lido en envÃ­os de `#entity-form` y `#document-form` en `src/app.js` (FR-086, SC-029)
-- [ ] T140 [US23] Implementar focus trap, foco inicial, Escape y restauraciÃ³n de foco para `#unsaved-dialog` en `src/app.js` e `index.html` (FR-087, SC-029)
-- [ ] T141 [US23] AÃ±adir estilos de foco visible y estado invÃ¡lido accesible coherentes en `src/styles.css` (FR-086, FR-087)
+- [x] T138 [US23] Asociar errores de validaciÃ³n con campos mediante `aria-invalid` y `aria-describedby` en `src/app.js` (FR-086)
+- [x] T139 [US23] Mover foco al primer campo invÃ¡lido en envÃ­os de `#entity-form` y `#document-form` en `src/app.js` (FR-086, SC-029)
+- [x] T140 [US23] Implementar focus trap, foco inicial, Escape y restauraciÃ³n de foco para `#unsaved-dialog` en `src/app.js` e `index.html` (FR-087, SC-029)
+- [x] T141 [US23] AÃ±adir estilos de foco visible y estado invÃ¡lido accesible coherentes en `src/styles.css` (FR-086, FR-087)
 
 **Punto de control**: US23 funcional y verificable de forma independiente.
 
@@ -506,14 +506,14 @@
 
 ### Pruebas para la Historia de Usuario 16
 
-- [ ] T142 [P] [US16] AÃ±adir pruebas de integraciÃ³n para cobertura de tema oscuro en vistas y diÃ¡logos crÃ­ticos en `tests/integration/theme.test.js` (FR-074, FR-075, SC-022)
-- [ ] T143 [P] [US16] AÃ±adir prueba de contrato para ausencia de colores claros fijos en componentes crÃ­ticos en `tests/unit/theme-contract.test.js` (FR-074, SC-022)
+- [x] T142 [P] [US16] AÃ±adir pruebas de integraciÃ³n para cobertura de tema oscuro en vistas y diÃ¡logos crÃ­ticos en `tests/integration/theme.test.js` (FR-074, FR-075, SC-022)
+- [x] T143 [P] [US16] AÃ±adir prueba de contrato para ausencia de colores claros fijos en componentes crÃ­ticos en `tests/unit/theme-contract.test.js` (FR-074, SC-022)
 
 ### ImplementaciÃ³n de la Historia de Usuario 16
 
-- [ ] T144 [P] [US16] Reemplazar colores fijos por tokens/variables en superficies, formularios, badges y estados en `src/styles.css` (FR-074, FR-075)
-- [ ] T145 [US16] Ajustar marcado/clases de componentes con estilos heredados para soportar dark mode en `index.html` (FR-074, FR-075)
-- [ ] T146 [US16] Verificar que `applyTheme()` y el arranque temprano mantienen `crm.theme` sin parpadeo visible en `src/main.js` e `index.html` (FR-073, FR-074, SC-022)
+- [x] T144 [P] [US16] Reemplazar colores fijos por tokens/variables en superficies, formularios, badges y estados en `src/styles.css` (FR-074, FR-075)
+- [x] T145 [US16] Ajustar marcado/clases de componentes con estilos heredados para soportar dark mode en `index.html` (FR-074, FR-075)
+- [x] T146 [US16] Verificar que `applyTheme()` y el arranque temprano mantienen `crm.theme` sin parpadeo visible en `src/main.js` e `index.html` (FR-073, FR-074, SC-022)
 
 **Punto de control**: US16 funcional y verificable de forma independiente.
 
@@ -527,15 +527,15 @@
 
 ### Pruebas para la Historia de Usuario 17
 
-- [ ] T147 [P] [US17] AÃ±adir pruebas unitarias para normalizaciÃ³n/canonicalizaciÃ³n de oportunidades usadas por `getCRMOverview()` en `tests/unit/dashboard-metrics.test.js` (FR-076, FR-077, SC-023)
-- [ ] T148 [P] [US17] AÃ±adir prueba de integraciÃ³n DOM real que crea oportunidad por UI y verifica KPI del dashboard en `tests/integration/dashboard.test.js` (FR-076, FR-077, SC-023)
+- [x] T147 [P] [US17] AÃ±adir pruebas unitarias para normalizaciÃ³n/canonicalizaciÃ³n de oportunidades usadas por `getCRMOverview()` en `tests/unit/dashboard-metrics.test.js` (FR-076, FR-077, SC-023)
+- [x] T148 [P] [US17] AÃ±adir prueba de integraciÃ³n DOM real que crea oportunidad por UI y verifica KPI del dashboard en `tests/integration/dashboard.test.js` (FR-076, FR-077, SC-023)
 
 ### ImplementaciÃ³n de la Historia de Usuario 17
 
-- [ ] T149 [US17] Implementar adaptador canónico de oportunidades entre UI y overview en `src/storage.js`; definir `crm_module:opportunities` como fuente canónica de KPIs, normalizar lectura/escritura desde ahí y establecer precedencia determinista: si `crm_module:opportunities` y `erp_base_module:documents` difieren, gana el registro canónico de `crm_module:opportunities`; los documentos legacy solo rellenan registros canónicos faltantes, sin sobrescritura destructiva (FR-076, FR-077)
-- [ ] T150 [US17] Actualizar alta/ediciÃ³n/eliminaciÃ³n de oportunidades para persistir en la fuente canÃ³nica consumida por `getCRMOverview()` en `src/app.js` y `src/storage.js`; toda operación UI debe reflejarse en KPI en el siguiente render del dashboard (FR-076, FR-077, SC-023)
-- [ ] T151 [US17] Recalcular y renderizar KPI desde `getCRMOverview()` al entrar al dashboard en `src/app.js`, sin usar fuentes paralelas de métricas (FR-076, FR-077)
-- [ ] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` en `src/storage.js`: reconciliar en lectura/escritura hacia `crm_module:opportunities` con idempotencia (ejecuciones repetidas no duplican ni alteran resultados), precedencia determinista ante conflicto (gana `crm_module:opportunities`; legacy solo backfill de faltantes) y sin doble verdad/divergencia de KPI (FR-076, FR-077, SC-023)
+- [x] T149 [US17] Implementar adaptador canónico de oportunidades entre UI y overview en `src/storage.js`; definir `crm_module:opportunities` como fuente canónica de KPIs, normalizar lectura/escritura desde ahí y establecer precedencia determinista: si `crm_module:opportunities` y `erp_base_module:documents` difieren, gana el registro canónico de `crm_module:opportunities`; los documentos legacy solo rellenan registros canónicos faltantes, sin sobrescritura destructiva (FR-076, FR-077)
+- [x] T150 [US17] Actualizar alta/ediciÃ³n/eliminaciÃ³n de oportunidades para persistir en la fuente canÃ³nica consumida por `getCRMOverview()` en `src/app.js` y `src/storage.js`; toda operación UI debe reflejarse en KPI en el siguiente render del dashboard (FR-076, FR-077, SC-023)
+- [x] T151 [US17] Recalcular y renderizar KPI desde `getCRMOverview()` al entrar al dashboard en `src/app.js`, sin usar fuentes paralelas de métricas (FR-076, FR-077)
+- [x] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` en `src/storage.js`: reconciliar en lectura/escritura hacia `crm_module:opportunities` con idempotencia (ejecuciones repetidas no duplican ni alteran resultados), precedencia determinista ante conflicto (gana `crm_module:opportunities`; legacy solo backfill de faltantes) y sin doble verdad/divergencia de KPI (FR-076, FR-077, SC-023)
 **Punto de control**: US17 funcional y verificable de forma independiente.
 
 ---

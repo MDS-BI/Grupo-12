@@ -80,7 +80,7 @@ button, input, select, textarea {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.96);
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
   border-bottom: 1px solid var(--border);
   padding: 0 1.5rem;
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
@@ -117,13 +117,13 @@ button, input, select, textarea {
 .menu-toggle:hover {
   background: var(--accent-soft);
   color: var(--accent);
-  border-color: #bfdbfe;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
 }
 
 .menu-toggle:focus,
 .menu-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .topbar-left {
@@ -229,18 +229,18 @@ button, input, select, textarea {
 
 .sidebar-backdrop:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 0.35);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .menu-toggle[aria-expanded="false"] {
   background: var(--accent-soft);
   color: var(--accent);
-  border-color: #bfdbfe;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
 }
 
 .app-shell.sidebar-collapsed .nav-module[aria-current="page"] {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .nav-module {
@@ -412,7 +412,7 @@ button, input, select, textarea {
 }
 
 .action-button:hover {
-  border-color: #bfdbfe;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
   box-shadow: 0 12px 20px -8px rgba(15, 23, 42, 0.2);
   transform: translateY(-3px);
 }
@@ -811,7 +811,7 @@ button[type="button"]:hover {
 }
 
 .entity-item:hover {
-  border-color: #bfdbfe;
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
   box-shadow: var(--shadow-md);
 }
 
@@ -1542,3 +1542,40 @@ button.login-password-toggle:focus-visible {
   }
 }
 
+
+
+/* US23/US16 accessibility + dark coherence */
+[aria-invalid="true"] {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
+}
+.validation-error:not(:empty) { color: var(--danger); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.confirm-dialog[hidden] { display: none !important; }
+.confirm-dialog {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  background: rgba(15, 23, 42, 0.45); padding: 1rem; z-index: 50;
+}
+.confirm-dialog-card {
+  width: min(520px, 100%); background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem;
+  box-shadow: var(--shadow-md);
+}
+.confirm-dialog-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem; }
+.confirm-dialog-actions .danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+:root[data-theme='dark'] .topbar { background: color-mix(in srgb, var(--panel) 96%, transparent); }
+:root[data-theme='dark'] .action-button,
+:root[data-theme='dark'] .stat-card,
+:root[data-theme='dark'] .form-section,
+:root[data-theme='dark'] .selector-panel,
+:root[data-theme='dark'] .empty-state,
+:root[data-theme='dark'] .search-field,
+:root[data-theme='dark'] .login-form-panel,
+:root[data-theme='dark'] .login-brand-panel { background: var(--panel); color: var(--text); border-color: var(--border); }
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] select,
+:root[data-theme='dark'] textarea { background: var(--panel-alt); color: var(--text); border-color: var(--border-strong); }
+:root[data-theme='dark'] .nav-module[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }

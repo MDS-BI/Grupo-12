@@ -1,40 +1,46 @@
-import { describe, expect, it } from 'vitest';
-import { click, getForm, mountApp } from '../helpers.js';
-import { addClient, addEmployee, addOpportunity } from '../../src/storage.js';
-import { addDays, toDateOnly } from '../../src/domain.js';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { mountLiveDom, seedAuth } from './live-dom.js';
+import { boot } from '../../src/app.js';
+import { normalizeConfig, setActiveConfig } from '../../src/module-config.js';
+import { addCustomer, addEmployee, addOpportunity } from '../../src/storage.js';
 
-function statValue(root, key) {
-  return root.querySelector(`[data-stat="${key}"] .stat-value`)?.textContent.trim() ?? '';
+async function mount() {
+  localStorage.clear();
+  sessionStorage.clear();
+  seedAuth('Cliente1', { remember: true });
+  mountLiveDom();
+  setActiveConfig(normalizeConfig(null).config);
+  await boot();
 }
 
-describe('US7 - panel de indicadores', () => {
-  it('shows zeroed indicators and quick actions with no data', () => {
-    const { root } = mountApp();
+describe('US17 - dashboard coherente con oportunidades (DOM real)', () => {
+  beforeEach(async () => { await mount(); });
 
-    expect(statValue(root, 'activeClients')).toBe('0');
-    expect(statValue(root, 'openOpportunities')).toBe('0');
-    expect(statValue(root, 'upcomingCloses')).toBe('0');
-    expect(root.querySelectorAll('.quick-action')).toHaveLength(4);
+  it('muestra KPIs en cero sin datos', () => {
+    expect(document.querySelector('#stat-clients').textContent).toBe('0');
+    expect(document.querySelector('#stat-opportunities').textContent).toBe('0');
+    expect(document.querySelector('#stat-revenue').textContent).toBe('$0');
+    expect(document.querySelector('#stat-conversion').textContent).toBe('0 %');
   });
 
-  it('shows at least four quick-action buttons covering key CRM tasks', async () => {
-    await bootWith(undefined);
-    expect(qs('action-new-entity-title').textContent).toBe('Nuevo Cliente');
-    expect(qs('action-new-document-title').textContent).toBe('Nueva Oportunidad');
-    expect(qs('action-open-entities-title').textContent).toBe('Clientes');
-    expect(qs('action-find-title').textContent).toBe('Buscar registros');
+  it('T148: crear oportunidad por storage/UI-compatible refleja KPI al mostrar dashboard', () => {
+    const customer = addCustomer({ name: 'Acme', contactName: 'Ana', email: 'ana@acme.cl', phone: '912345678', status: 'Activo' });
+    const employee = addEmployee({ name: 'Vendedor', role: 'Ventas' });
+    addOpportunity({ clientId: customer.id, employeeId: employee.id, amount: 500000, closeDate: '2026-12-31', stage: 'Evaluación' });
+    addOpportunity({ clientId: customer.id, employeeId: employee.id, amount: 0, closeDate: '2026-12-31', stage: 'Ganado' });
+    addOpportunity({ clientId: customer.id, employeeId: employee.id, amount: 0, closeDate: '2026-12-31', stage: 'Perdido' });
+
+    document.querySelector('#nav-dashboard').click();
+    expect(document.querySelector('#stat-opportunities').textContent).toBe('1');
+    expect(document.querySelector('#stat-revenue').textContent).toMatch(/500\.000|\$500\.000/);
+    expect(document.querySelector('#stat-conversion').textContent).toBe('50 %');
   });
 
-  it('uses quick actions to open the creation forms', () => {
-    const { root } = mountApp();
-    click(root, '[data-action="new-client"]');
-    expect(getForm(root, 'client')).toBeTruthy();
-  });
-
-  it('uses the clients quick action to reach the list', () => {
-    const { root } = mountApp();
-    click(root, '[data-action="nav-clients"]');
-    expect(root.querySelector('[data-action="new-client"]')).toBeTruthy();
-    expect(root.textContent).toContain('Clientes');
+  it('acciones rápidas abren formularios/vistas clave', () => {
+    document.querySelector('#action-new-entity').click();
+    expect(document.querySelector('#view-entities').hidden).toBe(false);
+    document.querySelector('#nav-dashboard').click();
+    document.querySelector('#action-find').click();
+    expect(document.querySelector('#view-search').hidden).toBe(false);
   });
 });

@@ -37,17 +37,68 @@ function hasUnsavedChanges() {
     .some((form) => formBaselines.has(form) && formBaselines.get(form) !== formSignature(form));
 }
 
-function showUnsavedDialog() {
-  const dialog = qs('unsaved-dialog');
+let lastDialogFocus = null;
+
+function dialogFocusables(dialog) {
+  return [...dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+    .filter((el) => !el.disabled && !el.hidden && el.getAttribute('aria-hidden') !== 'true');
+}
+
+function openAccessibleDialog(dialog, opener) {
   if (!dialog) return false;
+  lastDialogFocus = opener || document.activeElement;
   dialog.hidden = false;
-  qs('unsaved-stay')?.focus();
+  const [first] = dialogFocusables(dialog);
+  (first || dialog).focus?.();
   return true;
 }
 
-function hideUnsavedDialog() {
+function closeAccessibleDialog(dialog, { restoreFocus = true } = {}) {
+  if (!dialog) return;
+  dialog.hidden = true;
+  if (restoreFocus && lastDialogFocus?.focus) {
+    try { lastDialogFocus.focus(); } catch { /* ignore */ }
+  }
+  lastDialogFocus = null;
+}
+
+function bindDialogAccessibility(dialog) {
+  if (!dialog || dialog.dataset.a11yBound) return;
+  dialog.addEventListener('keydown', (event) => {
+    if (dialog.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      if (dialog.id === 'unsaved-dialog') {
+        pendingNavigation = null;
+        closeAccessibleDialog(dialog);
+      } else {
+        closeAccessibleDialog(dialog);
+      }
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusables = dialogFocusables(dialog);
+    if (!focusables.length) { event.preventDefault(); return; }
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  });
+  dialog.dataset.a11yBound = 'true';
+}
+
+function showUnsavedDialog(opener) {
   const dialog = qs('unsaved-dialog');
-  if (dialog) dialog.hidden = true;
+  bindDialogAccessibility(dialog);
+  return openAccessibleDialog(dialog, opener);
+}
+
+function hideUnsavedDialog({ restoreFocus = false } = {}) {
+  const dialog = qs('unsaved-dialog');
+  closeAccessibleDialog(dialog, { restoreFocus });
 }
 
 function runNavigation(name, onNavigate) {
@@ -61,11 +112,12 @@ function navigateTo(name, onNavigate) {
     runNavigation(name, onNavigate);
     return true;
   }
-  if (!showUnsavedDialog()) {
+  const opener = document.activeElement;
+  if (!showUnsavedDialog(opener)) {
     runNavigation(name, onNavigate);
     return true;
   }
-  pendingNavigation = { name, onNavigate };
+  pendingNavigation = { name, onNavigate, opener };
   return false;
 }
 
@@ -78,11 +130,13 @@ function discardUnsavedChanges() {
 }
 
 function bindUnsavedDialog() {
+  const dialog = qs('unsaved-dialog');
+  bindDialogAccessibility(dialog);
   const stay = qs('unsaved-stay');
   if (stay && !stay.dataset.bound) {
     stay.addEventListener('click', () => {
       pendingNavigation = null;
-      hideUnsavedDialog();
+      hideUnsavedDialog({ restoreFocus: true });
     });
     stay.dataset.bound = 'true';
   }
@@ -92,7 +146,7 @@ function bindUnsavedDialog() {
     discard.addEventListener('click', () => {
       const next = pendingNavigation;
       pendingNavigation = null;
-      hideUnsavedDialog();
+      hideUnsavedDialog({ restoreFocus: false });
       if (!next) return;
       discardUnsavedChanges();
       runNavigation(next.name, next.onNavigate);
@@ -259,9 +313,57 @@ function getActiveConfig() {
   return getConfig();
 }
 
+function errorNodeIdForField(fieldId) {
+  if (fieldId.startsWith('error-')) return fieldId;
+  if (fieldId === 'entity_id' || fieldId === 'document-entity') return 'error-document-entity';
+  return `error-${fieldId}`;
+}
+
+function fieldIdFromErrorNode(errorId) {
+  if (errorId === 'error-document-entity') return 'document-entity';
+  return errorId.replace(/^error-/, '');
+}
+
 function setErrorText(fieldId, message = '') {
-  const node = qs(fieldId);
+  const errorId = errorNodeIdForField(fieldId);
+  const node = qs(errorId);
   if (node) node.textContent = message;
+  const inputId = fieldIdFromErrorNode(errorId);
+  const input = qs(inputId);
+  if (input) {
+    if (message) {
+      input.setAttribute('aria-invalid', 'true');
+      const described = new Set((input.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+      described.add(errorId);
+      input.setAttribute('aria-describedby', [...described].join(' '));
+    } else {
+      input.removeAttribute('aria-invalid');
+      const described = (input.getAttribute('aria-describedby') || '').split(/\s+/).filter((id) => id && id !== errorId);
+      if (described.length) input.setAttribute('aria-describedby', described.join(' '));
+      else input.removeAttribute('aria-describedby');
+    }
+  }
+}
+
+function clearValidationStates(formOrScope) {
+  const scopes = formOrScope ? [formOrScope] : ['entity', 'document'];
+  for (const scope of scopes) {
+    if (scope === 'entity' || scope === 'document') clearFormErrors(scope);
+  }
+}
+
+function focusFirstInvalid(form) {
+  if (!form) return null;
+  const invalid = form.querySelector('[aria-invalid="true"], .validation-error:not(:empty)');
+  if (!invalid) return null;
+  if (invalid.getAttribute && invalid.getAttribute('aria-invalid') === 'true') {
+    invalid.focus?.();
+    return invalid;
+  }
+  const id = invalid.id;
+  const field = id ? qs(fieldIdFromErrorNode(id)) : null;
+  field?.focus?.();
+  return field;
 }
 
 function clearFormErrors(scope) {
@@ -768,10 +870,6 @@ function attachStatusOptions(currentStatus = '') {
   select.value = nextValue;
 }
 
-function clearValidationStates() {
-  clearFormErrors('entity');
-  clearFormErrors('document');
-}
 
 function mapEntityValues(form) {
   const payload = {
@@ -833,19 +931,20 @@ const ERROR_FIELD_ALIASES = {
   stage: 'status'
 };
 
-function exposeValidationErrors(scope, errors = {}) {
-  clearValidationStates();
+function exposeValidationErrors(scope, errors = {}, form) {
+  clearValidationStates(scope);
   const local = Object.entries(errors || {});
   for (const [key, message] of local) {
     const field = ERROR_FIELD_ALIASES[key] || key;
-    const id = field === 'entity_id' ? 'error-document-entity' : `error-${field}`;
-    setErrorText(id, message);
+    const inputId = field === 'entity_id' ? 'document-entity' : field;
+    setErrorText(inputId, message);
   }
 
   for (const field of getActiveConfig().customFields || []) {
     const value = errors[field.key];
-    if (value) setErrorText(`error-cf-${field.key}`, value);
+    if (value) setErrorText(`cf-${field.key}`, value);
   }
+  focusFirstInvalid(form);
 }
 
 function syncCustomerMirror(entity) {
@@ -895,10 +994,11 @@ function handleEntitySubmit(event) {
   const validation = validateEntity(toValidate);
 
   if (!validation.valid) {
-    exposeValidationErrors('entity', validation.errors);
+    exposeValidationErrors('entity', validation.errors, form);
     return;
   }
 
+  clearValidationStates('entity');
   const savedEntity = id ? updateEntity(id, payload) : addEntity(payload);
   syncCustomerMirror(savedEntity);
 
@@ -925,10 +1025,11 @@ function handleDocumentSubmit(event) {
   const validation = validateDocument(toValidate);
 
   if (!validation.valid) {
-    exposeValidationErrors('document', validation.errors);
+    exposeValidationErrors('document', validation.errors, form);
     return;
   }
 
+  clearValidationStates('document');
   const savedDocument = id ? updateDocument(id, values) : addDocument(values);
 
   updateDocumentSelect();

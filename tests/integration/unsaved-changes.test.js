@@ -72,4 +72,27 @@ describe('FR-070 - confirmación al salir de formularios CRM con cambios', () =>
     expect(document.querySelector('#view-dashboard').hidden).toBe(false);
     expect(document.querySelector('#series').value).toBe('');
   });
+
+  it('US23/FR-087: focus trap, Escape cancela y restaura foco al disparador', () => {
+    const navDocuments = document.querySelector('#nav-documents');
+    document.querySelector('#nav-entities').click();
+    document.querySelector('#name').value = 'Cambio sin guardar';
+    navDocuments.focus();
+    navDocuments.click();
+
+    const dlg = dialog();
+    expect(dlg.hidden).toBe(false);
+    expect(dlg.contains(document.activeElement)).toBe(true);
+
+    const focusables = [...dlg.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+      .filter((el) => !el.disabled && !el.hidden);
+    focusables[focusables.length - 1].focus();
+    focusables[focusables.length - 1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    expect(dlg.contains(document.activeElement)).toBe(true);
+
+    dlg.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    expect(dlg.hidden).toBe(true);
+    expect(document.querySelector('#view-entities').hidden).toBe(false);
+    expect(document.activeElement).toBe(navDocuments);
+  });
 });

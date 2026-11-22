@@ -402,6 +402,7 @@ export function addDocument(data = {}) {
   const all = loadDocuments();
   all.push(record);
   writeStorage(STORE_KEYS.documents, all);
+  syncDocumentAsCanonicalOpportunity(record);
   return record;
 }
 
@@ -427,6 +428,7 @@ export function updateDocument(id, patch = {}) {
 
   all[index] = merged;
   writeStorage(STORE_KEYS.documents, all);
+  syncDocumentAsCanonicalOpportunity(all[index]);
   return all[index];
 }
 
@@ -434,6 +436,7 @@ export function deleteDocument(id) {
   const all = loadDocuments();
   const next = all.filter((document) => document.id !== id);
   writeStorage(STORE_KEYS.documents, next);
+  syncDocumentAsCanonicalOpportunity({ id }, { remove: true });
   return next;
 }
 
@@ -968,10 +971,65 @@ export function deleteInteraction(id) {
   return next;
 }
 
+function mapDocumentToOpportunity(doc = {}) {
+  const status = sanitizeCRMText(doc.status || '');
+  const stage = ['Ganado', 'Perdido', 'Evaluación', 'Propuesta', 'Negociación', 'Prospección', 'Calificación', 'Cierre'].includes(status)
+    ? status
+    : 'Evaluación';
+  const amount = parseNumeric(doc.totalAmount ?? doc.subtotal ?? doc.amount ?? 0);
+  return {
+    id: String(doc.id || createId('opportunity')),
+    clientId: doc.entity_id || doc.clientId || doc.customerId || '',
+    employeeId: doc.employeeId || doc.assignedTo || 'legacy',
+    amount: Number.isFinite(amount) ? amount : 0,
+    closeDate: sanitizeCRMText(doc.endDate || doc.closeDate || doc.startDate || ''),
+    stage,
+    archived: Boolean(doc.archived),
+    _source: 'legacy-document',
+    legacyDocumentId: doc.id
+  };
+}
+
+export function reconcileLegacyDocumentsToCanonicalOpportunities() {
+  const documents = loadDocuments();
+  const canonical = loadOpportunities();
+  const byId = new Set(canonical.map((o) => String(o.id)));
+  let changed = false;
+  const merged = [...canonical];
+  for (const doc of documents) {
+    const id = String(doc.id || '');
+    if (!id || byId.has(id)) continue; // canonical wins / no duplicate
+    merged.push(mapDocumentToOpportunity(doc));
+    byId.add(id);
+    changed = true;
+  }
+  if (changed) writeCRMStorage(CRM_KEYS.opportunities, merged);
+  return merged;
+}
+
+export function syncDocumentAsCanonicalOpportunity(doc, { remove = false } = {}) {
+  const all = loadOpportunities();
+  const id = String(doc?.id || '');
+  if (!id) return null;
+  const idx = all.findIndex((o) => String(o.id) === id);
+  if (remove) {
+    if (idx !== -1) {
+      all.splice(idx, 1);
+      writeCRMStorage(CRM_KEYS.opportunities, all);
+    }
+    return null;
+  }
+  const mapped = mapDocumentToOpportunity(doc);
+  if (idx === -1) all.push(mapped);
+  else all[idx] = { ...all[idx], ...mapped, id: all[idx].id }; // update, keep canonical id
+  writeCRMStorage(CRM_KEYS.opportunities, all);
+  return mapped;
+}
+
 export function getCRMOverview() {
   const customers = loadCustomers().filter((record) => !record.archived);
-  // FR-068: una oportunidad se considera abierta únicamente por su etapa; el
-  // estado `archived` del cliente no la excluye del pipeline ni de los cierres.
+  reconcileLegacyDocumentsToCanonicalOpportunities();
+  // FR-076/077: fuente canónica para KPIs.
   const opportunities = loadOpportunities();
   const employeeCount = loadEmployees().filter((record) => !record.archived).length;
 
@@ -995,6 +1053,7 @@ export function getCRMOverview() {
     openOpportunities: openOpportunities.length,
     totalPipeline,
     upcomingClosures,
+    upcomingCloses: upcomingClosures,
     customers,
     opportunities,
     employees: loadEmployees().filter((record) => !record.archived)

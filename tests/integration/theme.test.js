@@ -53,4 +53,15 @@ describe('FR-073 / SC-021 - selector de tema Claro/Oscuro', () => {
     expect(head).toContain(THEME_STORAGE_KEY);
     expect(head).toMatch(/dataset\.theme\s*=/);
   });
+
+  it('T142/FR-074: vistas y diálogos críticos usan data-theme dark sin romper estructura', async () => {
+    localStorage.setItem(THEME_STORAGE_KEY, 'Oscuro');
+    mountLiveDom();
+    vi.resetModules();
+    await import('../../src/main.js');
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    for (const sel of ['.topbar', '.sidebar', '.view', '.form-section', '.action-button', '.stat-card', '#unsaved-dialog .confirm-dialog-card']) {
+      expect(document.querySelector(sel)).toBeTruthy();
+    }
+  });
 });

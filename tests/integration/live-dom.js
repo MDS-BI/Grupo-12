@@ -17,3 +17,34 @@ export async function reloadLiveDom() {
   await import('../../src/main.js');
   return document;
 }
+
+export async function bootApp() {
+  mountLiveDom();
+  vi.resetModules();
+  const app = await import('../../src/app.js');
+  const { normalizeConfig, setActiveConfig } = await import('../../src/module-config.js');
+  setActiveConfig(normalizeConfig(null).config);
+  await app.boot();
+  return document;
+}
+
+export function seedAuth(user = 'Cliente1', { remember = true } = {}) {
+  const key = 'erp.authenticatedUser';
+  localStorage.removeItem(key);
+  sessionStorage.removeItem(key);
+  (remember ? localStorage : sessionStorage).setItem(key, user);
+}
+
+export function clearStorages() {
+  localStorage.clear();
+  sessionStorage.clear();
+}
+
+export function focusableWithin(container) {
+  return [...container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+    .filter((el) => !el.disabled && !el.hidden && el.getAttribute('aria-hidden') !== 'true');
+}
+
+export function pressKey(el, key, opts = {}) {
+  el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...opts }));
+}

@@ -63,4 +63,17 @@ describe('FR-068 - oportunidades de clientes archivados en el dashboard', () => 
     seedArchivedCustomerOpportunity();
     expect(getDashboardMetrics()).toEqual(getCRMOverview());
   });
+
+  it('T147: reconcilia documentos legacy a oportunidades canónicas sin duplicar (idempotente)', async () => {
+    const { reconcileLegacyDocumentsToCanonicalOpportunities } = await import('../../src/storage.js');
+    localStorage.setItem('erp_base_module:documents', JSON.stringify([
+      { id: 'doc-1', entity_id: 'ent-1', status: 'Evaluación', totalAmount: 1000, endDate: '2026-12-31' }
+    ]));
+    const a = reconcileLegacyDocumentsToCanonicalOpportunities();
+    const b = reconcileLegacyDocumentsToCanonicalOpportunities();
+    expect(a.filter((o) => String(o.id) === 'doc-1')).toHaveLength(1);
+    expect(b.filter((o) => String(o.id) === 'doc-1')).toHaveLength(1);
+    const overview = getCRMOverview();
+    expect(overview.openOpportunities).toBeGreaterThanOrEqual(1);
+  });
 });
