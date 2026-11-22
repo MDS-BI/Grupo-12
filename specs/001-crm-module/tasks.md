@@ -807,3 +807,11 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 - No editar `src/components/*` ni `dist/` a mano.
 - Se preservan tareas histÃ³ricas T001â€“T129 para trazabilidad.
 - Total nuevas tareas US16–US24: T130–T188 (59 tareas). Alineación integridad: T189–T194 (6 tareas). Total general: 194 tareas.
+
+---
+
+## Phase 35: Convergence
+
+**Purpose**: Close remaining gaps found by /speckit.converge between spec/plan/tasks and current code.
+
+- [ ] T195 [US19] Eliminar el fallback globalThis.confirm en openDeleteConfirmDialog() de src/app.js y usar solo el diálogo modal CRM accesible para confirmación de eliminación; si falta el markup requerido, fallar de forma segura sin ejecutar la eliminación ni invocar window.confirm/globalThis.confirm. Añadir prueba de regresión que verifique que ningún flujo de eliminación invoca window.confirm/globalThis.confirm, incluso ante ausencia del diálogo. (FR-079, SC-025, contradicts)
