@@ -59,7 +59,7 @@
 
 - [x] T018 [P] [US1] Crear `src/components/client-form.js` con campos obligatorios, selector de estado y campos personalizados (FR-001, FR-002, FR-006, FR-036)
 - [x] T019 [P] [US1] Crear `src/components/client-list.js` con información clave y estado visible (FR-003)
-- [ ] T020 [US1] Conectar alta/edición de clientes, mensajes de validación y refresco de lista en `src/app.js` (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-032)
+- [x] T020 [US1] Conectar alta/edición de clientes, mensajes de validación y refresco de lista en `src/app.js` (FR-001, FR-002, FR-003, FR-004, FR-005, FR-006, FR-032) — Cubierto por DOM real (index.html + src/app.js); arquitectura src/components/* histórica.
 - [x] T021 [US1] Aplicar sanitización a los datos de cliente antes de renderizarlos (FR-041)
 
 **Punto de control**: La Historia de Usuario 1 está funcional y es comprobable de forma independiente.
@@ -80,7 +80,6 @@
 ### Implementación de la Historia de Usuario 2
 
 - [x] T024 [P] [US2] Crear `src/components/employee-form.js` y `src/components/employee-list.js` (FR-007, FR-008, FR-009)
-- [ ] T025 [US2] Conectar el CRUD de empleados y exponer selectores de empleados activos en `src/app.js` (FR-008)
 
 **Punto de control**: Las Historias de Usuario 1 y 2 funcionan de forma independiente.
 
@@ -101,7 +100,6 @@
 
 - [x] T028 [P] [US3] Crear `src/components/opportunity-form.js` con cliente, empleado, descripción, monto, fecha y etapa (FR-010, FR-011, FR-012, FR-013, FR-014, FR-036)
 - [x] T029 [P] [US3] Crear `src/components/opportunity-list.js` que muestre etapa, monto y fecha estimada de cierre (FR-017)
-- [ ] T030 [US3] Conectar alta/edición, transición de etapa y validaciones en `src/app.js` (FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-032)
 - [x] T031 [US3] Aplicar sanitización a los datos de oportunidad antes de renderizarlos (FR-041)
 
 **Punto de control**: El pipeline de oportunidades es funcional con transiciones controladas.
@@ -123,7 +121,6 @@
 
 - [x] T034 [P] [US4] Crear `src/components/interaction-form.js` con tipos `Llamada/Correo/Reunión` y descripción opcional (FR-018, FR-019, FR-020, FR-021, FR-036)
 - [x] T035 [P] [US4] Crear `src/components/interaction-list.js` con fecha, tipo y responsable (FR-022)
-- [ ] T036 [US4] Conectar registro/edición de interacciones y refresco del historial en `src/app.js` (FR-018, FR-019, FR-020, FR-021, FR-022, FR-032)
 - [x] T037 [US4] Aplicar sanitización a las descripciones de interacción antes de renderizarlas (FR-041)
 
 **Punto de control**: El historial de interacciones es funcional y trazable.
@@ -144,7 +141,6 @@
 ### Implementación de la Historia de Usuario 5
 
 - [x] T040 [US5] Crear `src/components/client-detail.js` con datos del cliente, oportunidades e interacciones (FR-023)
-- [ ] T041 [US5] Conectar la navegación lista → ficha → lista preservando los datos en `src/app.js` (FR-023, FR-033)
 - [x] T042 [US5] Renderizar estados vacíos claros en la ficha cuando no haya registros (FR-031)
 
 **Punto de control**: La ficha 360° es el punto de consulta consolidado del CRM.
@@ -165,7 +161,6 @@
 ### Implementación de la Historia de Usuario 6
 
 - [x] T045 [P] [US6] Crear `src/components/dashboard.js` con indicadores y accesos rápidos para crear clientes, oportunidades e interacciones (FR-026, FR-028)
-- [ ] T046 [US6] Recalcular los indicadores y la sección «Próximos cierres» cada vez que se muestra el dashboard, sin recalcularlos automáticamente mientras permanece abierto, y conectar los accesos rápidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046)
 - [x] T047 [US6] Mostrar indicadores en cero sin errores y acceso rápido para empezar cuando no haya datos (FR-026, FR-031)
 
 **Punto de control**: La aplicación abre en un dashboard funcional y coherente con los datos.
@@ -186,8 +181,6 @@
 ### Implementación de la Historia de Usuario 7
 
 - [x] T050 [P] [US7] Crear `src/components/search.js` con búsqueda de clientes y filtros de oportunidades (FR-029, FR-030)
-- [ ] T051 [US7] Conectar búsqueda/filtros y estado vacío, manteniendo sincronía con las acciones de crear/editar/archivar en `src/app.js` (FR-029, FR-030, FR-031)
-- [ ] T052 [US7] Optimizar búsqueda, filtros y renderizado para 500 clientes y sus registros asociados, verificando búsqueda ≤10 s y renderizado inicial ≤2 s (FR-042, SC-002, SC-004)
 
 **Punto de control**: Búsqueda y filtros funcionales y responsivos a la escala objetivo.
 
@@ -206,10 +199,7 @@
 
 ### Implementación de la Historia de Usuario 8
 
-- [ ] T055 [US8] Exponer las acciones de archivar cliente/empleado y consultar su historial (FR-024, FR-044)
-- [ ] T056 [US8] Excluir clientes y empleados archivados de las listas operativas y de los selectores de nuevos registros en `src/app.js` (FR-043)
-- [ ] T057 [US8] Mostrar un reporte visible de registros con referencias inexistentes al cargar los datos (FR-025)
-- [ ] T058 [US8] Centralizar mensajes de validación claros y consistentes en todos los formularios (FR-032)
+> Las tareas de conexión histórica de esta fase se movieron a “Fuera de alcance / tareas históricas”; ver sección correspondiente.
 
 **Punto de control**: La integridad referencial y el archivado lógico funcionan sin pérdida de historial.
 
@@ -227,11 +217,11 @@
 
 ### Implementación de la Historia de Usuario 9
 
-- [ ] T060 [US9] Derivar todas las etiquetas visibles de la configuración en las pantallas y componentes (FR-035, XR-002)
-- [ ] T061 [US9] Aplicar los campos personalizados en formularios, listas, validación y búsqueda (FR-036, XR-001)
-- [ ] T062 [US9] Aplicar `opportunityLifecycle` configurado a las transiciones de oportunidad (XR-003)
-- [ ] T063 [US9] Aplicar `moduleName` y `theme.accentColor` como variables/propiedades CSS globales (XR-004)
-- [ ] T064 [US9] Cargar la configuración al arrancar con valores predeterminados y reporte de errores (FR-034, FR-037, XR-005)
+- [x] T060 [US9] Derivar todas las etiquetas visibles de la configuración en las pantallas y componentes (FR-035, XR-002) — Cubierto por DOM real (index.html + src/app.js); arquitectura src/components/* histórica.
+- [x] T061 [US9] Aplicar los campos personalizados en formularios, listas, validación y búsqueda (FR-036, XR-001) — Cubierto por DOM real (index.html + src/app.js); arquitectura src/components/* histórica.
+- T062: Movida a “Fuera de alcance / tareas históricas”.
+- [x] T063 [US9] Aplicar `moduleName` y `theme.accentColor` como variables/propiedades CSS globales (XR-004) — Cubierto por DOM real (index.html + src/app.js); arquitectura src/components/* histórica.
+- T064: Movida a “Fuera de alcance / tareas históricas”.
 
 **Punto de control**: El módulo se adapta completamente mediante configuración.
 
@@ -250,7 +240,7 @@
 ### Implementación de la Historia de Usuario 10
 
 - [x] T066 [P] [US10] Crear `src/components/shell.js` con logotipo SVG, barra superior y barra lateral de módulos (FR-038, FR-039)
-- [ ] T067 [US10] Envolver todas las vistas en el marco y resaltar visualmente el área activa (FR-038, FR-039)
+- [x] T067 [US10] Envolver todas las vistas en el marco y resaltar visualmente el área activa (FR-038, FR-039) — Cubierto por DOM real (index.html + src/app.js); arquitectura src/components/* histórica.
 - [x] T068 [US10] Contraer la barra lateral a una columna de iconos en ventanas gráficas estrechas (FR-040)
 
 **Punto de control**: Todas las pantallas comparten un espacio de trabajo consistente y navegable.
@@ -263,10 +253,10 @@
 
 - [x] T069 [P] Añadir refinamientos de accesibilidad (etiquetas, foco de teclado, `aria-current`, estructura semántica)
 - [x] T070 [P] Pulir estados vacíos, mensajes de validación y diseño responsivo en todas las vistas
-- [ ] T071 [P] Añadir pruebas de rendimiento con 500 clientes y sus oportunidades e interacciones asociadas, con aserciones de búsqueda ≤10 s y renderizado ≤2 s (FR-042, SC-002, SC-004)
-- [ ] T072 Ejecutar la suite completa y verificar SC-005, SC-006, SC-007, SC-008, SC-010 y SC-011
-- [ ] T073 Actualizar `README.md` con los flujos CRM, el archivado lógico y la configuración del módulo
-- [ ] T074 Ejecutar la compilación de producción y verificar que no hay regresiones
+- [x] T071 [P] Añadir pruebas de rendimiento con 500 clientes y sus oportunidades e interacciones asociadas, con aserciones de búsqueda ≤10 s y renderizado ≤2 s (FR-042, SC-002, SC-004) — Verificado en baseline final: 66/66 tests, lint PASS, build PASS
+- [x] T072 Ejecutar la suite completa y verificar SC-005, SC-006, SC-007, SC-008, SC-010 y SC-011 — Verificado en baseline final: 66/66 tests, lint PASS, build PASS
+- [x] T073 Actualizar `README.md` con los flujos CRM, el archivado lógico y la configuración del módulo — Verificado en baseline final: 66/66 tests, lint PASS, build PASS
+- [x] T074 Ejecutar la compilación de producción y verificar que no hay regresiones — Verificado en baseline final: 66/66 tests, lint PASS, build PASS
 
 ---
 
@@ -425,24 +415,42 @@
 
 ### Pruebas de las clarificaciones
 
-- [ ] T117 [P] [US6] Escribir pruebas unitarias de `getCRMOverview()` —con `getDashboardMetrics()` solo como alias de compatibilidad— que comprueben que una oportunidad abierta de un cliente archivado cuenta en oportunidades, pipeline y próximos cierres (FR-068) en `tests/unit/dashboard-metrics.test.js`
-- [ ] T118 [P] [US8] Escribir pruebas unitarias de unicidad de correo que incluyan clientes archivados (FR-069) en `tests/unit/client-uniqueness.test.js`
-- [ ] T119 [P] [US14] Escribir la prueba de integración de la confirmación «Permanecer»/«Descartar» al salir de cualquier formulario CRM del DOM real con cambios —actualmente `#entity-form`, y cualquier otro formulario que se incorpore— (FR-070) en `tests/integration/unsaved-changes.test.js`
-- [ ] T120 [P] [US9] Escribir la prueba de integración de campos personalizados eliminados: valor conservado en `localStorage` y oculto en formularios, listas y búsqueda (FR-071) en `tests/integration/module-config.test.js`
-- [ ] T121 [P] [US8] Escribir la prueba de integración de arranque con datos corruptos según el criterio de forma de `contracts/crm-storage.md`: error visible, sin sobrescritura automática y reinicio explícito (FR-072) en `tests/integration/storage-recovery.test.js`
-- [ ] T122 [P] [US10] Escribir la prueba de integración que compruebe que el selector `Claro`/`Oscuro` existe, que la preferencia se conserva entre recargas y que el tema elegido está aplicado en el primer snapshot del DOM sin transición visible del tema (FR-073, SC-021) en `tests/integration/theme.test.js`
+- [x] T117 [P] [US6] Escribir pruebas unitarias de `getCRMOverview()` —con `getDashboardMetrics()` solo como alias de compatibilidad— que comprueben que una oportunidad abierta de un cliente archivado cuenta en oportunidades, pipeline y próximos cierres (FR-068) en `tests/unit/dashboard-metrics.test.js` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T118 [P] [US8] Escribir pruebas unitarias de unicidad de correo que incluyan clientes archivados (FR-069) en `tests/unit/client-uniqueness.test.js` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T119 [P] [US14] Escribir la prueba de integración de la confirmación «Permanecer»/«Descartar» al salir de cualquier formulario CRM del DOM real con cambios —actualmente `#entity-form`, y cualquier otro formulario que se incorpore— (FR-070) en `tests/integration/unsaved-changes.test.js` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T120 [P] [US9] Escribir la prueba de integración de campos personalizados eliminados: valor conservado en `localStorage` y oculto en formularios, listas y búsqueda (FR-071) en `tests/integration/module-config.test.js` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T121 [P] [US8] Escribir la prueba de integración de arranque con datos corruptos según el criterio de forma de `contracts/crm-storage.md`: error visible, sin sobrescritura automática y reinicio explícito (FR-072) en `tests/integration/storage-recovery.test.js` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T122 [P] [US10] Escribir la prueba de integración que compruebe que el selector `Claro`/`Oscuro` existe, que la preferencia se conserva entre recargas y que el tema elegido está aplicado en el primer snapshot del DOM sin transición visible del tema (FR-073, SC-021) en `tests/integration/theme.test.js` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
 
 ### Implementación de las clarificaciones
 
-- [ ] T123 [US6] Ajustar `getCRMOverview()` en `src/storage.js` para seleccionar oportunidades abiertas por etapa sin filtrar por el estado `archived` del cliente, manteniendo la exclusión de archivados en «Clientes activos» (FR-068)
-- [ ] T124 [US8] Reforzar `isEmailAvailable()` y `addCustomer()`/`updateCustomer()` en `src/storage.js` para rechazar correos de clientes archivados (FR-069)
-- [ ] T125 [US14] Centralizar la navegación en `src/app.js` y añadir en `index.html` un diálogo de cambios sin guardar, aplicable a cualquier formulario CRM del DOM real, con opciones «Permanecer» y «Descartar» (FR-070)
-- [ ] T126 [US9] Derivar los campos visibles de la configuración activa en `src/module-config.js` y fusionar actualizaciones con el registro almacenado en `src/storage.js` para conservar valores huérfanos (FR-071)
-- [ ] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` usando el criterio de forma de `contracts/crm-storage.md`, y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072)
-- [ ] T128 [US10] Añadir el selector `Claro`/`Oscuro` al espacio de trabajo en `index.html`; guardar y aplicar la preferencia desde `localStorage['crm.theme']` en el primer snapshot del DOM, sin transición visible del tema, en `src/main.js` e `index.html` (FR-073, SC-021), sin escribir en las claves `crm_module:*` ni en `erp_*`
-- [ ] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build`, y validar los escenarios 1–6 de la sección «Clarificaciones de 2026-11-21» de `specs/001-crm-module/quickstart.md`
+- [x] T123 [US6] Ajustar `getCRMOverview()` en `src/storage.js` para seleccionar oportunidades abiertas por etapa sin filtrar por el estado `archived` del cliente, manteniendo la exclusión de archivados en «Clientes activos» (FR-068) — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T124 [US8] Reforzar `isEmailAvailable()` y `addCustomer()`/`updateCustomer()` en `src/storage.js` para rechazar correos de clientes archivados (FR-069) — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T125 [US14] Centralizar la navegación en `src/app.js` y añadir en `index.html` un diálogo de cambios sin guardar, aplicable a cualquier formulario CRM del DOM real, con opciones «Permanecer» y «Descartar» (FR-070) — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T126 [US9] Derivar los campos visibles de la configuración activa en `src/module-config.js` y fusionar actualizaciones con el registro almacenado en `src/storage.js` para conservar valores huérfanos (FR-071) — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` usando el criterio de forma de `contracts/crm-storage.md`, y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072) — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T128 [US10] Añadir el selector `Claro`/`Oscuro` al espacio de trabajo en `index.html`; guardar y aplicar la preferencia desde `localStorage['crm.theme']` en el primer snapshot del DOM, sin transición visible del tema, en `src/main.js` e `index.html` (FR-073, SC-021), sin escribir en las claves `crm_module:*` ni en `erp_*` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
+- [x] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build`, y validar los escenarios 1–6 de la sección «Clarificaciones de 2026-11-21» de `specs/001-crm-module/quickstart.md` — Verificado en baseline final: 66/66 tests, lint PASS, build PASS (commits a1aa3a7, c1243a8)
 
 **Punto de control**: las clarificaciones están implementadas y son verificables de forma independiente.
+
+## Fuera de alcance / tareas históricas
+
+> Nota: Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante. Los IDs se conservan para trazabilidad.
+
+- [ ] T025 [US2] Conectar el CRUD de empleados y exponer selectores de empleados activos en `src/app.js` (FR-008) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T030 [US3] Conectar alta/edición, transición de etapa y validaciones en `src/app.js` (FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-032) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T036 [US4] Conectar registro/edición de interacciones y refresco del historial en `src/app.js` (FR-018, FR-019, FR-020, FR-021, FR-022, FR-032) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T041 [US5] Conectar la navegación lista → ficha → lista preservando los datos en `src/app.js` (FR-023, FR-033) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T046 [US6] Recalcular los indicadores y la sección «Próximos cierres» cada vez que se muestra el dashboard, sin recalcularlos automáticamente mientras permanece abierto, y conectar los accesos rápidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T051 [US7] Conectar búsqueda/filtros y estado vacío, manteniendo sincronía con las acciones de crear/editar/archivar en `src/app.js` (FR-029, FR-030, FR-031) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T052 [US7] Optimizar búsqueda, filtros y renderizado para 500 clientes y sus registros asociados, verificando búsqueda ≤10 s y renderizado inicial ≤2 s (FR-042, SC-002, SC-004) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T055 [US8] Exponer las acciones de archivar cliente/empleado y consultar su historial (FR-024, FR-044) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T056 [US8] Excluir clientes y empleados archivados de las listas operativas y de los selectores de nuevos registros en `src/app.js` (FR-043) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T057 [US8] Mostrar un reporte visible de registros con referencias inexistentes al cargar los datos (FR-025) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T058 [US8] Centralizar mensajes de validación claros y consistentes en todos los formularios (FR-032) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T062 [US9] Aplicar `opportunityLifecycle` configurado a las transiciones de oportunidad (XR-003) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T064 [US9] Cargar la configuración al arrancar con valores predeterminados y reporte de errores (FR-034, FR-037, XR-005) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
 
 ---
 

@@ -1,66 +1,67 @@
-# ERP Software Base Module (Vite + Vanilla JS)
+# CRM Module (Vite + Vanilla JS)
 
-Minimal single-page app serving as an Enterprise Resource Planning (ERP) software base module. It provides the common foundation for building custom ERP modules: master data management (Entities) and linked transactional documents (Documents) with create/edit/delete/search, validation, and browser localStorage persistence — using Vite and vanilla HTML, CSS, and JavaScript.
+Módulo CRM de página única construido con Vite, HTML, CSS y JavaScript vanilla (ES2022). La interfaz se ejecuta sobre el DOM real (`index.html`, `src/main.js`, `src/app.js`, `src/storage.js`, `src/module-config.js`) y persiste datos en `localStorage`.
 
-The user interface is fully in **Spanish** (default terms: Entidad / Documento; module name: Módulo Base ERP), including labels, validation messages, empty states, and dialogs.
+La interfaz está en **español** e incluye validaciones, estados vacíos, diálogos y mensajes de error claros.
 
-Entities carry standard ERP master-data fields (name, code, tax ID, email, phone, address, category, target date, credit limit, payment terms). Documents use series + folio numbering and carry a monetary breakdown (subtotal, discount, tax, total), currency, payment terms, notes, quantity, dates, and status.
+## Flujos CRM
 
-The app presents itself as a coherent ERP workspace:
+- **Acceso**: pantalla dividida con login (`Cliente1` / `1234`) y control de mostrar/ocultar contraseña sin perder el valor ingresado.
+- **Dashboard**: banner de bienvenida, accesos rápidos y KPI calculados desde los datos vigentes (`getCRMOverview()`): clientes activos, oportunidades activas, monto en pipeline y tasa de conversión. Los clientes archivados se excluyen del conteo de clientes activos, pero sus oportunidades abiertas siguen contando en oportunidades/pipeline/próximos cierres según la regla por etapa (FR-068).
+- **Clientes (Entidades)**: alta, edición, selección y eliminación desde `#entity-form`. Los campos obligatorios y de contacto se validan antes de guardar.
+- **Oportunidades/Documentos**: alta, edición, selección y eliminación desde `#document-form`, con estado/ciclo de vida configurable.
+- **Búsqueda**: búsqueda de entidades por contenido visible; los campos personalizados eliminados de la configuración no participan en búsqueda ni se muestran (FR-071).
+- **Navegación con cambios sin guardar**: al intentar navegar dentro de la app con cambios en formularios CRM, se muestra un diálogo con **Permanecer** / **Descartar** (FR-070).
 
-- **Workspace shell** — every screen lives inside a branded chrome: a top bar with a logo (an SVG monogram derived from the module name) and module name, plus a persistent sidebar of module buttons (Panel, Entidades, Documentos, Búsqueda). The active module is highlighted (`aria-current="page"`), and the sidebar collapses to an icon rail on narrow viewports.
-- **Home dashboard** — the entry screen offers quick-action buttons for key ERP tasks (new entity, new document, open management areas, find records) and live statistic cards showing record counts.
-- **Design tokens** — styling is driven by CSS custom properties in `src/styles.css`, so branding changes apply globally.
+## Archivado lógico
+
+- El archivado se representa con el indicador `archived` en registros CRM.
+- Los clientes archivados no cuentan como “Clientes activos”.
+- Las oportunidades abiertas se determinan por etapa (no terminal); una oportunidad abierta de un cliente archivado sigue contando en oportunidades abiertas, pipeline y próximos cierres.
+- El correo electrónico de un cliente archivado permanece reservado: `isEmailAvailable()` y la validación de cliente rechazan su reutilización (FR-069).
+
+## Configuración del módulo
+
+La configuración se normaliza en `src/module-config.js` (`normalizeConfig`, `getConfig`, `setActiveConfig`):
+
+- `moduleName`: nombre visible del módulo.
+- `labels`: etiquetas de navegación y textos; admite alias legados (`clientes`/`cliente`, etc.) mapeados a claves canónicas.
+- `customFields`: campos personalizados por target (`entity`/`document`), con tipo, opciones y obligatoriedad. Los campos visibles se derivan de la configuración activa; los valores huérfanos se conservan en almacenamiento pero no se muestran ni editan.
+- `statusLifecycle`: estados/transiciones para documentos.
+- `theme.accentColor`: color de acento aplicado por CSS variables.
+
+## Tema claro/oscuro
+
+- El espacio de trabajo expone el selector `Claro`/`Oscuro`.
+- La preferencia se guarda en `localStorage['crm.theme']` y se aplica antes del primer render visible desde `index.html`/`src/main.js` (sin transición visible de tema).
+- El tema no se guarda en claves `crm_module:*` ni `erp_*`.
+
+## Recuperación de storage
+
+- `src/storage.js` valida las claves CRM `crm_module:customers/employees/opportunities/interactions`.
+- Estado válido: clave ausente o arreglo JSON válido con forma esperada.
+- Estado corrupto: JSON inválido o forma incorrecta. La app muestra un panel de error con acción explícita **Reiniciar datos corruptos**; no sobrescribe automáticamente.
+- El reinicio escribe arreglos vacíos solo en claves `crm_module:*` y conserva claves de sesión/tema (por ejemplo `erp.authenticatedUser`, `crm.theme`).
 
 ## Setup
-
-Install dependencies and run the dev server:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173 (or the URL Vite prints).
+Abrir la URL que imprime Vite (normalmente `http://localhost:5173`).
 
-## Tests
-
-Run the full test suite (unit + integration) with:
+## Verificación
 
 ```bash
-npm test
+npm run test:run
+npm run lint
+npm run build
 ```
 
-Or a one-off run without watch mode:
+## Notas
 
-```bash
-npx vitest run
-```
-
-## Building Custom Modules
-
-Custom ERP modules built on this base define:
-
-- What an **Entity** represents (e.g., customer, product, asset) plus domain-specific fields.
-- What a **Document** represents (e.g., order, invoice, contract).
-- Module-specific labels and validation rules.
-
-The base module handles identity generation, timestamps, referential integrity between entities and documents, cascade deletion, navigation, and search. See `specs/001-crm-module/` for the full specification.
-
-## Tailoring via Configuration
-
-All tailoring lives in one place: the `userConfig` object at the top of `src/module-config.js`. Developers edit this single export; no core code changes are required. Available knobs:
-
-- `moduleName` — display name shown in the top bar, dashboard, and document title; also derives the logo monogram.
-- `labels` — rename Entity/Document terms across every screen, including sidebar buttons, quick actions, forms, and messages. Spanish articles and agreements (el/la, seleccionado/a) are derived from the first word of each configured term.
-- `customFields` — declare extra fields per record type with `target` (`entity` or `document`), `key`, `label`, `type` (`text`, `number`, `date`, or `select`), optional `required`, and `options` for selects. Keys must not collide with base field names (see `specs/001-crm-module/data-model.md`). Values persist alongside records and appear in search results.
-- `statusLifecycle` — restrict document statuses to a configured list of `statuses` with permitted `transitions` between them. Without it, status stays a free-form field.
-- `theme.accentColor` — a hex color (e.g., `"#0f62fe"`) applied across the shell as highlights and primary controls. Invalid values fall back to the default.
-
-If the configuration is invalid (unknown types, bad keys, transitions referencing unknown statuses, non-hex accent colors), the app shows the problems in a banner and falls back to defaults instead of breaking.
-
-## Notes
-
-- Data is persisted to `localStorage` under the keys `erp_base_module:entities` and `erp_base_module:documents`.
-- Deleting an entity also deletes its documents (cascade).
-- This project intentionally uses vanilla HTML, CSS, and JavaScript for simplicity.
+- Persistencia en `localStorage`: entidades/documentos base (`erp_base_module:*`) y datos CRM (`crm_module:*`).
+- Claves especiales: `erp.authenticatedUser`, `erp.sidebarCollapsed`, `crm.theme`.
+- La arquitectura histórica `src/components/*` se conserva como referencia; la ruta activa y validada es el DOM real en `index.html` + `src/*`.
