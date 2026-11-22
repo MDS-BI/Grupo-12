@@ -2,6 +2,7 @@ import './styles.css';
 import { loadModuleConfig } from './module-config.js';
 import { AUTH_STORAGE_KEY, SIDEBAR_STORAGE_KEY, initApp } from './app.js';
 
+export const THEME_STORAGE_KEY = 'crm.theme';
 const VALID_USER = 'Cliente1';
 const VALID_PASSWORD = '1234';
 
@@ -114,6 +115,38 @@ function bindAuthHandlers() {
   });
 }
 
+function normalizeTheme(value) {
+  return value === 'Oscuro' ? 'Oscuro' : 'Claro';
+}
+
+export function applyTheme(theme) {
+  const normalized = normalizeTheme(theme);
+  const datasetValue = normalized === 'Oscuro' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = datasetValue;
+  return normalized;
+}
+
+export function bindThemeSelector() {
+  const selector = document.getElementById('theme-select');
+  if (!selector || selector.dataset.bound) return;
+  let stored = 'Claro';
+  try {
+    stored = localStorage.getItem(THEME_STORAGE_KEY) || 'Claro';
+  } catch {
+    stored = 'Claro';
+  }
+  selector.value = applyTheme(stored);
+  selector.addEventListener('change', () => {
+    const theme = applyTheme(selector.value);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // Ignore storage write failures; theme is still applied for the session.
+    }
+  });
+  selector.dataset.bound = 'true';
+}
+
 function bindPasswordToggle() {
   const toggle = document.getElementById('login-password-toggle');
   const password = document.getElementById('login-password');
@@ -125,6 +158,7 @@ function bindPasswordToggle() {
   toggle.dataset.bound = 'true';
 }
 
+bindThemeSelector();
 bindAuthHandlers();
 bindPasswordToggle();
 void renderRoute();

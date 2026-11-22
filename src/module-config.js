@@ -320,6 +320,17 @@ export function getConfig() {
   return activeConfig || cloneDefaultConfig();
 }
 
+// FR-071: los campos editables/visibles se derivan solo de la configuración
+// activa. Los valores huérfanos permanecen en almacenamiento pero no se
+// renderizan en formularios, listas ni búsquedas.
+export function getVisibleCustomFields(target) {
+  const wanted = target === 'document' ? 'document' : 'entity';
+  return (getConfig().customFields || []).filter((field) =>
+    field && typeof field === 'object' && typeof field.key === 'string' && field.key.trim() !== ''
+    && (field.target || 'entity') === wanted
+  );
+}
+
 export function labelFor(key) {
   const labels = getConfig().labels || DEFAULT_CONFIG.labels;
   return labels[key] || DEFAULT_CONFIG.labels[key] || key;

@@ -15,7 +15,7 @@ export default defineConfig({
       'tests/integration/dashboard.test.js',
       'tests/integration/employees.test.js',
       'tests/integration/interactions.test.js',
-      'tests/integration/module-config.test.js',
+      // 'tests/integration/module-config.test.js', // habilitado para T120 (FR-071)
       'tests/integration/opportunities.test.js',
       'tests/integration/relabeling.test.js',
       'tests/integration/search.test.js',

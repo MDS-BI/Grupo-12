@@ -1,4 +1,4 @@
-import { BASE_FIELDS, getConfig } from './module-config.js';
+import { BASE_FIELDS, getConfig, getVisibleCustomFields } from './module-config.js';
 
 const STORE_KEYS = {
   entities: 'erp_base_module:entities',
@@ -26,6 +26,12 @@ function currentConfig() {
 function getAllowedCustomFields(target) {
   const cfg = currentConfig();
   return (cfg.customFields || []).filter((field) => field.target === target || (field.target || 'entity') === target);
+}
+
+// FR-071: al actualizar, la combinación con el registro almacenado conserva
+// los valores de campos que ya no están declarados en la configuración.
+function mergeStoredRecord(stored = {}, patch = {}) {
+  return { ...stored, ...patch, id: stored.id };
 }
 
 function createId(prefix) {
@@ -249,7 +255,7 @@ export function updateEntity(id, patch = {}) {
   const index = all.findIndex((entity) => entity.id === id);
   if (index === -1) return null;
 
-  const merged = { ...all[index], ...sanitizeEntityInput(patch) };
+  const merged = mergeStoredRecord(all[index], sanitizeEntityInput(patch));
   const validation = validateEntity(merged);
   if (!validation.valid) {
     throw new Error(Object.values(validation.errors).join(' '));
@@ -280,6 +286,7 @@ export function searchEntities(term = '') {
   const source = String(term ?? '').trim().toLowerCase();
   const entities = loadEntities();
   if (!source) return entities;
+  const visibleCustomKeys = new Set(getVisibleCustomFields('entity').map((field) => field.key));
 
   return entities.filter((entity) => {
     const content = [
@@ -294,7 +301,7 @@ export function searchEntities(term = '') {
       entity.paymentTerms,
       entity.entity_id,
       ...Object.entries(entity)
-        .filter(([key]) => !BASE_FIELDS.entity.includes(key) || key === 'entity_id')
+        .filter(([key]) => visibleCustomKeys.has(key))
         .map(([, value]) => value)
     ].join(' ').toLowerCase();
 
@@ -403,7 +410,7 @@ export function updateDocument(id, patch = {}) {
   const index = all.findIndex((document) => document.id === id);
   if (index === -1) return null;
 
-  const merged = { ...all[index], ...sanitizeDocumentInput(patch) };
+  const merged = mergeStoredRecord(all[index], sanitizeDocumentInput(patch));
   const lifecycle = currentConfig().statusLifecycle;
 
   if (lifecycle && lifecycle.transitions && merged.status !== undefined && merged.status !== null && merged.status !== '' && all[index].status !== merged.status) {
@@ -613,6 +620,18 @@ export function loadInteractions() {
   return readCRMStorage(CRM_KEYS.interactions, []).filter((record) => record && typeof record === 'object');
 }
 
+// FR-069: la unicidad se aplica también a los clientes archivados.
+export function isEmailAvailable(email, excludeId) {
+  const normalized = sanitizeCRMText(email).toLowerCase();
+  if (!normalized) return true;
+  return !loadCustomers().some((customer) => {
+    if (excludeId && (customer.id === excludeId || customer.customerId === excludeId || customer.clientId === excludeId)) {
+      return false;
+    }
+    return sanitizeCRMText(customer.email).toLowerCase() === normalized;
+  });
+}
+
 export function validateCustomer(data = {}) {
   const record = normalizeCRMAliases(data);
   const errors = {};
@@ -630,12 +649,7 @@ export function validateCustomer(data = {}) {
   if (!phone) errors.phone = 'El teléfono es obligatorio.';
   if (!CRM_CUSTOMER_STATUSES.includes(status)) errors.status = `El estado debe ser uno de: ${CRM_CUSTOMER_STATUSES.join(', ')}.`;
 
-  const duplicateMatch = loadCustomers().find((customer) => {
-    if (customer.id === record.id) return false;
-    if (customer.archived) return false;
-    return String(customer.email || '').trim().toLowerCase() === email.toLowerCase();
-  });
-  if (email && duplicateMatch) {
+  if (email && !isEmailAvailable(email, record.id)) {
     errors.email = 'El correo ya está en uso por otro cliente.';
   }
 
@@ -670,7 +684,7 @@ export function updateCustomer(id, patch = {}) {
   const index = all.findIndex((record) => record.id === id);
   if (index === -1) return null;
 
-  const merged = normalizeCRMAliases({ ...all[index], ...patch });
+  const merged = normalizeCRMAliases(mergeStoredRecord(all[index], patch));
   const validation = validateCustomer(merged);
   if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
 
@@ -744,7 +758,7 @@ export function updateEmployee(id, patch = {}) {
   const index = all.findIndex((record) => record.id === id);
   if (index === -1) return null;
 
-  const merged = normalizeCRMAliases({ ...all[index], ...patch });
+  const merged = normalizeCRMAliases(mergeStoredRecord(all[index], patch));
   const validation = validateEmployee(merged);
   if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
 
@@ -828,7 +842,7 @@ export function updateOpportunity(id, patch = {}) {
   const index = all.findIndex((record) => record.id === id);
   if (index === -1) return null;
 
-  const merged = normalizeCRMAliases({ ...all[index], ...patch });
+  const merged = normalizeCRMAliases(mergeStoredRecord(all[index], patch));
   const validation = validateOpportunity(merged);
   if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
 
@@ -928,7 +942,7 @@ export function updateInteraction(id, patch = {}) {
   const index = all.findIndex((record) => record.id === id);
   if (index === -1) return null;
 
-  const merged = normalizeCRMAliases({ ...all[index], ...patch });
+  const merged = normalizeCRMAliases(mergeStoredRecord(all[index], patch));
   const validation = validateInteraction(merged);
   if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
 
@@ -956,7 +970,9 @@ export function deleteInteraction(id) {
 
 export function getCRMOverview() {
   const customers = loadCustomers().filter((record) => !record.archived);
-  const opportunities = loadOpportunities().filter((record) => !record.archived);
+  // FR-068: una oportunidad se considera abierta únicamente por su etapa; el
+  // estado `archived` del cliente no la excluye del pipeline ni de los cierres.
+  const opportunities = loadOpportunities();
   const employeeCount = loadEmployees().filter((record) => !record.archived).length;
 
   const activeCustomers = customers.filter((customer) => customer.status === 'Activo').length;
@@ -1018,11 +1034,54 @@ export const CRM_DEFAULTS = Object.freeze({
   stageTransitions: { ...CRM_STAGE_TRANSITIONS }
 });
 
+const CRM_REQUIRED_FIELDS = Object.freeze({
+  customers: ['companyName', 'contactName', 'email', 'phone'],
+  employees: ['name', 'role'],
+  opportunities: ['clientId', 'employeeId', 'amount', 'closeDate', 'stage'],
+  interactions: ['clientId', 'employeeId', 'date', 'type']
+});
+
+function hasValidCRMShape(name, value) {
+  if (!Array.isArray(value)) return false;
+  const requiredFields = CRM_REQUIRED_FIELDS[name] || [];
+  return value.every((entry) => {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
+    if (typeof entry.id !== 'string' || entry.id.trim() === '') return false;
+    const record = normalizeCRMAliases(entry);
+    return requiredFields.every((field) => {
+      const fieldValue = record[field];
+      return fieldValue !== undefined && fieldValue !== null && fieldValue !== '';
+    });
+  });
+}
+
+// FR-072: una clave ausente es estado vacío; JSON inválido o forma incorrecta
+// es un error que debe mostrarse sin sobrescribir los datos automáticamente.
+export function getCRMStorageErrors() {
+  const errors = [];
+  for (const [name, key] of Object.entries(CRM_KEYS)) {
+    const raw = globalThis.localStorage?.getItem?.(key);
+    if (raw === null || raw === undefined || raw === '') continue;
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      errors.push({ key, reason: 'JSON inválido' });
+      continue;
+    }
+    if (!hasValidCRMShape(name, parsed)) {
+      errors.push({ key, reason: 'Forma de datos incorrecta' });
+    }
+  }
+  return errors;
+}
+
+export function resetCorruptedCRMStorage() {
+  for (const key of Object.values(CRM_KEYS)) writeCRMStorage(key, []);
+}
+
 export function clearCRMData() {
-  writeCRMStorage(CRM_KEYS.customers, []);
-  writeCRMStorage(CRM_KEYS.employees, []);
-  writeCRMStorage(CRM_KEYS.opportunities, []);
-  writeCRMStorage(CRM_KEYS.interactions, []);
+  resetCorruptedCRMStorage();
 }
 
 export const customerStatuses = CRM_DEFAULTS.customerStatuses;

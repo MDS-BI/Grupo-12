@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CRM Pro</title>
+    <script>
+      // FR-073 / SC-021: aplicar el tema antes de que el contenido sea visible.
+      (function () {
+        try {
+          var stored = localStorage.getItem('crm.theme');
+          document.documentElement.dataset.theme = stored === 'Oscuro' ? 'dark' : 'light';
+        } catch (error) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
@@ -113,6 +124,13 @@
           </div>
         </div>
         <div class="topbar-actions">
+          <div class="theme-control">
+            <label for="theme-select">Tema</label>
+            <select id="theme-select" aria-label="Tema de la interfaz">
+              <option value="Claro">Claro</option>
+              <option value="Oscuro">Oscuro</option>
+            </select>
+          </div>
           <button id="logout-button" type="button" class="logout-button">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
             <span>Cerrar sesión</span>
@@ -149,6 +167,11 @@
       <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
       <main class="content-area">
+        <div id="storage-error" class="storage-error" role="alert" hidden>
+          <strong>Error de datos del CRM</strong>
+          <p id="storage-error-message"></p>
+          <button id="storage-reset" type="button">Reiniciar datos corruptos</button>
+        </div>
         <section id="view-dashboard" class="view">
           <h1 id="dashboard-heading">CRM Pro</h1>
 
@@ -236,7 +259,7 @@
         <section id="view-entities" class="view" hidden>
           <h2 id="entities-view-heading">Clientes</h2>
           <p class="view-subtitle">Administra la información de tu cartera comercial.</p>
-          <form id="entity-form" novalidate>
+          <form id="entity-form" class="crm-form" novalidate>
             <h3 id="entity-form-heading">Agregar / Editar Cliente</h3>
             <input id="entity-id" type="hidden" />
 
@@ -333,7 +356,7 @@
         <section id="view-documents" class="view" hidden>
           <h2 id="documents-view-heading">Oportunidades</h2>
           <p class="view-subtitle">Gestiona cada oportunidad y su seguimiento comercial.</p>
-          <form id="document-form" novalidate>
+          <form id="document-form" class="crm-form" novalidate>
             <h3 id="document-form-heading">Agregar / Editar Oportunidad</h3>
             <input id="document-id" type="hidden" />
 
@@ -476,6 +499,17 @@
           <ul id="search-results-list" class="search-results"></ul>
         </section>
       </main>
+
+      <div id="unsaved-dialog" class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="unsaved-title" hidden>
+        <div class="confirm-dialog-card">
+          <h2 id="unsaved-title">Cambios sin guardar</h2>
+          <p id="unsaved-message">Tienes cambios sin guardar. ¿Qué deseas hacer?</p>
+          <div class="confirm-dialog-actions">
+            <button id="unsaved-stay" type="button">Permanecer</button>
+            <button id="unsaved-discard" type="button" class="danger">Descartar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="./src/main.js"></script>

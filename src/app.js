@@ -1,14 +1,133 @@
-import { labelFor, normalizeConfig, setActiveConfig, getConfig, PHONE_PREFIXES } from './module-config.js';
+import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
 import { computeConversionRate } from './domain.js';
-import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, loadCustomers, loadDocuments, loadEntities, searchEntities, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
+import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, getCRMStorageErrors, loadCustomers, loadDocuments, loadEntities, resetCorruptedCRMStorage, searchEntities, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
 
 export const AUTH_STORAGE_KEY = 'erp.authenticatedUser';
 export const SIDEBAR_STORAGE_KEY = 'erp.sidebarCollapsed';
 
 const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'search'];
+const CRM_FORM_SELECTOR = 'form.crm-form';
+
+let pendingNavigation = null;
+const formBaselines = new WeakMap();
 
 function qs(id) {
   return document.getElementById(id);
+}
+
+// FR-070: cualquier formulario CRM del DOM real se considera con cambios
+// cuando sus valores difieren de la última línea base registrada.
+function formSignature(form) {
+  return [...form.querySelectorAll('input, select, textarea')]
+    .filter((field) => !['hidden', 'submit', 'button', 'reset'].includes(field.type))
+    .map((field) => `${field.name || field.id}=${field.value ?? ''}`)
+    .join('&');
+}
+
+function markFormClean(form) {
+  if (form) formBaselines.set(form, formSignature(form));
+}
+
+function markAllFormsClean() {
+  document.querySelectorAll(CRM_FORM_SELECTOR).forEach(markFormClean);
+}
+
+function hasUnsavedChanges() {
+  return [...document.querySelectorAll(CRM_FORM_SELECTOR)]
+    .some((form) => formBaselines.has(form) && formBaselines.get(form) !== formSignature(form));
+}
+
+function showUnsavedDialog() {
+  const dialog = qs('unsaved-dialog');
+  if (!dialog) return false;
+  dialog.hidden = false;
+  qs('unsaved-stay')?.focus();
+  return true;
+}
+
+function hideUnsavedDialog() {
+  const dialog = qs('unsaved-dialog');
+  if (dialog) dialog.hidden = true;
+}
+
+function runNavigation(name, onNavigate) {
+  showView(name);
+  if (typeof onNavigate === 'function') onNavigate();
+  markAllFormsClean();
+}
+
+function navigateTo(name, onNavigate) {
+  if (!hasUnsavedChanges()) {
+    runNavigation(name, onNavigate);
+    return true;
+  }
+  if (!showUnsavedDialog()) {
+    runNavigation(name, onNavigate);
+    return true;
+  }
+  pendingNavigation = { name, onNavigate };
+  return false;
+}
+
+function discardUnsavedChanges() {
+  document.querySelectorAll(CRM_FORM_SELECTOR).forEach((form) => form.reset());
+  resetEntityForm();
+  resetDocumentForm();
+  clearValidationStates();
+  markAllFormsClean();
+}
+
+function bindUnsavedDialog() {
+  const stay = qs('unsaved-stay');
+  if (stay && !stay.dataset.bound) {
+    stay.addEventListener('click', () => {
+      pendingNavigation = null;
+      hideUnsavedDialog();
+    });
+    stay.dataset.bound = 'true';
+  }
+
+  const discard = qs('unsaved-discard');
+  if (discard && !discard.dataset.bound) {
+    discard.addEventListener('click', () => {
+      const next = pendingNavigation;
+      pendingNavigation = null;
+      hideUnsavedDialog();
+      if (!next) return;
+      discardUnsavedChanges();
+      runNavigation(next.name, next.onNavigate);
+    });
+    discard.dataset.bound = 'true';
+  }
+}
+
+function renderStorageErrors() {
+  const panel = qs('storage-error');
+  if (!panel) return;
+  const errors = getCRMStorageErrors();
+  panel.hidden = errors.length === 0;
+  if (errors.length) {
+    const message = qs('storage-error-message');
+    if (message) {
+      message.textContent = `No se pudieron leer los datos del CRM (${errors.map((error) => error.key).join(', ')}). Reinicia esas claves para continuar.`;
+    }
+  }
+}
+
+function bindStorageReset() {
+  const button = qs('storage-reset');
+  if (!button || button.dataset.bound) return;
+  button.addEventListener('click', () => {
+    resetCorruptedCRMStorage();
+    renderStorageErrors();
+    updateDashboardStats();
+    updateEntitySelect();
+    updateDocumentSelect();
+    populateEntityDropdown();
+    renderSearchResults();
+    markAllFormsClean();
+  });
+  button.dataset.bound = 'true';
 }
 
 const RUT_LENGTH_ERROR = 'El Rut debe tener entre 8 y 9 dígitos.';
@@ -327,7 +446,7 @@ function updateEntityFieldOptions() {
   const config = getActiveConfig();
   const container = qs('entity-custom-fields');
   if (!container) return;
-  const fields = (config.customFields || []).filter((field) => (field.target || 'entity') === 'entity');
+  const fields = getVisibleCustomFields('entity');
   container.replaceChildren();
   container.hidden = fields.length === 0;
 
@@ -379,7 +498,7 @@ function updateDocumentFieldOptions() {
   const config = getActiveConfig();
   const container = qs('document-custom-fields');
   if (!container) return;
-  const fields = (config.customFields || []).filter((field) => (field.target || 'entity') === 'document');
+  const fields = getVisibleCustomFields('document');
   container.replaceChildren();
   container.hidden = fields.length === 0;
 
@@ -446,6 +565,7 @@ function resetEntityForm() {
   clearFormErrors('entity');
   const customNodes = document.querySelectorAll('#entity-custom-fields .custom-field');
   customNodes.forEach((node) => node.querySelector('input, select') && (node.querySelector('input, select').value = ''));
+  markFormClean(form);
 }
 
 function resetDocumentForm() {
@@ -461,6 +581,7 @@ function resetDocumentForm() {
     const input = node.querySelector('input, select');
     if (input) input.value = '';
   });
+  markFormClean(form);
 }
 
 function fillEntityForm(entity) {
@@ -481,13 +602,13 @@ function fillEntityForm(entity) {
   qs('paymentTerms').value = entity.paymentTerms || '';
 
   const config = getActiveConfig();
-  for (const field of config.customFields || []) {
-    if ((field.target || 'entity') !== 'entity') continue;
+  for (const field of getVisibleCustomFields('entity')) {
     const input = qs(`cf-${field.key}`);
     if (input) input.value = entity[field.key] ?? '';
   }
 
   qs('submit-button').textContent = 'Actualizar';
+  markFormClean(qs('entity-form'));
 }
 
 function fillDocumentForm(record) {
@@ -515,14 +636,14 @@ function fillDocumentForm(record) {
   }
 
   const config = getActiveConfig();
-  for (const field of config.customFields || []) {
-    if ((field.target || 'entity') !== 'document') continue;
+  for (const field of getVisibleCustomFields('document')) {
     const input = qs(`cf-${field.key}`);
     if (input) input.value = record[field.key] ?? '';
   }
 
   const documentSubmitButton = qs('document-submit-button') || qs('submit-document-button');
   if (documentSubmitButton) documentSubmitButton.textContent = 'Actualizar Documento';
+  markFormClean(qs('document-form'));
 }
 
 function renderSearchResults() {
@@ -668,8 +789,7 @@ function mapEntityValues(form) {
     paymentTerms: form.querySelector('#paymentTerms')?.value || ''
   };
 
-  for (const field of getActiveConfig().customFields || []) {
-    if ((field.target || 'entity') !== 'entity') continue;
+  for (const field of getVisibleCustomFields('entity')) {
     const node = form.querySelector(`#cf-${field.key}`);
     if (node) payload[field.key] = node.value;
   }
@@ -695,8 +815,7 @@ function mapDocumentValues(form) {
     status: form.querySelector('#status')?.value || ''
   };
 
-  for (const field of getActiveConfig().customFields || []) {
-    if ((field.target || 'entity') !== 'document') continue;
+  for (const field of getVisibleCustomFields('document')) {
     const node = form.querySelector(`#cf-${field.key}`);
     if (node) payload[field.key] = node.value;
   }
@@ -883,6 +1002,7 @@ async function boot() {
     ? current
     : normalizeConfig(null).config;
   setActiveConfig(normalized);
+  renderStorageErrors();
   renderBranding();
   renderWelcomeBanner();
   renderModuleLabels();
@@ -895,8 +1015,11 @@ async function boot() {
   updateDashboardStats();
   renderSearchResults();
   showView('dashboard');
+  markAllFormsClean();
 
   bindSidebarControls();
+  bindUnsavedDialog();
+  bindStorageReset();
 
   const entityForm = qs('entity-form');
   if (entityForm && !entityForm.dataset.bound) {
@@ -916,13 +1039,7 @@ async function boot() {
 
   const navButtons = document.querySelectorAll('.nav-module');
   navButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const name = button.dataset.module;
-      if (name === 'dashboard') showView('dashboard');
-      if (name === 'entities') showView('entities');
-      if (name === 'documents') showView('documents');
-      if (name === 'search') showView('search');
-    });
+    button.addEventListener('click', () => navigateTo(button.dataset.module));
   });
 
   const dashboardActions = [
@@ -936,15 +1053,14 @@ async function boot() {
   for (const [buttonId, target, focusId] of dashboardActions) {
     const button = qs(buttonId);
     if (!button) continue;
-    button.addEventListener('click', () => {
-      showView(target);
+    button.addEventListener('click', () => navigateTo(target, () => {
       if (target === 'entities') resetEntityForm();
       if (target === 'documents') resetDocumentForm();
       const focusTarget = qs(focusId);
       if (focusTarget && document.contains(focusTarget)) {
         focusTarget.focus();
       }
-    });
+    }));
   }
 
   const documentSubmitButton = qs('document-submit-button') || qs('submit-document-button');
