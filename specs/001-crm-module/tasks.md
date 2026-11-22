@@ -460,12 +460,15 @@
 
 **âš ï¸ CRÃTICO**: ninguna historia US16â€“US24 debe implementarse antes de completar esta fase.
 
-- [ ] T130 Revisar alineaciÃ³n de alcance US16â€“US24 en `specs/001-crm-module/spec.md`, `specs/001-crm-module/plan.md`, `specs/001-crm-module/research.md`, `specs/001-crm-module/data-model.md` y `specs/001-crm-module/contracts/corrections-us16-us24.md`
-- [ ] T131 [P] AÃ±adir utilidades compartidas de prueba para sesiÃ³n, vista activa, foco y almacenamiento en `tests/integration/live-dom.js`
-- [ ] T132 [P] Crear esqueleto de pruebas de integraciÃ³n para correcciones en `tests/integration/corrections-us16-us24.test.js`
-- [ ] T133 Definir/normalizar selectores y atributos ARIA de confirmaciÃ³n, bÃºsqueda y listados en `index.html` segÃºn `specs/001-crm-module/contracts/ui-contracts.md`
-- [ ] T134 Crear helper reutilizable de diÃ¡logo modal accesible (apertura, cierre, focus trap, Escape, restore focus) en `src/app.js`
-- [ ] T135 Crear helper de persistencia de sesiÃ³n/vista activa con whitelist y limpieza de storages en `src/main.js` y `src/app.js`
+> **Alcance activo**: Fases 23–33 (T130–T188) son el alcance ejecutable para US16–US24. Fases 1–22 permanecen como registro histórico/read-only, salvo referencias de regresión.
+> **Cobertura fundacional**: T130–T135 cubren prerrequisitos transversales de FR-074–FR-088 (tema, storage/sesión, accesibilidad, búsqueda/listados, navegación y moneda) y habilitan la verificación SC-022–SC-030.
+
+- [ ] T130 Revisar alineaciÃ³n de alcance US16â€“US24 en `specs/001-crm-module/spec.md`, `specs/001-crm-module/plan.md`, `specs/001-crm-module/research.md`, `specs/001-crm-module/data-model.md` y `specs/001-crm-module/contracts/corrections-us16-us24.md` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
+- [ ] T131 [P] AÃ±adir utilidades compartidas de prueba para sesiÃ³n, vista activa, foco y almacenamiento en `tests/integration/live-dom.js` (FR-078, FR-085, FR-086, FR-087, SC-024, SC-028, SC-029)
+- [ ] T132 [P] Crear esqueleto de pruebas de integraciÃ³n para correcciones en `tests/integration/corrections-us16-us24.test.js` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
+- [ ] T133 Definir/normalizar selectores y atributos ARIA de confirmaciÃ³n, bÃºsqueda y listados en `index.html` segÃºn `specs/001-crm-module/contracts/ui-contracts.md` (FR-079, FR-080, FR-081, FR-083, FR-086, FR-087)
+- [ ] T134 Crear helper reutilizable de diÃ¡logo modal accesible (apertura, cierre, focus trap, Escape, restore focus) en `src/app.js` (FR-079, FR-080, FR-087, SC-025, SC-029)
+- [ ] T135 Crear helper de persistencia de sesiÃ³n/vista activa con whitelist y limpieza de storages en `src/main.js` y `src/app.js` (FR-078, FR-085, SC-024, SC-028)
 
 **Punto de control**: base compartida lista; las historias US16â€“US24 pueden comenzar.
 
@@ -529,10 +532,10 @@
 
 ### ImplementaciÃ³n de la Historia de Usuario 17
 
-- [ ] T149 [US17] Implementar adaptador canÃ³nico de oportunidades entre UI y overview en `src/storage.js`; definir `crm_module:opportunities` como fuente canónica de KPIs y normalizar lectura/escritura desde ahí (FR-076, FR-077)
+- [ ] T149 [US17] Implementar adaptador canónico de oportunidades entre UI y overview en `src/storage.js`; definir `crm_module:opportunities` como fuente canónica de KPIs, normalizar lectura/escritura desde ahí y establecer precedencia determinista: si `crm_module:opportunities` y `erp_base_module:documents` difieren, gana el registro canónico de `crm_module:opportunities`; los documentos legacy solo rellenan registros canónicos faltantes, sin sobrescritura destructiva (FR-076, FR-077)
 - [ ] T150 [US17] Actualizar alta/ediciÃ³n/eliminaciÃ³n de oportunidades para persistir en la fuente canÃ³nica consumida por `getCRMOverview()` en `src/app.js` y `src/storage.js`; toda operación UI debe reflejarse en KPI en el siguiente render del dashboard (FR-076, FR-077, SC-023)
 - [ ] T151 [US17] Recalcular y renderizar KPI desde `getCRMOverview()` al entrar al dashboard en `src/app.js`, sin usar fuentes paralelas de métricas (FR-076, FR-077)
-- [ ] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` en `src/storage.js`: reconciliar en lectura/escritura hacia `crm_module:opportunities`, mantener idempotencia, definir precedencia clara y evitar doble verdad/divergencia de KPI (FR-076, FR-077, SC-023)
+- [ ] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` en `src/storage.js`: reconciliar en lectura/escritura hacia `crm_module:opportunities` con idempotencia (ejecuciones repetidas no duplican ni alteran resultados), precedencia determinista ante conflicto (gana `crm_module:opportunities`; legacy solo backfill de faltantes) y sin doble verdad/divergencia de KPI (FR-076, FR-077, SC-023)
 **Punto de control**: US17 funcional y verificable de forma independiente.
 
 ---
@@ -566,12 +569,12 @@
 
 ### Pruebas para la Historia de Usuario 18
 
-- [ ] T158 [P] [US18] AÃ±adir pruebas de integraciÃ³n para persistencia condicionada por `#login-remember` en `tests/integration/corrections-us16-us24.test.js` (FR-078, SC-024)
+- [ ] T158 [P] [US18] AÃ±adir pruebas de integraciÃ³n para persistencia condicionada por `#login-remember` en `tests/integration/corrections-us16-us24.test.js`: marcado restaura en el mismo perfil/navegador; desmarcado usa `sessionStorage` y no se restaura en un nuevo contexto de navegador; logout limpia ambas ubicaciones (FR-078, SC-024)
 - [ ] T159 [P] [US18] AÃ±adir prueba de integraciÃ³n para logout limpiando `localStorage` y `sessionStorage` de auth en `tests/integration/ui-contracts.test.js` (FR-078, SC-024)
 
 ### ImplementaciÃ³n de la Historia de Usuario 18
 
-- [ ] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js` (FR-078)
+- [ ] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js`; desmarcado = persistencia limitada a la sesión de navegador/pestaña actual (sin restaurar en nuevo contexto de navegador), marcado = persistencia en el mismo navegador/perfil (FR-078, SC-024)
 - [ ] T161 [US18] Actualizar `isAuthenticated`, restauraciÃ³n de sesiÃ³n y logout para limpiar ambas ubicaciones en `src/main.js` (FR-078, SC-024)
 - [ ] T162 [US18] Conectar el estado del checkbox `#login-remember` en el flujo de login en `index.html` y `src/main.js` (FR-078)
 
