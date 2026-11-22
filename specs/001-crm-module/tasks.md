@@ -1,4 +1,4 @@
-# Tareas: Módulo CRM (Customer Relationship Management)
+﻿# Tareas: Módulo CRM (Customer Relationship Management)
 
 **Entrada**: Documentos de diseño desde `/specs/001-crm-module/` (módulo CRM + interfaz SaaS profesional)
 **Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/crm-storage.md
@@ -438,161 +438,342 @@
 
 > Nota: Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante. Los IDs se conservan para trazabilidad.
 
-- [ ] T025 [US2] Conectar el CRUD de empleados y exponer selectores de empleados activos en `src/app.js` (FR-008) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T030 [US3] Conectar alta/edición, transición de etapa y validaciones en `src/app.js` (FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-032) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T036 [US4] Conectar registro/edición de interacciones y refresco del historial en `src/app.js` (FR-018, FR-019, FR-020, FR-021, FR-022, FR-032) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T041 [US5] Conectar la navegación lista → ficha → lista preservando los datos en `src/app.js` (FR-023, FR-033) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T046 [US6] Recalcular los indicadores y la sección «Próximos cierres» cada vez que se muestra el dashboard, sin recalcularlos automáticamente mientras permanece abierto, y conectar los accesos rápidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T051 [US7] Conectar búsqueda/filtros y estado vacío, manteniendo sincronía con las acciones de crear/editar/archivar en `src/app.js` (FR-029, FR-030, FR-031) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T052 [US7] Optimizar búsqueda, filtros y renderizado para 500 clientes y sus registros asociados, verificando búsqueda ≤10 s y renderizado inicial ≤2 s (FR-042, SC-002, SC-004) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T055 [US8] Exponer las acciones de archivar cliente/empleado y consultar su historial (FR-024, FR-044) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T056 [US8] Excluir clientes y empleados archivados de las listas operativas y de los selectores de nuevos registros en `src/app.js` (FR-043) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T057 [US8] Mostrar un reporte visible de registros con referencias inexistentes al cargar los datos (FR-025) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T058 [US8] Centralizar mensajes de validación claros y consistentes en todos los formularios (FR-032) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T062 [US9] Aplicar `opportunityLifecycle` configurado a las transiciones de oportunidad (XR-003) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
-- [ ] T064 [US9] Cargar la configuración al arrancar con valores predeterminados y reporte de errores (FR-034, FR-037, XR-005) — Tarea histórica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T025 [US2] Conectar el CRUD de empleados y exponer selectores de empleados activos en `src/app.js` (FR-008) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T030 [US3] Conectar alta/ediciÃ³n, transiciÃ³n de etapa y validaciones en `src/app.js` (FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-032) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T036 [US4] Conectar registro/ediciÃ³n de interacciones y refresco del historial en `src/app.js` (FR-018, FR-019, FR-020, FR-021, FR-022, FR-032) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T041 [US5] Conectar la navegaciÃ³n lista â†’ ficha â†’ lista preservando los datos en `src/app.js` (FR-023, FR-033) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T046 [US6] Recalcular los indicadores y la secciÃ³n Â«PrÃ³ximos cierresÂ» cada vez que se muestra el dashboard, sin recalcularlos automÃ¡ticamente mientras permanece abierto, y conectar los accesos rÃ¡pidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T051 [US7] Conectar bÃºsqueda/filtros y estado vacÃ­o, manteniendo sincronÃ­a con las acciones de crear/editar/archivar en `src/app.js` (FR-029, FR-030, FR-031) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T052 [US7] Optimizar bÃºsqueda, filtros y renderizado para 500 clientes y sus registros asociados, verificando bÃºsqueda â‰¤10 s y renderizado inicial â‰¤2 s (FR-042, SC-002, SC-004) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T055 [US8] Exponer las acciones de archivar cliente/empleado y consultar su historial (FR-024, FR-044) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T056 [US8] Excluir clientes y empleados archivados de las listas operativas y de los selectores de nuevos registros en `src/app.js` (FR-043) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T057 [US8] Mostrar un reporte visible de registros con referencias inexistentes al cargar los datos (FR-025) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T058 [US8] Centralizar mensajes de validaciÃ³n claros y consistentes en todos los formularios (FR-032) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T062 [US9] Aplicar `opportunityLifecycle` configurado a las transiciones de oportunidad (XR-003) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
+- [ ] T064 [US9] Cargar la configuraciÃ³n al arrancar con valores predeterminados y reporte de errores (FR-034, FR-037, XR-005) â€” Tarea histÃ³rica de Fase 13 para src/components/*; sustituida por el DOM real vigente o fuera del MVP actual. No bloqueante.
 
 ---
 
-## Dependencias y Orden de Ejecución
+## Fase 23: Fundacional de Correcciones US16â€“US24 (Bloqueante)
+
+**PropÃ³sito**: preparar helpers, contratos de prueba y puntos de integraciÃ³n compartidos para las correcciones incrementales sobre el DOM real.
+
+**âš ï¸ CRÃTICO**: ninguna historia US16â€“US24 debe implementarse antes de completar esta fase.
+
+- [ ] T130 Revisar alineaciÃ³n de alcance US16â€“US24 en `specs/001-crm-module/spec.md`, `specs/001-crm-module/plan.md`, `specs/001-crm-module/research.md`, `specs/001-crm-module/data-model.md` y `specs/001-crm-module/contracts/corrections-us16-us24.md`
+- [ ] T131 [P] AÃ±adir utilidades compartidas de prueba para sesiÃ³n, vista activa, foco y almacenamiento en `tests/integration/live-dom.js`
+- [ ] T132 [P] Crear esqueleto de pruebas de integraciÃ³n para correcciones en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T133 Definir/normalizar selectores y atributos ARIA de confirmaciÃ³n, bÃºsqueda y listados en `index.html` segÃºn `specs/001-crm-module/contracts/ui-contracts.md`
+- [ ] T134 Crear helper reutilizable de diÃ¡logo modal accesible (apertura, cierre, focus trap, Escape, restore focus) en `src/app.js`
+- [ ] T135 Crear helper de persistencia de sesiÃ³n/vista activa con whitelist y limpieza de storages en `src/main.js` y `src/app.js`
+
+**Punto de control**: base compartida lista; las historias US16â€“US24 pueden comenzar.
+
+---
+
+## Fase 24: Historia de Usuario 23 - Accesibilidad completa en formularios y diÃ¡logos (Prioridad: P1) ðŸŽ¯ MVP correcciones
+
+**Objetivo**: Formularios y diÃ¡logos crÃ­ticos accesibles por teclado con errores asociados, focus trap y restauraciÃ³n de foco.
+
+**Prueba Independiente**: Enviar formularios invÃ¡lidos solo con teclado; verificar `aria-invalid`, `aria-describedby`, foco en primer invÃ¡lido; abrir/cerrar `#unsaved-dialog` con Escape/Tab/Shift+Tab y restauraciÃ³n de foco.
+
+### Pruebas para la Historia de Usuario 23
+
+> **NOTA: Escribir estas pruebas PRIMERO, asegurar que FALLAN antes de la implementaciÃ³n**
+
+- [ ] T136 [P] [US23] AÃ±adir pruebas de integraciÃ³n para `aria-invalid`, `aria-describedby` y foco al primer campo invÃ¡lido en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T137 [P] [US23] AÃ±adir pruebas de integraciÃ³n para focus trap, Escape y restauraciÃ³n de foco en `#unsaved-dialog` en `tests/integration/unsaved-changes.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 23
+
+- [ ] T138 [US23] Asociar errores de validaciÃ³n con campos mediante `aria-invalid` y `aria-describedby` en `src/app.js`
+- [ ] T139 [US23] Mover foco al primer campo invÃ¡lido en envÃ­os de `#entity-form` y `#document-form` en `src/app.js`
+- [ ] T140 [US23] Implementar focus trap, foco inicial, Escape y restauraciÃ³n de foco para `#unsaved-dialog` en `src/app.js` e `index.html`
+- [ ] T141 [US23] AÃ±adir estilos de foco visible y estado invÃ¡lido accesible coherentes en `src/styles.css`
+
+**Punto de control**: US23 funcional y verificable de forma independiente.
+
+---
+
+## Fase 25: Historia de Usuario 16 - Tema oscuro coherente en todo el espacio de trabajo (Prioridad: P1)
+
+**Objetivo**: Aplicar tokens de tema de forma consistente en modo Claro/Oscuro, sin superficies claras fijas ni pÃ©rdida de contraste.
+
+**Prueba Independiente**: Activar `Oscuro`, recorrer acceso, shell, dashboard, clientes, oportunidades, bÃºsqueda y diÃ¡logos; recargar y verificar tema desde primer render.
+
+### Pruebas para la Historia de Usuario 16
+
+- [ ] T142 [P] [US16] AÃ±adir pruebas de integraciÃ³n para cobertura de tema oscuro en vistas y diÃ¡logos crÃ­ticos en `tests/integration/theme.test.js`
+- [ ] T143 [P] [US16] AÃ±adir prueba de contrato para ausencia de colores claros fijos en componentes crÃ­ticos en `tests/unit/theme-contract.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 16
+
+- [ ] T144 [P] [US16] Reemplazar colores fijos por tokens/variables en superficies, formularios, badges y estados en `src/styles.css`
+- [ ] T145 [US16] Ajustar marcado/clases de componentes con estilos heredados para soportar dark mode en `index.html`
+- [ ] T146 [US16] Verificar que `applyTheme()` y el arranque temprano mantienen `crm.theme` sin parpadeo visible en `src/main.js` e `index.html`
+
+**Punto de control**: US16 funcional y verificable de forma independiente.
+
+---
+
+## Fase 26: Historia de Usuario 17 - Dashboard coherente con las oportunidades gestionadas (Prioridad: P1)
+
+**Objetivo**: Los KPI del dashboard reflejan la misma fuente de verdad que las altas/ediciones/eliminaciones de oportunidades en la UI.
+
+**Prueba Independiente**: Crear/editar/eliminar una oportunidad desde la UI y comprobar que `#stat-opportunities`, `#stat-revenue` y `#stat-conversion` se actualizan al mostrar el dashboard.
+
+### Pruebas para la Historia de Usuario 17
+
+- [ ] T147 [P] [US17] AÃ±adir pruebas unitarias para normalizaciÃ³n/canonicalizaciÃ³n de oportunidades usadas por `getCRMOverview()` en `tests/unit/dashboard-metrics.test.js`
+- [ ] T148 [P] [US17] AÃ±adir prueba de integraciÃ³n DOM real que crea oportunidad por UI y verifica KPI del dashboard en `tests/integration/dashboard.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 17
+
+- [ ] T149 [US17] Implementar adaptador canÃ³nico de oportunidades entre UI y overview en `src/storage.js`
+- [ ] T150 [US17] Actualizar alta/ediciÃ³n/eliminaciÃ³n de oportunidades para persistir en la fuente canÃ³nica consumida por `getCRMOverview()` en `src/app.js` y `src/storage.js`
+- [ ] T151 [US17] Recalcular y renderizar KPI desde `getCRMOverview()` al entrar al dashboard en `src/app.js`
+- [ ] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` sin divergencia en `src/storage.js`
+
+**Punto de control**: US17 funcional y verificable de forma independiente.
+
+---
+
+## Fase 27: Historia de Usuario 19 - ConfirmaciÃ³n accesible para eliminaciones (Prioridad: P2)
+
+**Objetivo**: Eliminar clientes y oportunidades mediante diÃ¡logo modal propio del CRM, accesible por teclado.
+
+**Prueba Independiente**: Activar eliminar en cliente y oportunidad; cancelar con Escape/botÃ³n sin borrar; confirmar borrado; verificar focus trap y retorno de foco.
+
+### Pruebas para la Historia de Usuario 19
+
+- [ ] T153 [P] [US19] AÃ±adir pruebas de integraciÃ³n para diÃ¡logo de confirmaciÃ³n, cancelaciÃ³n, Escape y confirmaciÃ³n destructiva en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T154 [P] [US19] AÃ±adir prueba de regresiÃ³n que prohÃ­be `window.confirm` en flujos de eliminaciÃ³n en `tests/unit/ui-contracts.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 19
+
+- [ ] T155 [US19] AÃ±adir marcado del diÃ¡logo de confirmaciÃ³n reutilizable con acciones cancelar/confirmar en `index.html`
+- [ ] T156 [US19] Reemplazar `confirm()` por diÃ¡logo modal accesible en flujos de eliminaciÃ³n de clientes y oportunidades en `src/app.js`
+- [ ] T157 [US19] Aplicar estilos de diÃ¡logo destructivo coherentes con tokens de tema en `src/styles.css`
+
+**Punto de control**: US19 funcional y verificable de forma independiente.
+
+---
+
+## Fase 28: Historia de Usuario 18 - Preferencia â€œRecordar mi sesiÃ³nâ€ efectiva (Prioridad: P2)
+
+**Objetivo**: El checkbox `#login-remember` controla si la sesiÃ³n persiste en `localStorage` o `sessionStorage`.
+
+**Prueba Independiente**: Iniciar sesiÃ³n marcado/desmarcado; verificar restauraciÃ³n/no restauraciÃ³n segÃºn contexto; cerrar sesiÃ³n elimina ambas claves.
+
+### Pruebas para la Historia de Usuario 18
+
+- [ ] T158 [P] [US18] AÃ±adir pruebas de integraciÃ³n para persistencia condicionada por `#login-remember` en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T159 [P] [US18] AÃ±adir prueba de integraciÃ³n para logout limpiando `localStorage` y `sessionStorage` de auth en `tests/integration/ui-contracts.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 18
+
+- [ ] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js`
+- [ ] T161 [US18] Actualizar `isAuthenticated`, restauraciÃ³n de sesiÃ³n y logout para limpiar ambas ubicaciones en `src/main.js`
+- [ ] T162 [US18] Conectar el estado del checkbox `#login-remember` en el flujo de login en `index.html` y `src/main.js`
+
+**Punto de control**: US18 funcional y verificable de forma independiente.
+
+---
+
+## Fase 29: Historia de Usuario 20 - BÃºsqueda de clientes y oportunidades (Prioridad: P2)
+
+**Objetivo**: BÃºsqueda unificada por texto relevante con resultados tipados de clientes y oportunidades y navegaciÃ³n al registro.
+
+**Prueba Independiente**: Buscar tÃ©rminos de cliente y oportunidad; verificar tipo visible, vacÃ­o claro y navegaciÃ³n al registro seleccionado.
+
+### Pruebas para la Historia de Usuario 20
+
+- [ ] T163 [P] [US20] AÃ±adir pruebas de integraciÃ³n para bÃºsqueda unificada de clientes y oportunidades en `tests/integration/search.test.js`
+- [ ] T164 [P] [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde resultado a vista/registro en `tests/integration/corrections-us16-us24.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 20
+
+- [ ] T165 [US20] Implementar consulta unificada tipada de clientes y oportunidades en `src/storage.js`
+- [ ] T166 [US20] Renderizar resultados con tipo, etiqueta y detalle en `#search-results-list` en `src/app.js`
+- [ ] T167 [US20] Navegar al registro seleccionado y cargarlo en formulario/vista correspondiente en `src/app.js`
+- [ ] T168 [US20] Ajustar estilos de resultados tipados y estado vacÃ­o en `src/styles.css`
+
+**Punto de control**: US20 funcional y verificable de forma independiente.
+
+---
+
+## Fase 30: Historia de Usuario 21 - Listas escalables para gestionar registros (Prioridad: P2)
+
+**Objetivo**: Clientes y oportunidades se gestionan mediante listados con acciones por fila, sincronizados con formularios.
+
+**Prueba Independiente**: Con mÃºltiples registros, editar y eliminar desde filas; verificar sincronizaciÃ³n de formulario, selecciÃ³n y actualizaciÃ³n tras cambios.
+
+### Pruebas para la Historia de Usuario 21
+
+- [ ] T169 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de clientes con acciones por fila en `tests/integration/entities.test.js`
+- [ ] T170 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de oportunidades con acciones por fila en `tests/integration/documents.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 21
+
+- [ ] T171 [P] [US21] AÃ±adir contenedores de listado/tablas en `#view-entities` y `#view-documents` en `index.html`
+- [ ] T172 [US21] Renderizar filas de clientes con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js`
+- [ ] T173 [US21] Renderizar filas de oportunidades con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js`
+- [ ] T174 [US21] AÃ±adir estilos responsivos y accesibles para listados escalables en `src/styles.css`
+
+**Punto de control**: US21 funcional y verificable de forma independiente.
+
+---
+
+## Fase 31: Historia de Usuario 22 - Restaurar la vista activa tras recargar (Prioridad: P3)
+
+**Objetivo**: Restaurar la Ãºltima vista interna vÃ¡lida tras recarga, con fallback seguro al dashboard.
+
+**Prueba Independiente**: Navegar a vista vÃ¡lida, recargar y restaurar; usar valor invÃ¡lido y caer a dashboard; no restaurar antes de auth.
+
+### Pruebas para la Historia de Usuario 22
+
+- [ ] T175 [P] [US22] AÃ±adir pruebas de integraciÃ³n para persistencia y restauraciÃ³n de vista activa vÃ¡lida en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T176 [P] [US22] AÃ±adir prueba de integraciÃ³n para fallback seguro ante vista invÃ¡lida y guardia de autenticaciÃ³n en `tests/integration/ui-contracts.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 22
+
+- [ ] T177 [US22] Persistir vista activa vÃ¡lida en `localStorage` al navegar en `src/app.js`
+- [ ] T178 [US22] Restaurar vista activa con whitelist y fallback a dashboard al iniciar sesiÃ³n/app en `src/app.js` y `src/main.js`
+- [ ] T179 [US22] Ignorar restauraciÃ³n de vista interna cuando no hay sesiÃ³n autenticada en `src/main.js`
+
+**Punto de control**: US22 funcional y verificable de forma independiente.
+
+---
+
+## Fase 32: Historia de Usuario 24 - PresentaciÃ³n de moneda clara y consistente (Prioridad: P3)
+
+**Objetivo**: Montos individuales y KPI agregados usan una regla de moneda clara y consistente, sin sÃ­mbolos contradictorios.
+
+**Prueba Independiente**: Registrar/visualizar montos y KPI; verificar CLP base en agregados y moneda clara en montos individuales.
+
+### Pruebas para la Historia de Usuario 24
+
+- [ ] T180 [P] [US24] AÃ±adir pruebas unitarias para helper de formato/normalizaciÃ³n de moneda en `tests/unit/currency-format.test.js`
+- [ ] T181 [P] [US24] AÃ±adir prueba de integraciÃ³n para consistencia de moneda en dashboard, listados y formularios en `tests/integration/corrections-us16-us24.test.js`
+
+### ImplementaciÃ³n de la Historia de Usuario 24
+
+- [ ] T182 [US24] Implementar helper central de moneda/base CLP y normalizaciÃ³n MVP en `src/domain.js` o `src/app.js`
+- [ ] T183 [US24] Aplicar formato de moneda consistente en dashboard, listados y formularios en `src/app.js`
+- [ ] T184 [US24] Actualizar etiquetas/ayudas de moneda en `index.html` y estilos asociados en `src/styles.css`
+
+**Punto de control**: US24 funcional y verificable de forma independiente.
+
+---
+
+## Fase 33: Pulido y ValidaciÃ³n Transversal US16â€“US24
+
+**PropÃ³sito**: VerificaciÃ³n final, regresiÃ³n, accesibilidad y documentaciÃ³n de correcciones.
+
+- [ ] T185 [P] Actualizar trazabilidad y notas de verificaciÃ³n en `specs/001-crm-module/quickstart.md`
+- [ ] T186 [P] Revisar consistencia final de contratos en `specs/001-crm-module/contracts/ui-contracts.md`, `specs/001-crm-module/contracts/crm-storage.md` y `specs/001-crm-module/contracts/dashboard-metrics.md`
+- [ ] T187 Ejecutar verificaciÃ³n automatizada `npm run test:run`, `npm run lint` y `npm run build` desde `package.json`
+- [ ] T188 Realizar validaciÃ³n manual de escenarios US16â€“US24 en `specs/001-crm-module/quickstart.md`
+
+---
+
+## Dependencias y Orden de EjecuciÃ³n
 
 ### Dependencias entre Fases
 
-> Las dependencias de Fases 1–13 describen el registro histórico de `src/components/*` y no bloquean la ruta ejecutable. La cadena activa es Fase 14 → Fase 15 → Fases 16–20 → Fase 21 → Fase 22.
+- **Fases 1â€“22**: histÃ³ricas/completadas; no se reabren salvo regresiÃ³n.
+- **Fase 23 (Fundacional US16â€“US24)**: depende de la base existente; BLOQUEA US16â€“US24.
+- **Fases 24â€“32 (US16â€“US24)**: dependen de Fase 23; seguir orden recomendado por plan/prioridad.
+- **Fase 33 (Pulido)**: depende de completar las historias deseadas.
 
-- Configuración (Fase 1): sin dependencias
-- Fundacional (Fase 2): depende de la Fase 1
-- Historia de Usuario 1 (Fase 3): depende de la Fase 2
-- Historia de Usuario 2 (Fase 4): depende de la Fase 2; puede proceder tras la US1
-- Historia de Usuario 3 (Fase 5): depende de la Fase 2 y de la US2 (selector de empleado)
-- Historia de Usuario 4 (Fase 6): depende de la Fase 2 y de la US2; independiente de la US3
-- Historia de Usuario 5 (Fase 7): depende de la US1, US3 y US4 (consolida sus datos)
-- Historia de Usuario 6 (Fase 8): depende de la US1 y US3 (indicadores sobre clientes y oportunidades)
-- Historia de Usuario 7 (Fase 9): depende de la US1 y US3
-- Historia de Usuario 8 (Fase 10): depende de la Fase 2 y de la US1, US2, US3 y US4
-- Historia de Usuario 9 (Fase 11): depende de la Fase 2; puede avanzar en paralelo con las historias de datos una vez existan las vistas
-- Historia de Usuario 10 (Fase 12): depende de la Fase 2; envuelve las vistas existentes
-- Pulido (Fase 13): depende de que las historias deseadas estén completas
+### Dependencias entre Historias de Usuario (US16â€“US24)
 
-### Oportunidades Paralelas
+- **US23 (P1)**: primero; habilita patrones de diÃ¡logo/foco para US19.
+- **US16 (P1)**: puede avanzar tras Fase 23; coordinar `src/styles.css` con US19/US21.
+- **US17 (P1)**: depende de Fase 23; coordinar con US21/US24 en render de montos/KPI.
+- **US19 (P2)**: depende de patrÃ³n modal de US23.
+- **US18 (P2)**: depende de Fase 23; mayormente en `src/main.js`.
+- **US20 (P2)**: depende de Fase 23; coordina con US21/US22 en navegaciÃ³n/carga de registro.
+- **US21 (P2)**: depende de Fase 23; coordina con US19 para acciones por fila.
+- **US22 (P3)**: depende de Fase 23; coordina con navegaciÃ³n existente.
+- **US24 (P3)**: depende de Fase 23; coordina con US17/US21 para presentaciÃ³n de montos.
 
-- T003 y T004 pueden ejecutarse en paralelo con las tareas de configuración
-- T006, T011, T012 y T013 pueden ejecutarse en paralelo una vez creados sus módulos
-- T015 puede ejecutarse junto al trabajo de almacenamiento y esqueleto
-- Las pruebas de cada historia pueden crearse en paralelo con las tareas de implementación de la misma historia
-- US2 (Fase 4) y US10 (Fase 12) son independientes y pueden avanzar en paralelo
-- US3 (Fase 5) y US4 (Fase 6) pueden avanzar en paralelo tras la US2
-- US6 (Fase 8) y US7 (Fase 9) pueden avanzar en paralelo tras la US3
-- US9 (Fase 11) puede avanzar en paralelo con las historias de datos
-- En la Fase 13, T069, T070 y T071 pueden ejecutarse en paralelo antes de T072–T074
+### Dentro de Cada Historia
 
-- Interfaz SaaS profesional (Fases 14–21): no depende de las Fases 3–13 y actúa sobre el DOM real (`index.html`, `src/`); no revive `src/components/*`
-
-### Dependencias entre Fases (Interfaz SaaS)
-
-- **Configuración (Fase 14)**: sin dependencias; T076/T077 son bloqueantes para las pruebas de todas las historias
-- **Fundacional (Fase 15)**: depende de Configuración; T078 y T080 bloquean la implementación visual y de sesión de US11–US13
-- **Historias de Usuario (Fase 16–20)**: dependen de Fundacional; se ejecutan en orden P1 → P2 → P2 → P2 → P3
-- **Pulido (Fase 21)**: depende de que las cinco historias de la interfaz estén completas
-- **Clarificaciones (Fase 22)**: depende de la Fase 21 y de los módulos reales (`src/app.js`, `src/storage.js`, `src/main.js`, `index.html`); T129 se ejecuta al final
-
-### Dependencias entre Historias de Usuario
-
-- **US11 (P1)**: sin dependencias entre historias; entregable MVP de interfaz SaaS
-- **US12 (P2)**: independiente de US11; comparte `index.html` y `src/styles.css`, por lo que sus ediciones se integran después de US11
-- **US13 (P2)**: depende de T080 y de `getCRMOverview()` en `src/storage.js`; T099 garantiza que US14 tendrá datos coherentes
-- **US14 (P2)**: depende de T096/T097 para que los cambios de `#entity-form` se reflejen en los KPI
-- **US15 (P3)**: transversal; sus pruebas se ejecutan al final porque recorren todas las vistas
-- **Clarificaciones (FR-068 a FR-073)**: se asignan a US6, US8, US9, US10 y US14; T117–T122 pueden ejecutarse en paralelo, T123–T128 se secuencian por archivo compartido y T129 cierra la fase
-
-### Dentro de Cada Historia de Usuario
-
-1. Pruebas marcadas como [P] primero; deben fallar antes de tocar producción
-2. Cambios de marcado y estilos
-3. Lógica en los módulos conectados (`main.js`, `app.js`, `domain.js`)
-4. Integración y punto de control de la historia
+- Pruebas (si se incluyen) â†’ asegurar que FALLAN antes de implementar.
+- Modelos/helpers/storage antes de UI donde aplique.
+- ImplementaciÃ³n UI + integraciÃ³n.
+- VerificaciÃ³n de historia antes de pasar a la siguiente.
 
 ### Oportunidades Paralelas
 
-- T076 y T077 en paralelo; T078, T079 y T080 en paralelo (archivos distintos)
-- US11: T081 + T082 en paralelo
-- US12: T087 + T088 en paralelo
-- US13: T093 + T094 en paralelo; T095 y T096 pueden prepararse en paralelo tras T094
-- US14: T101 + T102 en paralelo
-- US15: T107 + T108 en paralelo
-- T112 y T114 en paralelo durante el pulido
+- T131 y T132 pueden ejecutarse en paralelo.
+- En cada historia, tareas de prueba marcadas [P] pueden ejecutarse en paralelo.
+- US16 y US18 tienen solapamiento bajo (CSS vs auth); pueden paralelizarse con coordinaciÃ³n.
+- US20 y US21 pueden paralelizarse parcialmente si se coordinan `src/app.js` e `index.html`.
+- T185 y T186 pueden ejecutarse en paralelo durante pulido.
 
 ---
 
-## Ejemplo Paralelo: Historia de Usuario 11
+## Ejemplos de EjecuciÃ³n Paralela
+
+### Historia de Usuario 23
 
 ```text
-Tarea: "Añadir pruebas de acceso dividido, visibilidad y errores en tests/integration/ui-contracts.test.js" (T081)
-Tarea: "Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en tests/unit/layout-contract.test.js" (T082)
+Tarea: "T136 [US23] AÃ±adir pruebas de integraciÃ³n para aria-invalid, aria-describedby y foco al primer campo invÃ¡lido en tests/integration/corrections-us16-us24.test.js"
+Tarea: "T137 [US23] AÃ±adir pruebas de integraciÃ³n para focus trap, Escape y restauraciÃ³n de foco en #unsaved-dialog en tests/integration/unsaved-changes.test.js"
 ```
 
-## Ejemplo Paralelo: Historia de Usuario 12
+### Historia de Usuario 17
 
 ```text
-Tarea: "Añadir pruebas de colapso, persistencia, sección activa y accesibilidad en tests/integration/sidebar-collapse.test.js" (T087)
-Tarea: "Añadir prueba de regresión que prohíbe .sidebar { display: none; } en tests/unit/layout-contract.test.js" (T088)
+Tarea: "T147 [US17] AÃ±adir pruebas unitarias para normalizaciÃ³n/canonicalizaciÃ³n de oportunidades usadas por getCRMOverview() en tests/unit/dashboard-metrics.test.js"
+Tarea: "T148 [US17] AÃ±adir prueba de integraciÃ³n DOM real que crea oportunidad por UI y verifica KPI del dashboard en tests/integration/dashboard.test.js"
 ```
 
-## Ejemplo Paralelo: Historia de Usuario 13
+### Historia de Usuario 20
 
 ```text
-Tarea: "Añadir pruebas unitarias de computeConversionRate() en tests/unit/conversion-rate.test.js" (T093)
-Tarea: "Añadir pruebas de banner, cuatro KPI y estado vacío en tests/integration/ui-contracts.test.js" (T094)
-```
-
-## Ejemplo Paralelo: Historia de Usuario 14
-
-```text
-Tarea: "Añadir pruebas de encabezados exactos, agrupación y errores uniformes en tests/integration/ui-contracts.test.js" (T101)
-Tarea: "Añadir prueba estática de los literales en tests/unit/form-headings.test.js" (T102)
-```
-
-## Ejemplo Paralelo: Historia de Usuario 15
-
-```text
-Tarea: "Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en tests/integration/ui-contracts.test.js" (T107)
-Tarea: "Añadir prueba estática de declaración UTF-8 en tests/unit/utf8-contract.test.js" (T108)
+Tarea: "T163 [US20] AÃ±adir pruebas de integraciÃ³n para bÃºsqueda unificada de clientes y oportunidades en tests/integration/search.test.js"
+Tarea: "T164 [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde resultado a vista/registro en tests/integration/corrections-us16-us24.test.js"
 ```
 
 ---
 
-## Estrategia de Implementación
+## Estrategia de ImplementaciÃ³n
 
-> El MVP de datos CRM (US1) y el MVP de interfaz SaaS (US11) son entregables distintos. Cuando el texto diga solo «MVP» sin calificador, se refiere al MVP de interfaz SaaS.
+### MVP de Correcciones (Primero)
 
-### MVP de interfaz SaaS primero (Historia de Usuario 11)
-
-1. Completar Fase 14 y Fase 15
-2. Completar Fase 16 (US11)
-3. **DETENER Y VALIDAR**: ejecutar la Prueba Independiente de US11; demostrar acceso dividido y contraseña visible
-4. Desplegar o mostrar el MVP de interfaz SaaS si está listo
+1. Completar Fase 23.
+2. Completar Fase 24 (US23).
+3. Completar Fase 25 (US16) y Fase 26 (US17).
+4. **DETENER Y VALIDAR**: verificar accesibilidad base, tema oscuro y coherencia de dashboard.
 
 ### Entrega Incremental
 
-1. Configuración + Fundacional → base lista
-2. US11 → validar → MVP de interfaz SaaS
-3. US12 → validar → navegación colapsable
-4. US13 → validar → banner y KPI
-5. US14 → validar → formularios estandarizados
-6. US15 → validar → UTF-8 limpio
-7. Pulido → verificación completa
+1. Fundacional US16â€“US24 â†’ base lista.
+2. US23 â†’ validar.
+3. US16 â†’ validar.
+4. US17 â†’ validar.
+5. US19 â†’ validar.
+6. US18 â†’ validar.
+7. US20 â†’ validar.
+8. US21 â†’ validar.
+9. US22 â†’ validar.
+10. US24 â†’ validar.
+11. Pulido final â†’ test/lint/build + validaciÃ³n manual.
 
 ### Estrategia de Equipo Paralelo
 
-Con varios desarrolladores, tras la Fase 15: Dev A en US11, Dev B en US12, Dev C en US13; US14 y US15 se asignan al liberarse, coordinando las ediciones de `index.html`, `src/styles.css` y `src/app.js` para evitar conflictos.
+Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C prepara US17 pruebas/almacenamiento. DespuÃ©s: US19 tras US23; US18 y US20/US21 en paralelo con coordinaciÃ³n de `src/app.js`; US22/US24 al final.
 
 ---
 
 ## Notas
 
-- `[P]` implica archivos distintos y ninguna dependencia pendiente; las ediciones sobre `index.html` o `src/app.js` se secuencian aunque pertenezcan a historias distintas
-- `[USn]` garantiza trazabilidad con los FR de `spec.md`
-- **Tareas históricas**: T018, T019, T024, T028, T029, T034, T035, T040, T045, T050 y T066 crean `src/components/*` y no se ejecutan; la fuente de verdad es el DOM real de Fases 14–21 y Fase 22
-- Numeración correlativa T001–T129: 129 tareas totales, sin duplicados ni huecos
-- Las tareas de implementación y prueba incluyen ruta de archivo; las de verificación ejecutan comandos o validan escenarios sin contexto adicional
-- No se editan `src/components/*` ni `dist/index.html` a mano, según `research.md`
+- `[P]` = archivos distintos, sin dependencia incompleta.
+- `[USn]` mapea la tarea a la historia de usuario de `spec.md`.
+- Cada historia de US16â€“US24 debe ser verificable de forma independiente.
+- No editar `src/components/*` ni `dist/` a mano.
+- Se preservan tareas histÃ³ricas T001â€“T129 para trazabilidad.
+- Total nuevas tareas US16â€“US24: T130â€“T188 (59 tareas). Total general: 188 tareas.
