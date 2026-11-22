@@ -44,7 +44,7 @@
 
 ---
 
-## Fase 3: Historia de Usuario 1 - Gestionar clientes (Prioridad: P1) 🎯 MVP
+## Fase 3: Historia de Usuario 1 - Gestionar clientes (Prioridad: P1) 🎯 MVP de datos CRM
 
 **Objetivo**: Registrar, editar y consultar clientes con su información de contacto y estado, garantizando correo único.
 
@@ -294,7 +294,7 @@
 
 ---
 
-## Fase 16: Historia de Usuario 11 - Iniciar sesión en pantalla dividida con contraseña visible (Prioridad: P1) 🎯 MVP
+## Fase 16: Historia de Usuario 11 - Iniciar sesión en pantalla dividida con contraseña visible (Prioridad: P1) 🎯 MVP de interfaz SaaS
 
 **Objetivo**: acceso profesional con dos paneles y control fiable de mostrar/ocultar contraseña (FR-047 a FR-052).
 
@@ -425,12 +425,12 @@
 
 ### Pruebas de las clarificaciones
 
-- [ ] T117 [P] [US6] Escribir pruebas unitarias de `getCRMOverview()`/`getDashboardMetrics()` que comprueben que una oportunidad abierta de un cliente archivado cuenta en oportunidades, pipeline y próximos cierres (FR-068) en `tests/unit/dashboard-metrics.test.js`
+- [ ] T117 [P] [US6] Escribir pruebas unitarias de `getCRMOverview()` —con `getDashboardMetrics()` solo como alias de compatibilidad— que comprueben que una oportunidad abierta de un cliente archivado cuenta en oportunidades, pipeline y próximos cierres (FR-068) en `tests/unit/dashboard-metrics.test.js`
 - [ ] T118 [P] [US8] Escribir pruebas unitarias de unicidad de correo que incluyan clientes archivados (FR-069) en `tests/unit/client-uniqueness.test.js`
 - [ ] T119 [P] [US14] Escribir la prueba de integración de la confirmación «Permanecer»/«Descartar» al salir de cualquier formulario CRM del DOM real con cambios —actualmente `#entity-form`, y cualquier otro formulario que se incorpore— (FR-070) en `tests/integration/unsaved-changes.test.js`
 - [ ] T120 [P] [US9] Escribir la prueba de integración de campos personalizados eliminados: valor conservado en `localStorage` y oculto en formularios, listas y búsqueda (FR-071) en `tests/integration/module-config.test.js`
 - [ ] T121 [P] [US8] Escribir la prueba de integración de arranque con datos corruptos según el criterio de forma de `contracts/crm-storage.md`: error visible, sin sobrescritura automática y reinicio explícito (FR-072) en `tests/integration/storage-recovery.test.js`
-- [ ] T122 [P] [US10] Escribir la prueba de integración que compruebe que el selector `Claro`/`Oscuro` existe, que la preferencia se conserva entre recargas y que se aplica desde el primer render (FR-073, SC-021) en `tests/integration/theme.test.js`
+- [ ] T122 [P] [US10] Escribir la prueba de integración que compruebe que el selector `Claro`/`Oscuro` existe, que la preferencia se conserva entre recargas y que el tema elegido está aplicado en el primer snapshot del DOM sin transición visible del tema (FR-073, SC-021) en `tests/integration/theme.test.js`
 
 ### Implementación de las clarificaciones
 
@@ -439,8 +439,8 @@
 - [ ] T125 [US14] Centralizar la navegación en `src/app.js` y añadir en `index.html` un diálogo de cambios sin guardar, aplicable a cualquier formulario CRM del DOM real, con opciones «Permanecer» y «Descartar» (FR-070)
 - [ ] T126 [US9] Derivar los campos visibles de la configuración activa en `src/module-config.js` y fusionar actualizaciones con el registro almacenado en `src/storage.js` para conservar valores huérfanos (FR-071)
 - [ ] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` usando el criterio de forma de `contracts/crm-storage.md`, y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072)
-- [ ] T128 [US10] Añadir el selector `Claro`/`Oscuro` al espacio de trabajo en `index.html`; guardar y aplicar la preferencia desde `localStorage['crm.theme']` antes del primer render en `src/main.js` e `index.html` (FR-073, SC-021), sin escribir en las claves `crm_module:*` ni en `erp_*`
-- [ ] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build` y validar el escenario 6 de `specs/001-crm-module/quickstart.md`
+- [ ] T128 [US10] Añadir el selector `Claro`/`Oscuro` al espacio de trabajo en `index.html`; guardar y aplicar la preferencia desde `localStorage['crm.theme']` en el primer snapshot del DOM, sin transición visible del tema, en `src/main.js` e `index.html` (FR-073, SC-021), sin escribir en las claves `crm_module:*` ni en `erp_*`
+- [ ] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build`, y validar los escenarios 1–6 de la sección «Clarificaciones de 2026-11-21» de `specs/001-crm-module/quickstart.md`
 
 **Punto de control**: las clarificaciones están implementadas y son verificables de forma independiente.
 
@@ -490,7 +490,7 @@
 
 ### Dependencias entre Historias de Usuario
 
-- **US11 (P1)**: sin dependencias entre historias; entregable MVP
+- **US11 (P1)**: sin dependencias entre historias; entregable MVP de interfaz SaaS
 - **US12 (P2)**: independiente de US11; comparte `index.html` y `src/styles.css`, por lo que sus ediciones se integran después de US11
 - **US13 (P2)**: depende de T080 y de `getCRMOverview()` en `src/storage.js`; T099 garantiza que US14 tendrá datos coherentes
 - **US14 (P2)**: depende de T096/T097 para que los cambios de `#entity-form` se reflejen en los KPI
@@ -555,17 +555,19 @@ Tarea: "Añadir prueba estática de declaración UTF-8 en tests/unit/utf8-contra
 
 ## Estrategia de Implementación
 
-### MVP primero (Historia de Usuario 11)
+> El MVP de datos CRM (US1) y el MVP de interfaz SaaS (US11) son entregables distintos. Cuando el texto diga solo «MVP» sin calificador, se refiere al MVP de interfaz SaaS.
+
+### MVP de interfaz SaaS primero (Historia de Usuario 11)
 
 1. Completar Fase 14 y Fase 15
 2. Completar Fase 16 (US11)
 3. **DETENER Y VALIDAR**: ejecutar la Prueba Independiente de US11; demostrar acceso dividido y contraseña visible
-4. Desplegar o mostrar el MVP si está listo
+4. Desplegar o mostrar el MVP de interfaz SaaS si está listo
 
 ### Entrega Incremental
 
 1. Configuración + Fundacional → base lista
-2. US11 → validar → MVP
+2. US11 → validar → MVP de interfaz SaaS
 3. US12 → validar → navegación colapsable
 4. US13 → validar → banner y KPI
 5. US14 → validar → formularios estandarizados

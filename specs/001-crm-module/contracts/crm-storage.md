@@ -76,7 +76,7 @@ Las claves `crm_module:*` contienen arreglos JSON con los registros normalizados
 
 ### Consultas agregadas
 - `getClientDetail(clientId)`: devuelve el cliente, sus oportunidades y sus interacciones (incluye asociaciones a registros archivados).
-- `getDashboardMetrics(today)`: calcula clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres dentro de los 30 días siguientes (excluye vencidas). La cuarta tarjeta visible, «Tasa de conversión», se deriva con `computeConversionRate()`; los próximos cierres se presentan en una sección del dashboard, no como quinta tarjeta. Las oportunidades se seleccionan únicamente por etapa: las de clientes archivados cuentan (FR-068); los clientes archivados sí se excluyen del recuento de clientes activos.
+- `getCRMOverview()` —fuente canónica, con `getDashboardMetrics(today)` como alias de compatibilidad—: calcula clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres dentro de los 30 días siguientes (excluye vencidas). La cuarta tarjeta visible, «Tasa de conversión», se deriva con `computeConversionRate()`; los próximos cierres se presentan en una sección del dashboard, no como quinta tarjeta. Las oportunidades se seleccionan únicamente por etapa: las de clientes archivados cuentan (FR-068); los clientes archivados sí se excluyen del recuento de clientes activos.
 
 ## Validación al arrancar y recuperación
 

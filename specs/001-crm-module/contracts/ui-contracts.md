@@ -98,7 +98,7 @@ Sin atributos `width`/`height` en línea: el tamaño se define en CSS (22 px par
 | Selector de tema `Claro`/`Oscuro` | selector del espacio de trabajo y `localStorage['crm.theme']` | El selector está disponible en el espacio de trabajo; guarda la elección en el mismo navegador y la aplica desde el primer render tras recargar (FR-073, SC-021) |
 | Datos corruptos al arrancar | `#storage-error`, `#storage-reset` | Se muestra un mensaje comprensible y una acción explícita para reiniciar; no se descartan datos automáticamente |
 
-La navegación interna debe pasar por un único punto de control para que la confirmación no pueda evitarse con enlaces del menú ni con el botón de retroceso.
+La navegación interna debe pasar por un único punto de control para que la confirmación no pueda evitarse con enlaces del menú ni con otros controles de la aplicación. La recarga de la página y el botón Atrás del navegador quedan fuera del alcance definido en FR-070.
 
 ## 8. Criterios de aceptación verificables
 

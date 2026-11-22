@@ -42,7 +42,7 @@ El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/s
 
 ### Implicaciones de las clarificaciones de 2026-11-21 (FR-068 a FR-073)
 
-- **Métricas**: `getCRMOverview()` en `src/storage.js` debe seguir excluyendo clientes archivados del KPI de clientes activos, pero no puede filtrar oportunidades por el estado `archived` del cliente; la regla de «abierta» depende solo de la etapa. `contracts/dashboard-metrics.md` y `data-model.md` reflejan esta corrección.
+- **Métricas**: `getCRMOverview()` en `src/storage.js` es la fuente canónica y debe seguir excluyendo clientes archivados del KPI de clientes activos, pero no puede filtrar oportunidades por el estado `archived` del cliente; la regla de «abierta» depende solo de la etapa. `getDashboardMetrics()` se mantiene únicamente como alias de compatibilidad. `contracts/dashboard-metrics.md` y `data-model.md` reflejan esta corrección.
 - **Almacenamiento**: las lecturas de `src/storage.js` distinguen clave ausente, dato válido y dato corrupto; ante corrupción se informa y se ofrece reinicio explícito sin borrar nada automáticamente.
 - **Navegación**: `src/app.js` concentra el cambio de vista para interceptar salidas de formularios con cambios sin guardar y ofrecer «Permanecer»/«Descartar».
 - **Configuración**: `src/module-config.js` deriva los campos visibles de la configuración activa; las actualizaciones fusionan con el registro almacenado para conservar valores de campos eliminados.
