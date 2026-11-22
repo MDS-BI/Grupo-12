@@ -164,7 +164,7 @@ describe('US5 - UTF-8 limpio', () => {
 
     const saved = loadEntities().find((entity) => entity.name === 'Ana García Ñuñez');
     expect(saved).toBeTruthy();
-    expect(saved.currency).toBe('€');
+    expect(saved.currency).toBe('CLP'); // FR-088 MVP normaliza a base CLP
     expect(document.body.textContent).not.toContain('\uFFFD');
   });
 });
@@ -209,6 +209,27 @@ describe('US19/US18 - contratos de regresión', () => {
     } finally {
       window.confirm = originalConfirm;
     }
+  });
+
+  it('T176: vista inválida guardada hace fallback seguro a dashboard; sin auth no restaura vista interna', async () => {
+    const wait = async (fn, tries=60) => { for (let i=0;i<tries;i++){ if(fn()) return; await new Promise(r=>setTimeout(r,30)); } };
+    localStorage.setItem('erp.activeView', 'invalid-view');
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/inicio');
+    await import('../../src/main.js');
+    await wait(() => document.querySelector('#app-shell')?.hidden === false);
+    expect(document.querySelector('#view-dashboard').hidden).toBe(false);
+
+    localStorage.clear(); sessionStorage.clear();
+    localStorage.setItem('erp.activeView', 'entities');
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/inicio');
+    await import('../../src/main.js');
+    await wait(() => document.querySelector('#login-view')?.hidden === false);
+    expect(document.querySelector('#login-view').hidden).toBe(false);
   });
 
   it('T159: logout limpia auth de localStorage y sessionStorage', async () => {

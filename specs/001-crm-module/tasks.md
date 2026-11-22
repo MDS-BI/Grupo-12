@@ -633,14 +633,14 @@
 
 ### Pruebas para la Historia de Usuario 22
 
-- [ ] T175 [P] [US22] AÃ±adir pruebas de integraciÃ³n para persistencia y restauraciÃ³n de vista activa vÃ¡lida en `tests/integration/corrections-us16-us24.test.js` (FR-085, SC-028)
-- [ ] T176 [P] [US22] AÃ±adir prueba de integraciÃ³n para fallback seguro ante vista invÃ¡lida y guardia de autenticaciÃ³n en `tests/integration/ui-contracts.test.js` (FR-085, SC-028)
+- [x] T175 [P] [US22] AÃ±adir pruebas de integraciÃ³n para persistencia y restauraciÃ³n de vista activa vÃ¡lida en `tests/integration/corrections-us16-us24.test.js` (FR-085, SC-028)
+- [x] T176 [P] [US22] AÃ±adir prueba de integraciÃ³n para fallback seguro ante vista invÃ¡lida y guardia de autenticaciÃ³n en `tests/integration/ui-contracts.test.js` (FR-085, SC-028)
 
 ### ImplementaciÃ³n de la Historia de Usuario 22
 
-- [ ] T177 [US22] Persistir vista activa vÃ¡lida en `localStorage` al navegar en `src/app.js` (FR-085)
-- [ ] T178 [US22] Restaurar vista activa con whitelist y fallback a dashboard al iniciar sesiÃ³n/app en `src/app.js` y `src/main.js` (FR-085, SC-028)
-- [ ] T179 [US22] Ignorar restauraciÃ³n de vista interna cuando no hay sesiÃ³n autenticada en `src/main.js` (FR-085)
+- [x] T177 [US22] Persistir vista activa vÃ¡lida en `localStorage` al navegar en `src/app.js` (FR-085)
+- [x] T178 [US22] Restaurar vista activa con whitelist y fallback a dashboard al iniciar sesiÃ³n/app en `src/app.js` y `src/main.js` (FR-085, SC-028)
+- [x] T179 [US22] Ignorar restauraciÃ³n de vista interna cuando no hay sesiÃ³n autenticada en `src/main.js` (FR-085)
 
 **Punto de control**: US22 funcional y verificable de forma independiente.
 
@@ -654,14 +654,14 @@
 
 ### Pruebas para la Historia de Usuario 24
 
-- [ ] T180 [P] [US24] AÃ±adir pruebas unitarias para helper de formato/normalizaciÃ³n de moneda en `tests/unit/currency-format.test.js` (FR-088, SC-030)
-- [ ] T181 [P] [US24] AÃ±adir prueba de integraciÃ³n para consistencia de moneda en dashboard, listados y formularios en `tests/integration/corrections-us16-us24.test.js` (FR-088, SC-030)
+- [x] T180 [P] [US24] AÃ±adir pruebas unitarias para helper de formato/normalizaciÃ³n de moneda en `tests/unit/currency-format.test.js` (FR-088, SC-030)
+- [x] T181 [P] [US24] AÃ±adir prueba de integraciÃ³n para consistencia de moneda en dashboard, listados y formularios en `tests/integration/corrections-us16-us24.test.js` (FR-088, SC-030)
 
 ### ImplementaciÃ³n de la Historia de Usuario 24
 
-- [ ] T182 [US24] Implementar helper central de moneda/base CLP y normalizaciÃ³n MVP en `src/domain.js` o `src/app.js` (o helper dedicado consumido por `src/app.js`); centralizar formato/normalización para evitar lógica duplicada (FR-088, SC-030)
-- [ ] T183 [US24] Aplicar formato de moneda consistente en dashboard, listados y formularios en `src/app.js`; KPI agregados en CLP base con etiqueta clara, montos individuales con moneda del registro/normalizada, sin mezclar símbolos contradictorios (FR-088, SC-030)
-- [ ] T184 [US24] Actualizar etiquetas/ayudas de moneda en `index.html` y estilos asociados en `src/styles.css` para comunicar la regla de moneda base CLP y presentación consistente (FR-088, SC-030)
+- [x] T182 [US24] Implementar helper central de moneda/base CLP y normalizaciÃ³n MVP en `src/domain.js` o `src/app.js` (o helper dedicado consumido por `src/app.js`); centralizar formato/normalización para evitar lógica duplicada (FR-088, SC-030)
+- [x] T183 [US24] Aplicar formato de moneda consistente en dashboard, listados y formularios en `src/app.js`; KPI agregados en CLP base con etiqueta clara, montos individuales con moneda del registro/normalizada, sin mezclar símbolos contradictorios (FR-088, SC-030)
+- [x] T184 [US24] Actualizar etiquetas/ayudas de moneda en `index.html` y estilos asociados en `src/styles.css` para comunicar la regla de moneda base CLP y presentación consistente (FR-088, SC-030)
 
 **Punto de control**: US24 funcional y verificable de forma independiente.
 
@@ -671,10 +671,10 @@
 
 **PropÃ³sito**: VerificaciÃ³n final, regresiÃ³n, accesibilidad y documentaciÃ³n de correcciones.
 
-- [ ] T185 [P] Actualizar trazabilidad y notas de verificaciÃ³n en `specs/001-crm-module/quickstart.md` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
-- [ ] T186 [P] Revisar consistencia final de contratos en `specs/001-crm-module/contracts/ui-contracts.md`, `specs/001-crm-module/contracts/crm-storage.md` y `specs/001-crm-module/contracts/dashboard-metrics.md` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
-- [ ] T187 Ejecutar verificaciÃ³n automatizada `npm run test:run`, `npm run lint` y `npm run build` desde `package.json` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
-- [ ] T188 Realizar validaciÃ³n manual de escenarios US16â€“US24 en `specs/001-crm-module/quickstart.md` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
+- [x] T185 [P] Actualizar trazabilidad y notas de verificaciÃ³n en `specs/001-crm-module/quickstart.md` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
+- [x] T186 [P] Revisar consistencia final de contratos en `specs/001-crm-module/contracts/ui-contracts.md`, `specs/001-crm-module/contracts/crm-storage.md` y `specs/001-crm-module/contracts/dashboard-metrics.md` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
+- [x] T187 Ejecutar verificaciÃ³n automatizada `npm run test:run`, `npm run lint` y `npm run build` desde `package.json` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
+- [x] T188 Realizar validaciÃ³n manual de escenarios US16â€“US24 en `specs/001-crm-module/quickstart.md` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
 
 ---
 

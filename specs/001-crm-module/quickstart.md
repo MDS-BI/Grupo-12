@@ -97,3 +97,18 @@ npm run build
 5. **FR-072**: inyecta JSON inválido o shape incorrecto en clave de entidad. Recarga. Verifica validación en arranque antes de render operativo: estado de bloqueo visible con mensaje/categoría afectada y acción "Reiniciar datos afectados"; acciones dependientes deshabilitadas/ocultas. Cancelar/ignorar mantiene bloqueo y mensaje. Si falla la escritura, muestra error comprensible y control "Reintentar", sin alterar claves no afectadas ni marcar recuperado. Reintento exitoso escribe `[]` solo en claves afectadas, limpia error, habilita UI en estado vacío controlado y preserva sesión/tema/vista/sidebar.
 6. **FR-073**: cambia Claro/Oscuro, recarga. Verifica persistencia y aplicación en primer render. Verifica accesibilidad por teclado/etiqueta/valor actual del selector.
 7. **FR-058**: crea/inyecta oportunidad con etapa ausente/nula/inválida. En dashboard, verifica aviso no bloqueante visible (`#dashboard-data-warning` o equivalente) con texto claro y cantidad afectada al renderizar; KPIs válidos se muestran normales y navegación no se bloquea. Corrige/elimina la inconsistencia y verifica que el aviso se oculta.
+
+
+## Trazabilidad US16-US24
+
+| US | FR/SC | Pruebas principales |
+|---|---|---|
+| US16 | FR-072, SC-022 | `tests/integration/ui-contracts.test.js`, `tests/integration/corrections-us16-us24.test.js`, `tests/integration/theme-boot.test.js` |
+| US17 | FR-073, FR-076, FR-077, SC-023 | `tests/integration/corrections-us16-us24.test.js`, `tests/integration/dashboard-metrics.test.js` |
+| US18 | FR-078, SC-024 | `tests/integration/ui-contracts.test.js`, `tests/integration/corrections-us16-us24.test.js` |
+| US19 | FR-079, SC-025 | `tests/integration/ui-contracts.test.js`, `tests/integration/corrections-us16-us24.test.js` |
+| US20 | FR-081, FR-082, SC-026 | `tests/integration/search.test.js`, `tests/integration/corrections-us16-us24.test.js` |
+| US21 | FR-083, FR-084, SC-027 | `tests/integration/entities.test.js`, `tests/integration/documents.test.js` |
+| US22 | FR-085, SC-028 | `tests/integration/corrections-us16-us24.test.js`, `tests/integration/ui-contracts.test.js` |
+| US23 | FR-075, FR-080, SC-029 | `tests/integration/corrections-us16-us24.test.js`, `tests/integration/ui-contracts.test.js` |
+| US24 | FR-088, SC-030 | `tests/unit/currency-format.test.js`, `tests/integration/corrections-us16-us24.test.js` |

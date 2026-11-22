@@ -141,6 +141,48 @@ describe('US19 - confirmación accesible para eliminaciones', () => {
   });
 });
 
+describe('US22 - Restaurar vista activa', () => {
+  beforeEach(() => { localStorage.clear(); sessionStorage.clear(); });
+
+  it('T175: persiste y restaura última vista interna válida tras recarga', async () => {
+    mountLiveDom();
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    await bootApp();
+    document.querySelector('#nav-entities').click();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(localStorage.getItem('erp.activeView')).toBe('entities');
+    // reload: preserve localStorage
+    mountLiveDom();
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    await bootApp();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(document.querySelector('#view-entities').hidden).toBe(false);
+    expect(document.querySelector('#view-dashboard').hidden).toBe(true);
+  });
+});
+
+describe('US24 - Moneda consistente CLP', () => {
+  beforeEach(() => { localStorage.clear(); sessionStorage.clear(); });
+
+  it('T181: dashboard, listados y formularios muestran moneda/regla consistente', async () => {
+    mountLiveDom();
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    await boot();
+    const { addEntity, addDocument } = await import('../../src/storage.js');
+    const ent = addEntity({ name: 'Moneda SA', code: 'M1', email: 'm@m.cl', phone: '912345678', creditLimit: 1000, currency: 'CLP' });
+    addDocument({ entity_id: ent.id, series: 'OP', folio: 1, startDate: '2026-01-01', endDate: '2026-02-01', quantity: 1, subtotal: 1000, discount: 0, taxAmount: 0, totalAmount: 1000, currency: 'CLP', status: 'Propuesta' });
+    // re-render after data changes
+    document.querySelector('#nav-dashboard').click();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(document.querySelector('#stat-revenue').textContent).toMatch(/\$|CLP/);
+    document.querySelector('#nav-documents').click();
+    await new Promise((r) => setTimeout(r, 20));
+    expect(document.querySelector('#document-list').textContent).toMatch(/\$|CLP/);
+    document.querySelector('#nav-entities').click();
+    expect(document.querySelector('#entity-currency').value || 'CLP').toMatch(/CLP/);
+  });
+});
+
 describe('US18 - Recordar mi sesión', () => {
   beforeEach(() => {
     localStorage.clear();

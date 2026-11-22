@@ -1,12 +1,26 @@
 import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
-import { computeConversionRate } from './domain.js';
+import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency } from './domain.js';
 import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, getCRMStorageErrors, loadCustomers, loadDocuments, loadEntities, resetCorruptedCRMStorage,
   searchCRM, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
 
 export const AUTH_STORAGE_KEY = 'erp.authenticatedUser';
 export const SIDEBAR_STORAGE_KEY = 'erp.sidebarCollapsed';
+export const ACTIVE_VIEW_STORAGE_KEY = 'erp.activeView';
 
 const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'search'];
+function isValidView(name) {
+  return VIEW_KEYS.includes(name);
+}
+function persistActiveView(name) {
+  if (!isValidView(name)) return;
+  try { localStorage.setItem(ACTIVE_VIEW_STORAGE_KEY, name); } catch { /* ignore */ }
+}
+function readPersistedView() {
+  try {
+    const v = localStorage.getItem(ACTIVE_VIEW_STORAGE_KEY);
+    return isValidView(v) ? v : 'dashboard';
+  } catch { return 'dashboard'; }
+}
 const CRM_FORM_SELECTOR = 'form.crm-form';
 
 let pendingNavigation = null;
@@ -285,8 +299,9 @@ function initializeOperationalState() {
   updateEntityFieldOptions();
   updateDocumentFieldOptions();
   updateDashboardStats();
+  renderEntityList();
+  renderDocumentList();
   renderSearchResults();
-  showView('dashboard');
   markAllFormsClean();
 }
 
@@ -533,30 +548,28 @@ function clearFormErrors(scope) {
 }
 
 function showView(name) {
-  if (name === 'entities') updateEntitySelect();
-  if (name === 'documents') {
+  const safe = isValidView(name) ? name : 'dashboard';
+  if (safe === 'entities') updateEntitySelect();
+  if (safe === 'documents') {
     populateEntityDropdown();
     updateDocumentSelect();
   }
-  if (name === 'dashboard') updateDashboardStats();
-  if (name === 'search') renderSearchResults();
+  if (safe === 'dashboard') updateDashboardStats();
+  if (safe === 'search') renderSearchResults();
 
   for (const key of VIEW_KEYS) {
     const view = qs(`view-${key}`);
-    if (view) view.hidden = key !== name;
+    if (view) view.hidden = key !== safe;
   }
 
   document.querySelectorAll('.nav-module').forEach((button) => {
-    button.setAttribute('aria-current', button.id === `nav-${name}` ? 'page' : 'false');
+    button.setAttribute('aria-current', button.id === `nav-${safe}` ? 'page' : 'false');
   });
+  persistActiveView(safe);
 }
 
 function formatCurrency(value) {
-  return new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    maximumFractionDigits: 0
-  }).format(Number(value) || 0);
+  return formatMoney(value, MVP_BASE_CURRENCY);
 }
 
 function renderWelcomeBanner() {
@@ -727,7 +740,8 @@ function renderDocumentList() {
     const tr = document.createElement('tr');
     tr.dataset.documentId = doc.id;
     const folio = [doc.series, doc.folio].filter(Boolean).join('-');
-    tr.innerHTML = `<td>${escapeHTML(doc.entityName || '')}</td><td>${escapeHTML(folio)}</td><td>${escapeHTML(doc.status || '')}</td><td>${escapeHTML(doc.totalAmount ?? '')} ${escapeHTML(doc.currency || '')}</td>`
+    const amountLabel = formatMoney(doc.totalAmount, doc.currency || MVP_BASE_CURRENCY);
+    tr.innerHTML = `<td>${escapeHTML(doc.entityName || '')}</td><td>${escapeHTML(folio)}</td><td>${escapeHTML(doc.status || '')}</td><td>${escapeHTML(amountLabel)}</td>`
       + `<td class="row-actions"><button type="button" class="row-action" data-action="edit" data-document-id="${escapeHTML(doc.id)}">Editar</button>`
       + `<button type="button" class="row-action danger" data-action="delete" data-document-id="${escapeHTML(doc.id)}">Eliminar</button></td>`;
     tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
@@ -947,7 +961,7 @@ function fillEntityForm(entity) {
   qs('category').value = entity.category || '';
   qs('targetDate').value = entity.targetDate || '';
   qs('creditLimit').value = entity.creditLimit ?? '';
-  qs('entity-currency').value = entity.currency || 'CLP';
+  qs('entity-currency').value = normalizeCurrency(entity.currency || MVP_BASE_CURRENCY);
   qs('paymentTerms').value = entity.paymentTerms || '';
 
   const config = getActiveConfig();
@@ -974,7 +988,7 @@ function fillDocumentForm(record) {
   qs('discount').value = record.discount ?? '';
   qs('taxAmount').value = record.taxAmount ?? '';
   qs('totalAmount').value = record.totalAmount ?? '';
-  qs('currency').value = record.currency || '';
+  qs('currency').value = normalizeCurrency(record.currency || MVP_BASE_CURRENCY);
   qs('docPaymentTerms').value = record.paymentTerms || '';
   qs('notes').value = record.notes || '';
   const statusField = qs('status');
@@ -1131,7 +1145,7 @@ function mapEntityValues(form) {
     category: form.querySelector('#category')?.value || '',
     targetDate: form.querySelector('#targetDate')?.value || '',
     creditLimit: form.querySelector('#creditLimit')?.value || '',
-    currency: form.querySelector('#entity-currency')?.value || 'CLP',
+    currency: normalizeCurrency(form.querySelector('#entity-currency')?.value || MVP_BASE_CURRENCY),
     paymentTerms: form.querySelector('#paymentTerms')?.value || ''
   };
 
@@ -1155,7 +1169,7 @@ function mapDocumentValues(form) {
     discount: form.querySelector('#discount')?.value || '',
     taxAmount: form.querySelector('#taxAmount')?.value || '',
     totalAmount: form.querySelector('#totalAmount')?.value || '',
-    currency: form.querySelector('#currency')?.value || '',
+    currency: normalizeCurrency(form.querySelector('#currency')?.value || MVP_BASE_CURRENCY),
     paymentTerms: form.querySelector('#docPaymentTerms')?.value || '',
     notes: form.querySelector('#notes')?.value || '',
     status: form.querySelector('#status')?.value || ''
@@ -1210,7 +1224,7 @@ function syncCustomerMirror(entity) {
     taxId: entity.taxId || '',
     address: entity.address || '',
     category: entity.category || '',
-    currency: entity.currency || 'CLP',
+    currency: normalizeCurrency(entity.currency || MVP_BASE_CURRENCY),
     creditLimit: entity.creditLimit || 0,
     paymentTerms: entity.paymentTerms || ''
   };
@@ -1456,7 +1470,7 @@ async function boot() {
 
   renderStorageErrors();
   initializeOperationalState();
-
+  showView(readPersistedView());
 
   const entityDelete = qs('delete-entity');
   if (entityDelete && !entityDelete.dataset.bound) {
@@ -1502,13 +1516,8 @@ async function boot() {
     documentDelete.dataset.bound = 'true';
   }
 
-  const elements = [
-    qs('view-dashboard'), qs('view-entities'), qs('view-documents'), qs('view-search'),
-    qs('nav-dashboard'), qs('nav-entities'), qs('nav-documents'), qs('nav-search')
-  ];
-  elements.forEach((element) => {
-    if (element) element.hidden = element.id !== 'view-dashboard';
-  });
+  const initialView = readPersistedView();
+  showView(initialView);
 }
 
 let appInitialized = false;

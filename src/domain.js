@@ -21,6 +21,22 @@ export const TERMINAL_STAGES = ['Ganado', 'Perdido'];
 
 export const VALID_OPPORTUNITY_STAGES = [...OPPORTUNITY_STAGES];
 
+export const MVP_BASE_CURRENCY = 'CLP';
+
+export function normalizeCurrency(value) {
+  const raw = String(value ?? '').trim().toUpperCase();
+  if (!raw) return MVP_BASE_CURRENCY;
+  if (raw === 'CLP' || raw === '$' || raw.includes('CLP') || raw.includes('PESO')) return MVP_BASE_CURRENCY;
+  return MVP_BASE_CURRENCY;
+}
+
+export function formatMoney(amount, currency = MVP_BASE_CURRENCY) {
+  const value = Number(amount);
+  const safe = Number.isFinite(value) ? value : 0;
+  const cur = normalizeCurrency(currency);
+  return new Intl.NumberFormat('es-CL', { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(safe);
+}
+
 export function getInvalidOpportunityStageCount(opportunities = []) {
   const records = Array.isArray(opportunities) ? opportunities : [];
   return records.filter((record) => {
