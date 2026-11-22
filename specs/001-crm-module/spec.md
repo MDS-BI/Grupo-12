@@ -326,6 +326,157 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 
 ---
 
+### Historia de Usuario 16 - Tema oscuro coherente en todo el espacio de trabajo (Prioridad: P1)
+
+Como usuario del CRM, quiero que el tema oscuro se aplique de forma consistente en todas las pantallas, para poder trabajar con comodidad y sin problemas de contraste.
+
+**Por qué esta prioridad**: El selector Claro/Oscuro ya existe, pero si algunas áreas quedan claras se rompe la legibilidad y la confianza en la configuración.
+
+**Prueba Independiente**: Activar `Oscuro`, recorrer acceso, shell, dashboard, clientes, oportunidades, búsqueda, estados vacíos y diálogos; verificar legibilidad, ausencia de superficies claras fijas y persistencia al recargar.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** el tema `Oscuro` activo, **cuando** el usuario navega por acceso, dashboard, clientes, oportunidades, búsqueda y diálogos, **entonces** contenedores, textos, bordes, iconos y estados usan la paleta oscura sin perder legibilidad.
+2. **Dado** un mensaje de validación, badge de estado, estado vacío o panel de error, **cuando** se muestra en tema oscuro, **entonces** mantiene contraste suficiente y no usa fondos claros fijos.
+3. **Dado** el tema `Claro`, **cuando** el usuario lo selecciona, **entonces** la interfaz vuelve completamente a la paleta clara sin residuos del tema oscuro.
+4. **Dada** una recarga en el mismo navegador, **cuando** se aplica el tema guardado, **entonces** la apariencia es coherente desde el primer render, sin parpadeo visible entre temas.
+
+---
+
+### Historia de Usuario 17 - Dashboard coherente con las oportunidades gestionadas (Prioridad: P1)
+
+Como usuario comercial, quiero que los indicadores del dashboard incluyan las oportunidades que creo o edito desde los formularios, para tomar decisiones con métricas confiables.
+
+**Por qué esta prioridad**: Un KPI que no refleja la operación real invalida el dashboard como punto de control.
+
+**Prueba Independiente**: Crear un cliente y una oportunidad desde la UI, volver al dashboard y verificar que “Oportunidades activas”, “Ingresos estimados”, “Tasa de conversión” y próximos cierres cambian según los datos guardados.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** un usuario en el formulario de oportunidades, **cuando** crea una oportunidad válida, **entonces** al volver al dashboard los KPI reflejan el nuevo registro.
+2. **Dada** una oportunidad existente, **cuando** el usuario cambia su monto, etapa o fecha de cierre, **entonces** los KPI se recalculan con los valores vigentes al mostrar el dashboard.
+3. **Dada** una oportunidad eliminada, **cuando** el usuario regresa al dashboard, **entonces** deja de contarse en los indicadores correspondientes.
+4. **Dado** el modelo de almacenamiento del MVP, **cuando** se guarda una oportunidad desde la UI, **entonces** no existe divergencia entre los datos mostrados en formularios/listas y los datos usados por el dashboard.
+
+---
+
+### Historia de Usuario 18 - Preferencia “Recordar mi sesión” efectiva (Prioridad: P2)
+
+Como usuario, quiero que la opción “Recordar mi sesión” controle si mi acceso se conserva al cerrar el navegador, para elegir el nivel de persistencia adecuado en mi equipo.
+
+**Por qué esta prioridad**: El control existe en la UI; si no hace nada, genera desconfianza y un posible problema de privacidad.
+
+**Prueba Independiente**: Iniciar sesión con la opción marcada y sin marcar; cerrar y reabrir el navegador/contexto; verificar el comportamiento esperado.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** el checkbox “Recordar mi sesión” marcado, **cuando** el usuario inicia sesión correctamente, **entonces** la sesión se conserva en el mismo navegador tras cerrar y reabrir el navegador.
+2. **Dado** el checkbox “Recordar mi sesión” desmarcado, **cuando** el usuario inicia sesión correctamente, **entonces** la sesión solo se conserva mientras dure la sesión de pestaña/navegador actual y no se restaura al abrir un nuevo contexto de navegador.
+3. **Dado** un usuario que cierra sesión explícitamente, **cuando** vuelve a la pantalla de acceso, **entonces** no se restaura automáticamente la sesión previa, independientemente de la preferencia anterior.
+4. **Dado** un intento de acceso, **cuando** el usuario marca o desmarca la preferencia, **entonces** el valor no altera la validación de credenciales ni expone información sensible.
+
+---
+
+### Historia de Usuario 19 - Confirmación accesible para eliminaciones (Prioridad: P2)
+
+Como usuario, quiero confirmar la eliminación de clientes u oportunidades en un diálogo consistente con la interfaz, para evitar borrados accidentales y entender claramente la acción.
+
+**Por qué esta prioridad**: Las eliminaciones son destructivas; un diálogo nativo rompe consistencia, accesibilidad y control visual.
+
+**Prueba Independiente**: Intentar eliminar un cliente y una oportunidad; verificar diálogo, foco, teclado, cancelación y confirmación.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** un registro seleccionado, **cuando** el usuario pulsa eliminar, **entonces** aparece un diálogo modal del CRM con mensaje claro, acción de cancelar y acción destructiva de confirmar.
+2. **Dado** el diálogo abierto, **cuando** el usuario cancela o cierra con Escape, **entonces** no se elimina ningún dato y el foco vuelve al control que originó la acción.
+3. **Dado** el diálogo abierto, **cuando** el usuario navega con Tab/Shift+Tab, **entonces** el foco queda atrapado dentro del diálogo hasta cerrarlo.
+4. **Dada** una confirmación de eliminación, **cuando** el usuario confirma, **entonces** el registro se elimina según la regla de negocio vigente y la UI se actualiza sin errores.
+
+---
+
+### Historia de Usuario 20 - Búsqueda de clientes y oportunidades (Prioridad: P2)
+
+Como usuario comercial, quiero buscar clientes y oportunidades por texto relevante, para encontrar registros rápidamente sin recorrer formularios o selectores.
+
+**Por qué esta prioridad**: La vista actual se presenta como búsqueda de registros, pero su alcance debe ser claro y útil para el trabajo diario.
+
+**Prueba Independiente**: Crear clientes y oportunidades con términos conocidos; buscar por nombre, código, correo, serie, folio o estado; verificar resultados, tipo de registro y estados vacíos.
+
+**Escenarios de Aceptación**:
+
+1. **Dados** clientes y oportunidades existentes, **cuando** el usuario busca por un término, **entonces** ve resultados de ambos tipos claramente identificados.
+2. **Dado** un término sin coincidencias, **cuando** se ejecuta la búsqueda, **entonces** se muestra un estado vacío claro indicando que no hay registros coincidentes.
+3. **Dado** un resultado de búsqueda, **cuando** el usuario lo selecciona, **entonces** navega al área correspondiente con el registro listo para consultar o editar.
+4. **Dados** campos personalizados eliminados de la configuración, **cuando** se realiza la búsqueda, **entonces** no se consideran para el filtrado ni se muestran, en línea con FR-071.
+
+---
+
+### Historia de Usuario 21 - Listas escalables para gestionar registros (Prioridad: P2)
+
+Como usuario, quiero ver clientes y oportunidades en listas con acciones claras, para gestionarlos eficientemente cuando el volumen de datos crece.
+
+**Por qué esta prioridad**: Los selectores para editar/eliminar no escalan y dificultan la revisión de muchos registros.
+
+**Prueba Independiente**: Cargar 30+ registros de prueba; localizar, editar y eliminar desde la lista; verificar que la selección y el formulario se sincronizan.
+
+**Escenarios de Aceptación**:
+
+1. **Dados** varios clientes u oportunidades, **cuando** el usuario abre la vista, **entonces** ve un listado con columnas/campos clave, estado visible y acciones por fila.
+2. **Dada** una lista larga, **cuando** el usuario filtra o busca dentro de la vista, **entonces** puede reducir resultados sin perder el contexto de la sección.
+3. **Dado** que el usuario selecciona “Editar” en una fila, **cuando** se carga el formulario, **entonces** el registro queda seleccionado y sus datos se muestran correctamente.
+4. **Dado** un volumen alto de registros, **cuando** se renderiza la vista, **entonces** la interacción sigue siendo usable sin depender solo de un selector desplegable.
+
+---
+
+### Historia de Usuario 22 - Restaurar la vista activa tras recargar (Prioridad: P3)
+
+Como usuario, quiero volver a la última sección activa después de recargar, para continuar mi trabajo sin repetir la navegación.
+
+**Por qué esta prioridad**: Mejora la continuidad, especialmente al trabajar con formularios, búsqueda o dashboard.
+
+**Prueba Independiente**: Navegar a Clientes, Oportunidades y Búsqueda; recargar; verificar que la app restaura la vista válida o cae al dashboard si no es segura.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** un usuario autenticado en una vista interna, **cuando** recarga la página, **entonces** la aplicación restaura esa vista si sigue siendo válida.
+2. **Dada** una vista guardada inválida o no disponible, **cuando** la aplicación inicia, **entonces** muestra el dashboard sin error.
+3. **Dado** un usuario no autenticado, **cuando** intenta acceder a una ruta o vista interna, **entonces** se aplica la regla de autenticación existente antes de restaurar contenido.
+
+---
+
+### Historia de Usuario 23 - Accesibilidad completa en formularios y diálogos (Prioridad: P1)
+
+Como usuario que navega con teclado o tecnologías de asistencia, quiero que los formularios y diálogos comuniquen errores y gestionen el foco correctamente, para completar tareas sin barreras.
+
+**Por qué esta prioridad**: Los errores de validación y diálogos modales son puntos críticos de interacción; sin accesibilidad, el flujo falla para muchos usuarios.
+
+**Prueba Independiente**: Enviar formularios inválidos solo con teclado, activar diálogo de cambios sin guardar y confirmación de eliminación; verificar foco, Escape, asociaciones de error y ausencia de fuga de foco.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** un campo con error de validación, **cuando** se muestra el mensaje, **entonces** el campo tiene estado inválido accesible y está asociado al texto de error mediante `aria-describedby` o mecanismo equivalente.
+2. **Dado** un envío con errores, **cuando** el sistema bloquea el guardado, **entonces** el foco se mueve al primer campo inválido o el error se anuncia de forma clara.
+3. **Dado** el diálogo de cambios sin guardar abierto, **cuando** el usuario pulsa Escape o cancela, **entonces** se mantiene en la vista actual, no se navega y el foco regresa al control que inició la acción.
+4. **Dado** cualquier diálogo modal del CRM, **cuando** el usuario usa Tab/Shift+Tab, **entonces** el foco permanece dentro del diálogo hasta cerrarlo.
+
+---
+
+### Historia de Usuario 24 - Presentación de moneda clara y consistente (Prioridad: P3)
+
+Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y consistente, para evitar interpretaciones erróneas en el pipeline.
+
+**Por qué esta prioridad**: Hoy el formato puede verse fijo mientras el formulario permite capturar moneda, lo que genera ambigüedad.
+
+**Prueba Independiente**: Registrar oportunidades con la moneda soportada por el MVP; verificar dashboard, listas y formularios; confirmar la regla definida para totales agregados.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** un monto mostrado en la UI, **cuando** el usuario lo consulta, **entonces** ve la moneda con la que fue registrado o una etiqueta clara de la moneda base del módulo.
+2. **Dado** el KPI de ingresos/pipeline, **cuando** existen oportunidades en la moneda soportada, **entonces** el total se presenta con la regla definida por el MVP y sin mezclar símbolos ambiguos.
+3. **Dado** que el MVP solo soporta una moneda base, **cuando** el usuario captura un monto, **entonces** la UI lo indica claramente y valida o normaliza el valor según la regla definida.
+
+---
+
 ### Casos Límite
 
 - ¿Qué ocurre cuando un usuario intenta guardar un cliente sin nombre de empresa, contacto, correo o teléfono?
@@ -357,6 +508,15 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - Textos con acentos, "ñ", diéresis o símbolos de monedas distintas en nombres, etiquetas y condiciones comerciales.
 - Campos obligatorios vacíos en ambos bloques de formulario: se identifican todos los errores a la vez con el mismo formato.
 - Nombres de usuario extensos o con caracteres especiales en el banner de bienvenida.
+- ¿Qué ocurre cuando el usuario activa el tema oscuro y existen superficies con colores fijos heredados?
+- ¿Qué ocurre cuando se crea o edita una oportunidad desde el formulario y el dashboard usa una fuente de datos distinta?
+- ¿Qué ocurre cuando el usuario desmarca “Recordar mi sesión”, cierra el navegador y vuelve a abrir la aplicación?
+- ¿Qué ocurre cuando el usuario intenta eliminar un registro y cancela el diálogo con Escape o con el botón cancelar?
+- ¿Qué ocurre cuando la búsqueda no distingue entre clientes y oportunidades o no indica el tipo de resultado?
+- ¿Qué ocurre cuando existen decenas de clientes u oportunidades y la edición depende solo de un selector?
+- ¿Qué ocurre cuando se recarga la página en una vista interna o con una vista guardada inválida?
+- ¿Qué ocurre cuando un usuario navega solo con teclado por formularios inválidos o diálogos modales?
+- ¿Qué ocurre cuando se registran montos con monedas distintas o cuando el KPI agrega montos con una moneda fija?
 
 ## Requisitos *(obligatorio)*
 
@@ -435,6 +595,21 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - **FR-071**: El sistema DEBE conservar en el almacenamiento los valores de campos personalizados que ya no estén declarados en la configuración, omitiéndolos de formularios, listas y búsquedas.
 - **FR-072**: El sistema DEBE mostrar un error claro y ofrecer una acción explícita de reinicio cuando detecte JSON inválido o datos con forma incorrecta en las claves de entidad `crm_module:*` al arrancar, en lugar de reiniciar silenciosamente o fallar sin explicación. El reinicio DEBE escribir arreglos vacíos en esas claves de entidad y NO DEBE modificar las claves de sesión ni la preferencia de tema.
 - **FR-073**: El espacio de trabajo DEBE ofrecer un selector de tema `Claro`/`Oscuro`, guardar la elección en el almacenamiento local del mismo navegador y aplicarla desde el primer render tras recargar.
+- **FR-074**: El sistema DEBE aplicar los tokens de tema a todas las superficies, componentes, estados y diálogos visibles en los modos `Claro` y `Oscuro`.
+- **FR-075**: El sistema DEBE mantener contraste y legibilidad suficientes para texto, iconos, bordes, mensajes y controles en ambos temas.
+- **FR-076**: Los indicadores del dashboard DEBEN calcularse desde la misma fuente de verdad usada por las altas, ediciones y eliminaciones de oportunidades en la UI.
+- **FR-077**: El sistema DEBE evitar divergencias entre los registros de oportunidades visibles en formularios/listas y las métricas del dashboard al mostrar la pantalla.
+- **FR-078**: El sistema DEBE aplicar la preferencia “Recordar mi sesión”: si está marcada conserva la sesión en el mismo navegador tras cerrar y reabrir; si no está marcada, limita la persistencia a la sesión de navegador/pestaña actual.
+- **FR-079**: Las eliminaciones de clientes y oportunidades DEBEN solicitar confirmación mediante un diálogo modal propio del CRM, no mediante `window.confirm`.
+- **FR-080**: Los diálogos modales de confirmación DEBEN ser accesibles por teclado, atrapar el foco, permitir cierre seguro y restaurar el foco al control de origen.
+- **FR-081**: La vista de búsqueda DEBE permitir localizar clientes y oportunidades por texto relevante e identificar claramente el tipo de cada resultado.
+- **FR-082**: El sistema DEBE permitir navegar desde un resultado de búsqueda al área correspondiente con el registro seleccionado para consulta o edición.
+- **FR-083**: Las vistas de clientes y oportunidades DEBEN presentar listados escalables con información clave y acciones por fila para editar y eliminar.
+- **FR-084**: Los listados DEBEN mantenerse sincronizados con el formulario activo, la selección actual y los cambios guardados o eliminados.
+- **FR-085**: El sistema DEBE restaurar la última vista interna válida tras recargar y hacer fallback seguro al dashboard cuando la vista guardada no sea válida, respetando la autenticación.
+- **FR-086**: Los campos con error de validación DEBEN exponer estado inválido accesible y asociar el mensaje mediante `aria-describedby` o mecanismo equivalente.
+- **FR-087**: Los diálogos modales del CRM DEBEN gestionar foco inicial, focus trap, cierre por Escape y restauración de foco al disparador.
+- **FR-088**: El sistema DEBE definir y mostrar una regla consistente de moneda para montos individuales y KPI agregados; en el MVP, los montos agregados se expresan en la moneda base del módulo y la UI evita símbolos o etiquetas contradictorias.
 
 ### Requisitos de Extensibilidad
 
@@ -483,6 +658,15 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - **SC-019**: Al menos el 90 % de los usuarios identifica el propósito de cada tarjeta KPI sin ayuda externa en una prueba de comprensión.
 - **SC-020**: Las solicitudes de soporte relacionadas con confusión de navegación o captura de clientes disminuyen un 30 % después del despliegue de la interfaz.
 - **SC-021**: El 100 % de las recargas en el mismo navegador conserva el tema elegido y lo aplica antes de que el contenido sea visible.
+- **SC-022**: En una revisión visual de acceso, shell, dashboard, formularios, búsqueda y diálogos en tema oscuro, se encuentran 0 superficies críticas con fondo claro fijo o texto ilegible.
+- **SC-023**: El 100 % de las altas, ediciones y eliminaciones de oportunidades realizadas desde la UI se reflejan en los KPI del dashboard al siguiente ingreso a la pantalla.
+- **SC-024**: El 100 % de los inicios de sesión respetan la preferencia “Recordar mi sesión”, incluyendo la ausencia de restauración tras cierre explícito.
+- **SC-025**: El 100 % de las eliminaciones de clientes y oportunidades usan el diálogo modal del CRM y pueden cancelarse o confirmarse solo con teclado.
+- **SC-026**: Los usuarios de prueba pueden localizar un cliente u oportunidad existente mediante búsqueda en menos de 10 segundos cuando el término es relevante.
+- **SC-027**: Con 50 registros por entidad, un usuario puede identificar y abrir un registro para edición en menos de 15 segundos desde la lista.
+- **SC-028**: El 100 % de las recargas en vistas internas válidas restauran la sección esperada, y las vistas inválidas hacen fallback seguro al dashboard.
+- **SC-029**: El 100 % de los formularios y diálogos críticos pueden completarse o cancelarse solo con teclado, con mensajes de error asociados y sin pérdida de foco.
+- **SC-030**: El 100 % de los montos individuales y KPI agregados muestran una moneda/regla consistente, sin símbolos o etiquetas contradictorias.
 
 ## Suposiciones
 
@@ -512,8 +696,13 @@ Como usuario hispanohablante, quiero que todos los textos de la interfaz y los d
 - El idioma de la interfaz es español, coherente con la descripción del usuario y con el módulo CRM existente.
 - Se reutiliza el mecanismo de autenticación ya existente; no se incorporan nuevos métodos de acceso ni recuperación de contraseña.
 - La preferencia del menú se conserva durante la sesión, no entre sesiones distintas.
+- La preferencia “Recordar mi sesión” controla la persistencia de autenticación en el mismo navegador: marcada persiste tras cerrar y reabrir el navegador; desmarcada se limita a la sesión de navegador/pestaña actual. El cierre de sesión explícito siempre elimina la sesión.
+- La última vista interna válida se restaura tras recarga; si el valor guardado es inválido o la ruta no es segura, la aplicación cae al dashboard.
+- La búsqueda unificada cubre clientes y oportunidades y debe identificar el tipo de resultado antes de navegar al registro.
+- Las vistas de clientes y oportunidades pueden conservar selectores auxiliares, pero la gestión principal de editar/eliminar no depende exclusivamente de un `<select>` cuando existe listado.
 - Los indicadores del Dashboard son los ya definidos para el CRM: clientes, oportunidades activas, ingresos y tasa de conversión; los próximos cierres se muestran en una sección separada, no como quinta tarjeta KPI.
 - Los datos ficticios del módulo CRM siguen siendo la fuente de prueba para las tarjetas KPI y los formularios.
+- Los montos agregados del dashboard usan la moneda base del MVP (CLP por defecto) para evitar mezclar monedas; los montos individuales muestran su moneda o la regla de normalización definida por el módulo.
 - En pantallas estrechas, los paneles de acceso se apilan y el menú se presenta como capa superpuesta, conservando todas las funciones.
 - El formato vectorial (SVG) del icono de hamburguesa es un requisito visual explícito del usuario, no una decisión de arquitectura.
 - Las entidades Cliente, Oportunidad y los datos ficticios son los documentados en esta misma especificación.
