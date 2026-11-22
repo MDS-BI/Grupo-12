@@ -120,8 +120,7 @@ let pendingDeleteAction = null;
 function openDeleteConfirmDialog({ title, message, confirmLabel = 'Eliminar', opener, onConfirm }) {
   const dialog = qs('delete-confirm-dialog');
   if (!dialog) {
-    const ok = typeof globalThis.confirm === 'function' ? globalThis.confirm(message || title || '¿Eliminar?') : true;
-    if (ok) onConfirm?.();
+    console.error('delete-confirm-dialog markup is required for accessible deletion confirmation.');
     return;
   }
   const titleNode = qs('delete-confirm-title');

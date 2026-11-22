@@ -175,7 +175,7 @@ describe('US19/US18 - contratos de regresión', () => {
     sessionStorage.clear();
   });
 
-  it('T154: flujos de eliminación no usan window.confirm', async () => {
+  it('T154/T195: flujos de eliminación no usan window.confirm, incluso si falta el diálogo', async () => {
     const originalConfirm = window.confirm;
     const confirmSpy = vi.fn(() => true);
     window.confirm = confirmSpy;
@@ -183,7 +183,7 @@ describe('US19/US18 - contratos de regresión', () => {
       mountLiveDom();
       localStorage.setItem('erp.authenticatedUser', 'Cliente1');
       await boot();
-      const { addEntity } = await import('../../src/storage.js');
+      const { addEntity, loadEntities } = await import('../../src/storage.js');
       const entity = addEntity({ name: 'SinConfirm SA', code: 'SC-1', email: 'sinconfirm@sa.cl', phone: '912345678', creditLimit: 1000 });
       mountLiveDom();
       localStorage.setItem('erp.authenticatedUser', 'Cliente1');
@@ -197,6 +197,15 @@ describe('US19/US18 - contratos de regresión', () => {
       const dialog = document.querySelector('#delete-confirm-dialog');
       expect(dialog).toBeTruthy();
       expect(dialog.hidden).toBe(false);
+
+      // Regression: if required dialog markup is missing, do not call native confirm and do not delete.
+      document.querySelector('#delete-confirm-cancel').click();
+      dialog.remove();
+      const before = loadEntities().length;
+      document.querySelector('#delete-entity').click();
+      expect(confirmSpy).not.toHaveBeenCalled();
+      expect(loadEntities()).toHaveLength(before);
+      expect(loadEntities().some((e) => e.id === entity.id)).toBe(true);
     } finally {
       window.confirm = originalConfirm;
     }
