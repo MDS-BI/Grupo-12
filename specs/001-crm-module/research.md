@@ -13,139 +13,86 @@
 ## Decisiones adicionales
 
 - **Persistencia**: `localStorage` del navegador para clientes, empleados, oportunidades e interacciones; sin backend ni autenticación en el MVP.
-- **Modelo de dominio**: cuatro entidades (Cliente, Empleado, Oportunidad, Interacción) según el MER. Se separan los datos maestros (cliente/empleado) de los registros transaccionales (oportunidad/interacción) para que los módulos personalizados extiendan cada lado sin cambios estructurales.
-- **Eliminación lógica**: clientes y empleados se archivan (`archived`), preservando sus oportunidades e interacciones. No se implementa eliminación en cascada. Las oportunidades e interacciones admiten eliminación física.
-- **Unicidad de correo**: la capa de almacenamiento normaliza el correo (trim + minúsculas) y rechaza duplicados entre todos los clientes.
-- **Transiciones de etapa**: se modelan como tabla declarativa en `domain.js` y pueden redefinirse mediante `ModuleConfig.opportunityLifecycle`; por defecto `Evaluación → Propuesta → Negociación` con cierre en `Ganado` (solo desde `Negociación`) o `Perdido` (desde cualquier etapa no terminal). `Ganado` y `Perdido` son terminales.
-- **Indicadores del dashboard**: se calculan en el momento de mostrar la pantalla a partir del almacenamiento. Clientes activos = estado `Activo` y no archivados; oportunidades abiertas = etapa distinta de `Ganado`/`Perdido`; pipeline = suma de montos de oportunidades abiertas; próximos cierres = oportunidades abiertas con fecha entre hoy y los próximos 30 días (excluye vencidas).
-- **Seguridad**: todo texto introducido por el usuario se escapa antes de renderizarse para prevenir inyección de scripts.
-- **Pruebas**: Vitest + jsdom; pruebas unitarias para dominio/almacenamiento y pruebas de integración para los flujos de interfaz de cada historia.
-- **Extensibilidad**: `module-config.js` permite cambiar nombre, etiquetas, campos personalizados, ciclo de vida y color de acento sin editar el código central; sin configuración se aplican los valores predeterminados del CRM.
+- **Datos ficticios**: datos de ejemplo de clientes, empleados, oportunidades e interacciones cargados al iniciar la aplicación si el almacenamiento está vacío.
+- **Eliminación lógica**: clientes y empleados se archivan (`archived = true`) en lugar de eliminarse físicamente; sus oportunidades e interacciones se conservan íntegras. Se eligió sobre la eliminación en cascada para preservar el historial y la trazabilidad. Las oportunidades e interacciones sí admiten eliminación física.
+- **Correo único**: `storage.js` normaliza (trim + minúsculas) y rechaza duplicados en alta y edición, incluyendo correos de clientes archivados.
+- **Integridad referencial**: solo se pueden asignar clientes y empleados existentes y no archivados a nuevas oportunidades e interacciones. Si al cargar se detecta una referencia inexistente, se reporta visiblemente.
+- **Transiciones de oportunidad**: validadas en `domain.js`/`storage.js`, permitiendo solo `Evaluación → Propuesta → Negociación → Ganado/Perdido` y ningún cambio desde etapas terminales.
+- **Cálculo de dashboard**: `computeDashboardMetrics()` deriva indicadores de los datos actuales al renderizar o al entrar al dashboard; no se recalcula automáticamente mientras el dashboard permanece abierto.
+- **Campos personalizados**: `ModuleConfig.customFields` se aplican en formularios, listas, validación y búsqueda; los valores se almacenan junto al registro base.
+- **Configuración inválida**: se valida al cargar, se reportan errores visibles y se hace fallback controlado a los valores predeterminados.
+- **Saneamiento XSS**: toda cadena introducida por el usuario se escapa antes de insertarse en el DOM; no se usa `innerHTML` con datos sin sanear.
+- **Rendimiento**: búsqueda, filtros y renderizado se validan con 500 clientes y sus registros asociados (≤10 s búsqueda, ≤2 s renderizado inicial).
+- **Accesibilidad**: etiquetas asociadas a campos, orden de foco lógico, `aria-current` en la navegación, encabezados semánticos y contraste suficiente.
 
-## Investigación de la Interfaz SaaS Profesional
+## Decisiones de la interfaz SaaS
 
-### Decisión 1: Superficie de implementación
+- **Selector de iconos**: SVG inline con `stroke="currentColor"` y tamaños controlados por CSS.
+- **Ancho de la barra lateral**: 260 px expandida y 64 px contraída en escritorio; capa superpuesta a ≤ 900 px.
+- **Persistencia del estado del menú**: `sessionStorage['erp.sidebarCollapsed']`, lectura antes de enlazar eventos, escritura en cada alternancia y borrado en cierre de sesión.
+- **Fuente de métricas del Dashboard**: `getCRMOverview()` (base canónica) y `computeConversionRate()` para tasa de conversión. Las vistas no deben crear una fuente paralela.
+- **Adaptador del formulario estático**: el alta/edición de `#entity-form` se sincroniza con la fuente canónica que alimenta los KPI.
+- **Codificación y mojibake**: `<meta charset="UTF-8" />`, revisión de literales en español, inserción de texto con `textContent` y prueba contra U+FFFD/secuencias mojibake.
 
-**Decisión**: modificar únicamente `index.html`, `src/styles.css`, `src/main.js` y `src/app.js`; usar `src/domain.js` solo para la nueva métrica de conversión. No editar `src/components/*`.
+## Decisiones US16–US24 (correcciones incrementales)
 
-**Rationale**: el grafo de importaciones en tiempo de ejecución es `index.html → src/main.js → {module-config.js, app.js, styles.css}` y `app.js → {module-config.js, storage.js}` (`index.html:464`, `src/main.js:1-3`, `src/app.js:1-2`). Los 13 archivos de `src/components/` no son importados por producción; además referencian exportaciones inexistentes (`resolveLabel`, `DEFAULT_CLIENT_STATE`) y `feedback.md:34` documenta la desconexión. Las pruebas nuevas deben seguir el patrón de `tests/integration/relabeling.test.js:7,13-33` (leer `index.html`, montar JSDOM, `vi.resetModules()`).
+### US16 - Tema oscuro coherente
 
-**Alternativas consideradas**: (a) revivir `src/components/*` — rechazado: exige rearquitectura y reparar exportaciones; (b) generar el DOM con `innerHTML` — rechazado: rompe selectores estables y aumenta riesgo de caracteres dañados; (c) editar `dist/` — rechazado: es generado por `npm run build`.
+- **Decisión**: Completar el dark mode mediante tokens/variables CSS y reemplazo de colores fijos en componentes críticos (`.topbar`, `.form-section`, `.action-button`, `.empty-state`, `.search-*`, `.confirm-dialog-card`, `.logout-button`, login/form controls, badges/estados).
+- **Rationale**: Ya existe `crm.theme`, `applyTheme()` y un script temprano en `index.html`; el defecto actual es cobertura incompleta de estilos, no falta de mecanismo.
+- **Alternativas**: Crear una hoja de tema separada (más mantenimiento); usar clases por componente sin variables (propenso a regresión). Se descarta duplicar lógica JS.
 
-### Decisión 2: Persistencia del menú colapsable
+### US17 - Dashboard coherente con oportunidades gestionadas
 
-**Decisión**: `sessionStorage['erp.sidebarCollapsed']` como fuente de verdad, con lectura antes de enlazar el botón, escritura en cada alternancia y borrado en `clearAuthenticated()` (`src/main.js:19-21`).
+- **Decisión**: Establecer una única fuente de verdad para oportunidades del dashboard. La UI de oportunidades debe persistir en la estructura que `getCRMOverview()` consume (`crm_module:opportunities`) mediante un adaptador de normalización; `erp_base_module:documents` puede mantenerse solo como compatibilidad temporal si se sincroniza desde la misma operación.
+- **Rationale**: Hoy `handleDocumentSubmit()` guarda en documentos base y el dashboard lee overview CRM, causando KPIs desactualizados. La corrección debe eliminar la divergencia, no duplicar cálculos.
+- **Alternativas**: Hacer que `getCRMOverview()` lea también documentos base (rápido pero perpetúa dualidad); migración completa a CRM opportunities (más limpia). Se prefiere adaptador canónico con sincronización en una sola operación y pruebas de regresión.
 
-**Rationale**: `src/app.js:776-784` solo cambia una clase y `aria-expanded`; no hay persistencia. La especificación exige conservar el estado al recargar dentro de la misma sesión (escenario 4 de la Historia de Usuario 12) y no entre sesiones (Suposiciones). `sessionStorage` cumple ambos extremos y es independiente de las credenciales. Se sigue el patrón defensivo de `src/storage.js:3-20` (`globalThis.sessionStorage?.getItem?.(key)`) para jsdom y modos privados.
+### US18 - Recordar mi sesión
 
-**Alternativas consideradas**: variable en memoria (no sobrevive a recarga); `localStorage` nuevo o reutilizar `erp.authenticatedUser` (persiste entre sesiones y, en el segundo caso, rompe la comparación `=== VALID_USER` en `src/main.js:12`); URL/cookies/perfil de servidor (no aplica: no hay backend ni rutas por sección); solución solo CSS `:has()` (no sincroniza ARIA ni persiste).
+- **Decisión**: Implementar persistencia condicionada por `#login-remember`. Marcado: guardar sesión en `localStorage` y limpiar copia en `sessionStorage`; desmarcado: guardar en `sessionStorage` y limpiar `localStorage`. `isAuthenticated()`/arranque consulta ambas. Cierre de sesión limpia ambas.
+- **Rationale**: El control ya existe en UI; la expectativa del usuario y FR-078 favorecen comportamiento real. `sessionStorage` representa sesión de navegador/pestaña; es el mejor ajuste frontend sin backend.
+- **Alternativas**: Eliminar checkbox (alcance menor, pero pierde funcionalidad visible); cookie con expiración (innecesaria en MVP frontend). Se descarta eliminar por ahora.
 
-### Decisión 3: Contrato de iconos SVG y accesibilidad
+### US19 - Confirmación de eliminación accesible
 
-**Decisión**: un único contrato para iconos de control — `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `stroke-width="2"`, extremos y uniones redondos, `aria-hidden="true"`, `focusable="false"`, sin `width`/`height` en línea. El nombre accesible se mantiene en el botón: `aria-pressed` para el ojo, `aria-expanded` + `aria-controls="sidebar"` + `aria-label` dinámico para la hamburguesa.
+- **Decisión**: Reemplazar `window.confirm()` por un diálogo modal del CRM reutilizable, con `role="dialog"`, `aria-modal="true"`, mensaje, Confirmar/Cancelar, focus trap, Escape, y restauración de foco al disparador.
+- **Rationale**: `confirm()` no es estilizable, no consistente, y tiene accesibilidad/comportamiento variable. El proyecto ya tiene patrón de diálogo (`#unsaved-dialog`).
+- **Alternativas**: Mantener `confirm()` (incumple FR-079/080); crear diálogo por entidad (duplicación). Se elige componente/patrón reutilizable.
 
-**Rationale**: 29 de los 30 SVG de `index.html` ya siguen este patrón (por ejemplo `index.html:33,117,126`). La hamburguesa (`index.html:101-103`) es la excepción: `stroke="#1e293b"`, tamaño fijo y sin `aria-hidden`. El patrón de `setPasswordVisibility()` (`src/main.js:30-35`) demuestra cómo sincronizar estado, etiqueta y control. El color fijo rompería la personalización de `--accent` que `renderBranding()` aplica en `src/app.js:211-212`.
+### US20 - Búsqueda de clientes y oportunidades
 
-**Alternativas consideradas**: librería de iconos (nueva dependencia, prohibida por restricciones); `role="img"` con etiqueta en cada icono (duplica el nombre del botón); mantener `stroke` fijo (incoherente con el resto y con el tema).
+- **Decisión**: Extender la búsqueda a resultados tipados de clientes y oportunidades. Cada resultado muestra tipo, etiqueta principal y detalle; al seleccionar navega a la vista correspondiente y precarga el registro.
+- **Rationale**: FR-081/082 exigen alcance claro y navegación. La vista ya existe (`#view-search`).
+- **Alternativas**: Dos cajas de búsqueda separadas (más UI, menos simple); solo aclarar texto (no cumple valor). Se elige búsqueda unificada con tipo visible.
 
-### Decisión 4: Comportamiento responsive del menú
+### US21 - Listas escalables para editar/eliminar
 
-**Decisión**: > 900 px, la barra contraída pasa de `display:none` (`src/styles.css:161-163`) a una franja de 64 px con iconos enfocables y etiquetas ocultas solo visualmente; ≤ 900 px, la navegación contraída se presenta como capa superpuesta bajo la barra de 64 px, con fondo, sombra, cierre por Escape/clic fuera/foco de vuelta al botón y contenido sin desplazamiento.
+- **Decisión**: Añadir listados/tablas en Clientes y Oportunidades con acciones por fila (Editar/Eliminar). El `<select>` existente puede mantenerse temporalmente como compatibilidad, pero la gestión principal pasa a la lista.
+- **Rationale**: Selects no escalan y FR-083/084 piden gestión por fila y sincronización con formulario.
+- **Alternativas**: Solo mejorar select con búsqueda (insuficiente); virtualización compleja (innecesaria para 50-500 en MVP). Se usa renderizado simple en memoria.
 
-**Rationale**: el caso límite de la especificación exige que, si no hay espacio para la franja, la navegación siga accesible sin ocultar el contenido. El breakpoint existente `src/styles.css:1250-1281` ya convierte la barra en tira horizontal; la regla `.app-shell.sidebar-collapsed .sidebar` (3 clases) gana sobre `.sidebar` (1 clase), por lo que debe sobrescribirse explícitamente. La regla de apilado del acceso a ≤ 820 px (`src/styles.css:1222-1247`) ya cumple FR-047 y no cambia.
+### US22 - Restaurar vista activa tras recargar
 
-**Alternativas consideradas**: ocultar la barra en móvil (viola FR-054 y el caso límite); mostrar siempre la franja horizontal (consume una fila y reduce el contenido); usar `matchMedia` en JS para decidir layout (duplica la responsabilidad de CSS; jsdom no lo soporta bien).
+- **Decisión**: Persistir la última vista interna válida en `localStorage` (clave dedicada, p.ej. `erp.activeView`) al navegar; restaurar al iniciar solo si autenticado y vista en whitelist; fallback a dashboard.
+- **Rationale**: Mejora continuidad y es de bajo riesgo con whitelist/fallback.
+- **Alternativas**: Usar `location.hash` (visible pero cambia contrato de URL); `sessionStorage` (no cubre recarga con nueva sesión navegador según expectativa; localStorage es aceptable para vista UI). Se elige `localStorage` con validación.
 
-### Decisión 5: Fuente y derivación de los KPI
+### US23 - Accesibilidad completa en formularios y diálogos
 
-**Decisión**: una sola fuente, `getCRMOverview()` de `src/storage.js:957-986`, sobre las claves `crm_module:*`. Cuatro tarjetas: `Clientes activos` ← `activeCustomers`; `Oportunidades activas` ← `openOpportunities`; `Ingresos estimados` ← `totalPipeline` (suma de `amount` de oportunidades abiertas); `Tasa de conversión` ← nueva función `computeConversionRate(opportunities)` en `src/domain.js`, con `won / (won + lost) × 100`, redondeo entero y `0` si no hay oportunidades cerradas.
+- **Decisión**: Estandarizar accesibilidad: campos inválidos reciben `aria-invalid="true"` y `aria-describedby` al mensaje; foco al primer inválido en submit; todos los diálogos modales usan focus trap, Escape, y restauración de foco. `#unsaved-dialog` debe alinearse también.
+- **Rationale**: FR-086/087 y SC-029 requieren comportamiento verificable por teclado/AT.
+- **Alternativas**: Solo `role="alert"` (insuficiente para asociación de campo); librería de focus trap (dependencia nueva, innecesaria). Se implementa utilidad pequeña local.
 
-**Rationale**: `getCRMOverview()` filtra archivados, usa campos normalizados (`status`, `stage`, `amount`) y evita el desajuste de alias de `computeDashboardMetrics()` (`estado`, `etapa`, `montoEstimado`), cuyos datos se normalizan de forma unidireccional en `src/storage.js:484-544`. La conversión no existe en ninguna de las dos funciones; `Ganado` y `Perdido` son las etapas terminales (`src/domain.js:20,77-79`), por lo que son el denominador defendible. Los valores vacíos son `0`, `$0` y `0 %`, coherentes con las aserciones existentes en `tests/integration/dashboard.test.js:14-16`.
+### US24 - Moneda clara y consistente
 
-**Alternativas consideradas**: `computeDashboardMetrics()` (requiere otro conjunto de campos y su cuarta métrica es `upcomingCloses`); ingresos realizados = suma de Ganado (cambia la semántica de la tarjeta y del contrato actual); conversión sobre todas las oportunidades (diluye el indicador con operaciones aún abiertas); `—` como neutro (rompe la continuidad con las pruebas de `0`).
+- **Decisión**: Regla MVP explícita: KPI agregados del dashboard se expresan en moneda base `CLP` (etiqueta visible) y no mezclan monedas. Montos individuales muestran la moneda del registro cuando exista; si falta, se normaliza a CLP. `formatCurrency` recibe moneda/config.
+- **Rationale**: Hay ambigüedad actual: `formatCurrency()` fija CLP, formularios permiten capturar moneda.
+- **Alternativas**: Conversión automática multi-moneda (fuera de MVP, requiere tasas); bloquear captura a CLP solamente (simple, pero menos flexible). Se elige regla clara con normalización y etiquetado; si se detectan monedas mixtas, agregados usan solo CLP con nota/normalización definida por implementación y tests.
 
-### Decisión 6: Nombre del usuario en el banner
+## Riesgos / Deuda conocida
 
-**Decisión**: leer `localStorage['erp.authenticatedUser']` en `src/app.js` y renderizarlo en un nodo dedicado `#welcome-title` del banner; no tocar el flujo de autenticación.
-
-**Rationale**: `src/main.js:5,12,16,94-96` ya guarda el nombre (`Cliente1`) tras un acceso válido y `renderRoute()` redirige a `/inicio`. Reutilizar `#login-username` falla tras recarga; usar `config.moduleName` mostraría la marca, no la persona. Importar `AUTH_KEY` desde `main.js` crearía un ciclo (`main.js` ya importa `app.js`), por lo que se usa la clave literal o se pasa el nombre como opción de `initApp`.
-
-**Alternativas consideradas**: nueva llamada de sesión al backend (no existe); leer el campo de usuario del formulario (no fiable tras recarga); mostrar un saludo genérico (incumple FR-057).
-
-### Decisión 7: Encabezados y agrupación de formularios
-
-**Decisión**: los textos literales del DOM pasan a ser `DATOS DEL CLIENTE` y `CONDICIONES COMERCIALES` dentro de `<span class="form-section-title-text">`; se conserva `text-transform: uppercase` solo como refuerzo visual. Los campos de contacto se integran en el primer bloque y moneda/importe/plazos en el segundo, manteniendo `.form-section > .form-grid > .field > .validation-error` en ambos.
-
-**Rationale**: `index.html:222-297` contiene tres secciones (`Datos del cliente`, `Información de contacto`, `Condiciones comerciales`) y `src/styles.css:472` solo las transforma visualmente; `textContent` sigue siendo mixto, por lo que FR-061/FR-062 y SC-016 fallarían una comprobación objetiva. La estructura repetida garantiza FR-063/FR-064 sin lógica nueva.
-
-**Alternativas consideradas**: confiar solo en CSS (no satisface aserciones sobre el texto); generar los bloques con plantillas `innerHTML` (riesgo de codificación y pérdida de selectores); dejar tres secciones (no cumple la estandarización en dos bloques pedida).
-
-### Decisión 8: Codificación UTF-8 limpia
-
-**Decisión**: conservar `<html lang="es">` y `<meta charset="UTF-8" />` (`index.html:2,4`), mantener toda inserción dinámica con `textContent`/`createElement` y añadir comprobaciones de texto round-trip con `Ana García Ñuñez`, `€` y `$`, sin U+FFFD ni entidades mojibake. `dist/index.html` se regenera con `npm run build`.
-
-**Rationale**: la ruta en vivo ya es segura: `src/app.js` usa `textContent` para valores y `innerHTML` solo para literales o cadenas vacías (`src/app.js:282,295,311,363,410,515,520,604`); los archivos fuente están en UTF-8 sin BOM. Verificar la declaración y el round-trip convierte una suposición en criterio comprobable.
-
-**Alternativas consideradas**: añadir un `http-equiv` duplicado (conflicto innecesario); escapar acentos como entidades (degrada legibilidad y búsquedas); normalizar/diacríticos en la visualización (ya ocurre solo para clases CSS en `src/app.js:551-555` y no debe extenderse al texto visible).
-
-### Decisión 9: Conciliación de almacenamiento para FR-060
-
-**Decisión**: los KPI leen `crm_module:*`; el formulario `#entity-form` sigue guardando en `erp_base_module:entities`, por lo que `handleEntitySubmit()` en `src/app.js` incluirá un adaptador delgado que crea/actualiza el cliente equivalente con `addCustomer()`/`updateCustomer()` de `src/storage.js:645-689`. No se cambian claves ni se migran datos existentes.
-
-**Rationale**: `specs/001-crm-module/contracts/crm-storage.md` declara como claves canónicas `crm_module:*` con campos normalizados, igual que `src/storage.js:440-445`; `erp_base_module:entities` se conserva solo por compatibilidad con el formulario `#entity-form`. Sin el adaptador, dar de alta un cliente en la pantalla no cambiaría el KPI y FR-060 quedaría sin cumplir. El adaptador se mantiene dentro de `app.js` para no añadir una capa de arquitectura.
-
-**Alternativas consideradas**: migrar por completo el formulario a `addCustomer` (mayor riesgo: campos propios como `taxId`, `creditLimit` y `paymentTerms` y compatibilidad con listados actuales); alimentar los KPI de `erp_base_module:*` (mezcla dos modelos y contradice el contrato CRM); dejar la divergencia como deuda sin cerrar FR-060 (inaceptable según la especificación).
-
-### Deuda conocida fuera de alcance
-
-- `src/components/*` no está conectado y tiene importaciones rotas; sus suites (`tests/helpers.js`, `tests/integration/clients.test.js`, `workspace-shell.test.js`, `dashboard.test.js`, entre otras) usan selectores `data-nav`/`data-stat`/`data-form` inexistentes en `index.html` y referencias como `addClient` o `resolveLabel` que no existen.
-- `src/main.js:9` no usa `await` con `loadModuleConfig()` (async), por lo que `config` es `undefined` y `app.js` aplica valores por defecto. No bloquea esta funcionalidad; se registra para corrección posterior.
-- Las claves quedaron canonizadas en el contrato: `crm_module:*` para entidades y `crm.theme` para la preferencia de tema; `erp_base_module:entities` se mantiene solo por compatibilidad.
-
-### Registro de ejecución (acuerdo de deuda)
-
-- Antes de esta historia, `npm run test:run` fallaba en 21 archivos y 75 pruebas por un arnés sin `localStorage` y por suites heredadas escritas contra la arquitectura huérfana de `src/components/*`.
-- Tras reparar el arnés (`tests/setup/test-setup.js`) quedaron 17 archivos y 59 pruebas fallidas: `archive-integrity`, `client-detail`, `clients`, `dashboard` (integración y unitario), `employees`, `interactions`, `module-config` (integración y unitario), `opportunities`, `relabeling`, `search`, `workspace-shell`, `integrity`, `interaction`, `opportunity` y `storage`.
-- Las causas dominantes son APIs inexistentes (`addClient`, `ValidationError`, `isEmailAvailable`, `archiveClient`, `loadClients`), selectores `data-nav`/`data-stat`/`data-form`/`.workspace` y variables sin declarar (`bootWith`, `qs`, `brandedConfig`, `root`, `errors`, `normalizeConfig`, `DEFAULT_CONFIG`, `BASE_FIELDS`, `FIELD_TYPES`).
-- Conforme al plan, esas suites quedan documentadas como deuda y se excluyen de `vitest.config.mjs` y `eslint.config.mjs` mediante rutas explícitas; no se eliminan archivos ni se reescribe su intención. Las pruebas vigentes son las 11 restantes, incluidas las nuevas de esta historia.
-- Resultado final de la verificación: `npm run test:run` 11/11 archivos y 40/40 pruebas; `npm run lint` sin errores; `npm run build` correcto con `dist/index.html` UTF-8 y cuatro tarjetas KPI.
-
-## Decisiones derivadas de las clarificaciones de 2026-11-21
-
-Estas decisiones se registraron en la rama `003-spec-clarifications` y se incorporan a la especificación activa como FR-068 a FR-073.
-
-### Oportunidades de clientes archivados en el dashboard
-
-- **Decisión**: Determinar las oportunidades abiertas solo por la etapa; las oportunidades de clientes archivados siguen contando en oportunidades abiertas, pipeline y próximos cierres.
-- **Justificación**: FR-024 conserva esos registros y SC-005 exige que los indicadores coincidan con los datos almacenados; excluirlas exigiría una regla nueva y contradiría la definición vigente.
-- **Alternativas consideradas**: excluirlas del pipeline; mostrarlas en un indicador separado.
-
-### Correo de clientes archivados
-
-- **Decisión**: El correo normalizado permanece reservado después de archivar al cliente.
-- **Justificación**: FR-045 no prevé excepciones y FR-044 mantiene consultable el historial; reutilizarlo crearía registros históricos ambiguos.
-- **Alternativas consideradas**: liberar el correo al archivar; permitir reutilización solo tras eliminación física.
-
-### Salida de formularios con cambios sin guardar
-
-- **Decisión**: Interceptar la salida y ofrecer "Permanecer" / "Descartar"; no navegar sin confirmación explícita.
-- **Justificación**: Evita pérdida accidental de datos y cumple el principio constitucional de recuperación clara ante errores.
-- **Alternativas consideradas**: guardado automático; descarte silencioso.
-
-### Campos personalizados eliminados de la configuración
-
-- **Decisión**: Conservar los valores en el registro y omitirlos de formularios, listas, validación y búsqueda; al guardar, fusionar con el registro existente en lugar de reemplazarlo.
-- **Justificación**: El modelo prioriza la preservación; borrar los valores sería destructivo en un almacenamiento sin esquema.
-- **Alternativas consideradas**: purgar valores al cargar la configuración; mostrarlos como campos desconocidos de solo lectura.
-
-### Recuperación ante almacenamiento corrupto
-
-- **Decisión**: Validar las claves al arrancar; ante datos corruptos mostrar un error claro con una acción explícita de reinicio, sin reinicio automático.
-- **Justificación**: FR-037 exige informar en lugar de fallar en silencio; un reinicio silencioso ocultaría una pérdida de datos.
-- **Alternativas consideradas**: reinicio silencioso; carga parcial; error fatal sin recuperación.
-
-### Preferencia de tema persistente
-
-- **Decisión**: Exponer el selector `Claro`/`Oscuro` en el espacio de trabajo, guardar la elección en el almacenamiento local del mismo navegador y aplicarla antes del primer render (FR-073).
-- **Justificación**: La clarificación exige conservar la elección entre recargas en el mismo entorno; aplicarla temprano evita un cambio visible de tema.
-- **Alternativas consideradas**: guardarla en la configuración del módulo (es preferencia del usuario, no adaptación); cookies o sesión.
+- `src/components/*` es arquitectura histórica no conectada; no se debe reactivar.
+- Existe dualidad `erp_base_module:*` y `crm_module:*`; US17 debe reducirla sin romper tests heredados.
+- `app.js` concentra mucha lógica; los cambios deben ser quirúrgicos y cubrirse con pruebas.
+- La accesibilidad de diálogos custom requiere cuidado con foco y listeners para no filtrar eventos globales.
