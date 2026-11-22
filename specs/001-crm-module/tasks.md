@@ -481,15 +481,15 @@
 
 > **NOTA: Escribir estas pruebas PRIMERO, asegurar que FALLAN antes de la implementaciÃ³n**
 
-- [ ] T136 [P] [US23] AÃ±adir pruebas de integraciÃ³n para `aria-invalid`, `aria-describedby` y foco al primer campo invÃ¡lido en `tests/integration/corrections-us16-us24.test.js`
-- [ ] T137 [P] [US23] AÃ±adir pruebas de integraciÃ³n para focus trap, Escape y restauraciÃ³n de foco en `#unsaved-dialog` en `tests/integration/unsaved-changes.test.js`
+- [ ] T136 [P] [US23] AÃ±adir pruebas de integraciÃ³n para `aria-invalid`, `aria-describedby` y foco al primer campo invÃ¡lido en `tests/integration/corrections-us16-us24.test.js` (FR-086, SC-029)
+- [ ] T137 [P] [US23] AÃ±adir pruebas de integraciÃ³n para focus trap, Escape y restauraciÃ³n de foco en `#unsaved-dialog` en `tests/integration/unsaved-changes.test.js` (FR-087, SC-029)
 
 ### ImplementaciÃ³n de la Historia de Usuario 23
 
-- [ ] T138 [US23] Asociar errores de validaciÃ³n con campos mediante `aria-invalid` y `aria-describedby` en `src/app.js`
-- [ ] T139 [US23] Mover foco al primer campo invÃ¡lido en envÃ­os de `#entity-form` y `#document-form` en `src/app.js`
-- [ ] T140 [US23] Implementar focus trap, foco inicial, Escape y restauraciÃ³n de foco para `#unsaved-dialog` en `src/app.js` e `index.html`
-- [ ] T141 [US23] AÃ±adir estilos de foco visible y estado invÃ¡lido accesible coherentes en `src/styles.css`
+- [ ] T138 [US23] Asociar errores de validaciÃ³n con campos mediante `aria-invalid` y `aria-describedby` en `src/app.js` (FR-086)
+- [ ] T139 [US23] Mover foco al primer campo invÃ¡lido en envÃ­os de `#entity-form` y `#document-form` en `src/app.js` (FR-086, SC-029)
+- [ ] T140 [US23] Implementar focus trap, foco inicial, Escape y restauraciÃ³n de foco para `#unsaved-dialog` en `src/app.js` e `index.html` (FR-087, SC-029)
+- [ ] T141 [US23] AÃ±adir estilos de foco visible y estado invÃ¡lido accesible coherentes en `src/styles.css` (FR-086, FR-087)
 
 **Punto de control**: US23 funcional y verificable de forma independiente.
 
@@ -503,14 +503,14 @@
 
 ### Pruebas para la Historia de Usuario 16
 
-- [ ] T142 [P] [US16] AÃ±adir pruebas de integraciÃ³n para cobertura de tema oscuro en vistas y diÃ¡logos crÃ­ticos en `tests/integration/theme.test.js`
-- [ ] T143 [P] [US16] AÃ±adir prueba de contrato para ausencia de colores claros fijos en componentes crÃ­ticos en `tests/unit/theme-contract.test.js`
+- [ ] T142 [P] [US16] AÃ±adir pruebas de integraciÃ³n para cobertura de tema oscuro en vistas y diÃ¡logos crÃ­ticos en `tests/integration/theme.test.js` (FR-074, FR-075, SC-022)
+- [ ] T143 [P] [US16] AÃ±adir prueba de contrato para ausencia de colores claros fijos en componentes crÃ­ticos en `tests/unit/theme-contract.test.js` (FR-074, SC-022)
 
 ### ImplementaciÃ³n de la Historia de Usuario 16
 
-- [ ] T144 [P] [US16] Reemplazar colores fijos por tokens/variables en superficies, formularios, badges y estados en `src/styles.css`
-- [ ] T145 [US16] Ajustar marcado/clases de componentes con estilos heredados para soportar dark mode en `index.html`
-- [ ] T146 [US16] Verificar que `applyTheme()` y el arranque temprano mantienen `crm.theme` sin parpadeo visible en `src/main.js` e `index.html`
+- [ ] T144 [P] [US16] Reemplazar colores fijos por tokens/variables en superficies, formularios, badges y estados en `src/styles.css` (FR-074, FR-075)
+- [ ] T145 [US16] Ajustar marcado/clases de componentes con estilos heredados para soportar dark mode en `index.html` (FR-074, FR-075)
+- [ ] T146 [US16] Verificar que `applyTheme()` y el arranque temprano mantienen `crm.theme` sin parpadeo visible en `src/main.js` e `index.html` (FR-073, FR-074, SC-022)
 
 **Punto de control**: US16 funcional y verificable de forma independiente.
 
@@ -524,16 +524,15 @@
 
 ### Pruebas para la Historia de Usuario 17
 
-- [ ] T147 [P] [US17] AÃ±adir pruebas unitarias para normalizaciÃ³n/canonicalizaciÃ³n de oportunidades usadas por `getCRMOverview()` en `tests/unit/dashboard-metrics.test.js`
-- [ ] T148 [P] [US17] AÃ±adir prueba de integraciÃ³n DOM real que crea oportunidad por UI y verifica KPI del dashboard en `tests/integration/dashboard.test.js`
+- [ ] T147 [P] [US17] AÃ±adir pruebas unitarias para normalizaciÃ³n/canonicalizaciÃ³n de oportunidades usadas por `getCRMOverview()` en `tests/unit/dashboard-metrics.test.js` (FR-076, FR-077, SC-023)
+- [ ] T148 [P] [US17] AÃ±adir prueba de integraciÃ³n DOM real que crea oportunidad por UI y verifica KPI del dashboard en `tests/integration/dashboard.test.js` (FR-076, FR-077, SC-023)
 
 ### ImplementaciÃ³n de la Historia de Usuario 17
 
-- [ ] T149 [US17] Implementar adaptador canÃ³nico de oportunidades entre UI y overview en `src/storage.js`
-- [ ] T150 [US17] Actualizar alta/ediciÃ³n/eliminaciÃ³n de oportunidades para persistir en la fuente canÃ³nica consumida por `getCRMOverview()` en `src/app.js` y `src/storage.js`
-- [ ] T151 [US17] Recalcular y renderizar KPI desde `getCRMOverview()` al entrar al dashboard en `src/app.js`
-- [ ] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` sin divergencia en `src/storage.js`
-
+- [ ] T149 [US17] Implementar adaptador canÃ³nico de oportunidades entre UI y overview en `src/storage.js`; definir `crm_module:opportunities` como fuente canónica de KPIs y normalizar lectura/escritura desde ahí (FR-076, FR-077)
+- [ ] T150 [US17] Actualizar alta/ediciÃ³n/eliminaciÃ³n de oportunidades para persistir en la fuente canÃ³nica consumida por `getCRMOverview()` en `src/app.js` y `src/storage.js`; toda operación UI debe reflejarse en KPI en el siguiente render del dashboard (FR-076, FR-077, SC-023)
+- [ ] T151 [US17] Recalcular y renderizar KPI desde `getCRMOverview()` al entrar al dashboard en `src/app.js`, sin usar fuentes paralelas de métricas (FR-076, FR-077)
+- [ ] T152 [US17] Asegurar compatibilidad/migraciÃ³n de datos legacy `erp_base_module:documents` en `src/storage.js`: reconciliar en lectura/escritura hacia `crm_module:opportunities`, mantener idempotencia, definir precedencia clara y evitar doble verdad/divergencia de KPI (FR-076, FR-077, SC-023)
 **Punto de control**: US17 funcional y verificable de forma independiente.
 
 ---
@@ -546,14 +545,14 @@
 
 ### Pruebas para la Historia de Usuario 19
 
-- [ ] T153 [P] [US19] AÃ±adir pruebas de integraciÃ³n para diÃ¡logo de confirmaciÃ³n, cancelaciÃ³n, Escape y confirmaciÃ³n destructiva en `tests/integration/corrections-us16-us24.test.js`
-- [ ] T154 [P] [US19] AÃ±adir prueba de regresiÃ³n que prohÃ­be `window.confirm` en flujos de eliminaciÃ³n en `tests/unit/ui-contracts.test.js`
+- [ ] T153 [P] [US19] AÃ±adir pruebas de integraciÃ³n para diÃ¡logo de confirmaciÃ³n, cancelaciÃ³n, Escape y confirmaciÃ³n destructiva en `tests/integration/corrections-us16-us24.test.js` (FR-079, FR-080, SC-025)
+- [ ] T154 [P] [US19] AÃ±adir prueba de regresiÃ³n que prohÃ­be `window.confirm` en flujos de eliminaciÃ³n en `tests/unit/ui-contracts.test.js` (FR-079)
 
 ### ImplementaciÃ³n de la Historia de Usuario 19
 
-- [ ] T155 [US19] AÃ±adir marcado del diÃ¡logo de confirmaciÃ³n reutilizable con acciones cancelar/confirmar en `index.html`
-- [ ] T156 [US19] Reemplazar `confirm()` por diÃ¡logo modal accesible en flujos de eliminaciÃ³n de clientes y oportunidades en `src/app.js`
-- [ ] T157 [US19] Aplicar estilos de diÃ¡logo destructivo coherentes con tokens de tema en `src/styles.css`
+- [ ] T155 [US19] AÃ±adir marcado del diÃ¡logo de confirmaciÃ³n reutilizable con acciones cancelar/confirmar en `index.html` (FR-079, FR-080)
+- [ ] T156 [US19] Reemplazar `confirm()` por diÃ¡logo modal accesible en flujos de eliminaciÃ³n de clientes y oportunidades en `src/app.js` (FR-079, FR-080, SC-025)
+- [ ] T157 [US19] Aplicar estilos de diÃ¡logo destructivo coherentes con tokens de tema en `src/styles.css` (FR-074, FR-079)
 
 **Punto de control**: US19 funcional y verificable de forma independiente.
 
@@ -567,14 +566,14 @@
 
 ### Pruebas para la Historia de Usuario 18
 
-- [ ] T158 [P] [US18] AÃ±adir pruebas de integraciÃ³n para persistencia condicionada por `#login-remember` en `tests/integration/corrections-us16-us24.test.js`
-- [ ] T159 [P] [US18] AÃ±adir prueba de integraciÃ³n para logout limpiando `localStorage` y `sessionStorage` de auth en `tests/integration/ui-contracts.test.js`
+- [ ] T158 [P] [US18] AÃ±adir pruebas de integraciÃ³n para persistencia condicionada por `#login-remember` en `tests/integration/corrections-us16-us24.test.js` (FR-078, SC-024)
+- [ ] T159 [P] [US18] AÃ±adir prueba de integraciÃ³n para logout limpiando `localStorage` y `sessionStorage` de auth en `tests/integration/ui-contracts.test.js` (FR-078, SC-024)
 
 ### ImplementaciÃ³n de la Historia de Usuario 18
 
-- [ ] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js`
-- [ ] T161 [US18] Actualizar `isAuthenticated`, restauraciÃ³n de sesiÃ³n y logout para limpiar ambas ubicaciones en `src/main.js`
-- [ ] T162 [US18] Conectar el estado del checkbox `#login-remember` en el flujo de login en `index.html` y `src/main.js`
+- [ ] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js` (FR-078)
+- [ ] T161 [US18] Actualizar `isAuthenticated`, restauraciÃ³n de sesiÃ³n y logout para limpiar ambas ubicaciones en `src/main.js` (FR-078, SC-024)
+- [ ] T162 [US18] Conectar el estado del checkbox `#login-remember` en el flujo de login en `index.html` y `src/main.js` (FR-078)
 
 **Punto de control**: US18 funcional y verificable de forma independiente.
 
@@ -588,15 +587,15 @@
 
 ### Pruebas para la Historia de Usuario 20
 
-- [ ] T163 [P] [US20] AÃ±adir pruebas de integraciÃ³n para bÃºsqueda unificada de clientes y oportunidades en `tests/integration/search.test.js`
-- [ ] T164 [P] [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde resultado a vista/registro en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T163 [P] [US20] AÃ±adir pruebas de integraciÃ³n para bÃºsqueda unificada de clientes y oportunidades en `tests/integration/search.test.js` (FR-081, SC-026)
+- [ ] T164 [P] [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde resultado a vista/registro en `tests/integration/corrections-us16-us24.test.js` (FR-082, SC-026)
 
 ### ImplementaciÃ³n de la Historia de Usuario 20
 
-- [ ] T165 [US20] Implementar consulta unificada tipada de clientes y oportunidades en `src/storage.js`
-- [ ] T166 [US20] Renderizar resultados con tipo, etiqueta y detalle en `#search-results-list` en `src/app.js`
-- [ ] T167 [US20] Navegar al registro seleccionado y cargarlo en formulario/vista correspondiente en `src/app.js`
-- [ ] T168 [US20] Ajustar estilos de resultados tipados y estado vacÃ­o en `src/styles.css`
+- [ ] T165 [US20] Implementar consulta unificada tipada de clientes y oportunidades en `src/storage.js` (FR-081)
+- [ ] T166 [US20] Renderizar resultados con tipo, etiqueta y detalle en `#search-results-list` en `src/app.js` (FR-081, FR-082)
+- [ ] T167 [US20] Navegar al registro seleccionado y cargarlo en formulario/vista correspondiente en `src/app.js` (FR-082, SC-026)
+- [ ] T168 [US20] Ajustar estilos de resultados tipados y estado vacÃ­o en `src/styles.css` (FR-081, FR-075)
 
 **Punto de control**: US20 funcional y verificable de forma independiente.
 
@@ -610,15 +609,15 @@
 
 ### Pruebas para la Historia de Usuario 21
 
-- [ ] T169 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de clientes con acciones por fila en `tests/integration/entities.test.js`
-- [ ] T170 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de oportunidades con acciones por fila en `tests/integration/documents.test.js`
+- [ ] T169 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de clientes con acciones por fila en `tests/integration/entities.test.js` (FR-083, FR-084, SC-027)
+- [ ] T170 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de oportunidades con acciones por fila en `tests/integration/documents.test.js` (FR-083, FR-084, SC-027)
 
 ### ImplementaciÃ³n de la Historia de Usuario 21
 
-- [ ] T171 [P] [US21] AÃ±adir contenedores de listado/tablas en `#view-entities` y `#view-documents` en `index.html`
-- [ ] T172 [US21] Renderizar filas de clientes con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js`
-- [ ] T173 [US21] Renderizar filas de oportunidades con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js`
-- [ ] T174 [US21] AÃ±adir estilos responsivos y accesibles para listados escalables en `src/styles.css`
+- [ ] T171 [P] [US21] AÃ±adir contenedores de listado/tablas en `#view-entities` y `#view-documents` en `index.html` (FR-083)
+- [ ] T172 [US21] Renderizar filas de clientes con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js` (FR-083, FR-084, SC-027)
+- [ ] T173 [US21] Renderizar filas de oportunidades con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js` (FR-083, FR-084, SC-027)
+- [ ] T174 [US21] AÃ±adir estilos responsivos y accesibles para listados escalables en `src/styles.css` (FR-083, FR-075)
 
 **Punto de control**: US21 funcional y verificable de forma independiente.
 
@@ -632,14 +631,14 @@
 
 ### Pruebas para la Historia de Usuario 22
 
-- [ ] T175 [P] [US22] AÃ±adir pruebas de integraciÃ³n para persistencia y restauraciÃ³n de vista activa vÃ¡lida en `tests/integration/corrections-us16-us24.test.js`
-- [ ] T176 [P] [US22] AÃ±adir prueba de integraciÃ³n para fallback seguro ante vista invÃ¡lida y guardia de autenticaciÃ³n en `tests/integration/ui-contracts.test.js`
+- [ ] T175 [P] [US22] AÃ±adir pruebas de integraciÃ³n para persistencia y restauraciÃ³n de vista activa vÃ¡lida en `tests/integration/corrections-us16-us24.test.js` (FR-085, SC-028)
+- [ ] T176 [P] [US22] AÃ±adir prueba de integraciÃ³n para fallback seguro ante vista invÃ¡lida y guardia de autenticaciÃ³n en `tests/integration/ui-contracts.test.js` (FR-085, SC-028)
 
 ### ImplementaciÃ³n de la Historia de Usuario 22
 
-- [ ] T177 [US22] Persistir vista activa vÃ¡lida en `localStorage` al navegar en `src/app.js`
-- [ ] T178 [US22] Restaurar vista activa con whitelist y fallback a dashboard al iniciar sesiÃ³n/app en `src/app.js` y `src/main.js`
-- [ ] T179 [US22] Ignorar restauraciÃ³n de vista interna cuando no hay sesiÃ³n autenticada en `src/main.js`
+- [ ] T177 [US22] Persistir vista activa vÃ¡lida en `localStorage` al navegar en `src/app.js` (FR-085)
+- [ ] T178 [US22] Restaurar vista activa con whitelist y fallback a dashboard al iniciar sesiÃ³n/app en `src/app.js` y `src/main.js` (FR-085, SC-028)
+- [ ] T179 [US22] Ignorar restauraciÃ³n de vista interna cuando no hay sesiÃ³n autenticada en `src/main.js` (FR-085)
 
 **Punto de control**: US22 funcional y verificable de forma independiente.
 
@@ -653,14 +652,14 @@
 
 ### Pruebas para la Historia de Usuario 24
 
-- [ ] T180 [P] [US24] AÃ±adir pruebas unitarias para helper de formato/normalizaciÃ³n de moneda en `tests/unit/currency-format.test.js`
-- [ ] T181 [P] [US24] AÃ±adir prueba de integraciÃ³n para consistencia de moneda en dashboard, listados y formularios en `tests/integration/corrections-us16-us24.test.js`
+- [ ] T180 [P] [US24] AÃ±adir pruebas unitarias para helper de formato/normalizaciÃ³n de moneda en `tests/unit/currency-format.test.js` (FR-088, SC-030)
+- [ ] T181 [P] [US24] AÃ±adir prueba de integraciÃ³n para consistencia de moneda en dashboard, listados y formularios en `tests/integration/corrections-us16-us24.test.js` (FR-088, SC-030)
 
 ### ImplementaciÃ³n de la Historia de Usuario 24
 
-- [ ] T182 [US24] Implementar helper central de moneda/base CLP y normalizaciÃ³n MVP en `src/domain.js` o `src/app.js`
-- [ ] T183 [US24] Aplicar formato de moneda consistente en dashboard, listados y formularios en `src/app.js`
-- [ ] T184 [US24] Actualizar etiquetas/ayudas de moneda en `index.html` y estilos asociados en `src/styles.css`
+- [ ] T182 [US24] Implementar helper central de moneda/base CLP y normalizaciÃ³n MVP en `src/domain.js` o `src/app.js` (o helper dedicado consumido por `src/app.js`); centralizar formato/normalización para evitar lógica duplicada (FR-088, SC-030)
+- [ ] T183 [US24] Aplicar formato de moneda consistente en dashboard, listados y formularios en `src/app.js`; KPI agregados en CLP base con etiqueta clara, montos individuales con moneda del registro/normalizada, sin mezclar símbolos contradictorios (FR-088, SC-030)
+- [ ] T184 [US24] Actualizar etiquetas/ayudas de moneda en `index.html` y estilos asociados en `src/styles.css` para comunicar la regla de moneda base CLP y presentación consistente (FR-088, SC-030)
 
 **Punto de control**: US24 funcional y verificable de forma independiente.
 
@@ -670,10 +669,10 @@
 
 **PropÃ³sito**: VerificaciÃ³n final, regresiÃ³n, accesibilidad y documentaciÃ³n de correcciones.
 
-- [ ] T185 [P] Actualizar trazabilidad y notas de verificaciÃ³n en `specs/001-crm-module/quickstart.md`
-- [ ] T186 [P] Revisar consistencia final de contratos en `specs/001-crm-module/contracts/ui-contracts.md`, `specs/001-crm-module/contracts/crm-storage.md` y `specs/001-crm-module/contracts/dashboard-metrics.md`
-- [ ] T187 Ejecutar verificaciÃ³n automatizada `npm run test:run`, `npm run lint` y `npm run build` desde `package.json`
-- [ ] T188 Realizar validaciÃ³n manual de escenarios US16â€“US24 en `specs/001-crm-module/quickstart.md`
+- [ ] T185 [P] Actualizar trazabilidad y notas de verificaciÃ³n en `specs/001-crm-module/quickstart.md` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
+- [ ] T186 [P] Revisar consistencia final de contratos en `specs/001-crm-module/contracts/ui-contracts.md`, `specs/001-crm-module/contracts/crm-storage.md` y `specs/001-crm-module/contracts/dashboard-metrics.md` (FR-074, FR-075, FR-076, FR-077, FR-078, FR-079, FR-080, FR-081, FR-082, FR-083, FR-084, FR-085, FR-086, FR-087, FR-088)
+- [ ] T187 Ejecutar verificaciÃ³n automatizada `npm run test:run`, `npm run lint` y `npm run build` desde `package.json` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
+- [ ] T188 Realizar validaciÃ³n manual de escenarios US16â€“US24 en `specs/001-crm-module/quickstart.md` (SC-022, SC-023, SC-024, SC-025, SC-026, SC-027, SC-028, SC-029, SC-030)
 
 ---
 
