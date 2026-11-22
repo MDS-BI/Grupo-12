@@ -279,7 +279,7 @@
 | FR-012 | T012,T043,T045,T046,T047 | archive/restore clientes UI |
 | FR-013 | T004,T009,T026,T027,T030 | banner config visible + fallback |
 | FR-014 | T002,T044,T048 | `tests/integration/performance-dom.test.js` |
-| SC-001 | T011,T012,T018,T019,T043 | CRUD/archive/restore UI real |
+| SC-001 | T011,T012,T018,T019,T043 | CRUD/archive/restore UI real (Clientes, Empleados e Interacciones) |
 | SC-002 | T004,T025,T026,T028 | lifecycle + transiciones inválidas bloqueadas |
 | SC-003 | T031,T032,T035 | 360° <=3 interacciones, contexto preservado |
 | SC-004 | T037,T038,T040 | próximos cierres + integridad, vacíos claros |

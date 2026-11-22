@@ -157,11 +157,11 @@ Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen re
 - **FR-007**: El sistema DEBE mostrar feedback claro cuando una transición de etapa no es permitida y no persistir el cambio inválido.
 - **FR-008**: El sistema DEBE exponer una ficha cliente 360° accesible desde el listado de clientes, mostrando datos, oportunidades e interacciones relacionadas.
 - **FR-009**: El sistema DEBE permitir volver desde la ficha 360° al listado de clientes preservando el contexto visible observable: al accionar `#client-360-back` se restaura el valor de `#entity-list-filter`, el cliente/fila seleccionada (`#entity_id` o `data-selected`) y la vista `#view-entities` activa; esos datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío.
-- **FR-010**: El dashboard DEBE mostrar una sección visible "Próximos cierres" con oportunidades abiertas cuyo cierre esté dentro de la ventana operativa definida.
+- **FR-010**: El dashboard DEBE mostrar una sección visible "Próximos cierres" con oportunidades abiertas, no archivadas, con `closeDate` válida dentro de los próximos 30 días desde hoy.
 - **FR-011**: El sistema DEBE mostrar un reporte visible de integridad referencial al cargar datos cuando existan registros con referencias inexistentes.
 - **FR-012**: El sistema DEBE permitir archivar y restaurar clientes desde la UI real, excluyendo archivados de listas/selectores operativos por defecto.
 - **FR-013**: El sistema DEBE cargar configuración al arrancar con fallback seguro y mostrar banner visible cuando existan errores de configuración.
-- **FR-014**: El sistema DEBE mantener rendimiento utilizable en la ruta DOM real con 500 clientes y registros asociados en búsqueda/filtros/listados.
+- **FR-014**: El sistema DEBE mantener rendimiento utilizable en la ruta DOM real con 500 clientes y registros asociados en búsqueda/filtros/listados (ver SC-005).
 
 ### Key Entities *(include if feature involves data)*
 
@@ -175,7 +175,7 @@ Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen re
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% de las operaciones CRUD/archive/restore de Empleados e Interacciones son ejecutables desde la UI real sin usar consola.
+- **SC-001**: 100% de las operaciones CRUD/archive/restore de Clientes, Empleados e Interacciones son ejecutables desde la UI real sin usar consola.
 - **SC-002**: 100% de los cambios de etapa de oportunidad respetan `opportunityLifecycle`; transiciones inválidas son bloqueadas con mensaje visible.
 - **SC-003**: Un usuario puede abrir ficha 360° de un cliente y volver al listado en <= 3 interacciones, preservando contexto visible.
 - **SC-004**: Dashboard muestra "Próximos cierres" y el reporte de integridad referencial es visible cuando hay datos correspondientes; en estado vacío no hay falsos positivos.

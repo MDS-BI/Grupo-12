@@ -147,7 +147,7 @@ Artefactos: [data-model.md](data-model.md), [contracts/ui-dom.md](contracts/ui-d
 ## Contratos y no-doble-verdad
 
 - **KPIs 001 canónicos**: `getCRMOverview()`/`getCrmDashboardMetrics()` permanecen fuente canónica para tarjetas KPI existentes. Esta feature no recalcula ni persiste KPI alternativos.
-- **Nuevas claves propias**: `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees`, `crm.gaps002.ui.lastIntegrityReport` (solo cache de vista opcional, no canónica). 
+- **Nuevas claves propias**: `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees`. El reporte de integridad referencial se deriva en cada render/carga; no se persiste en localStorage. 
 - **Stores canónicas de dominio**: seguir usando `crm_customers`, `crm_employees`, `crm_opportunities`, `crm_interactions` a través de `src/storage.js`.
 - **Contratos DOM**: todos los IDs nuevos quedan en `contracts/ui-dom.md`; cualquier cambio requiere actualizar contrato y prueba.
 
