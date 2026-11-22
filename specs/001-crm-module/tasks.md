@@ -294,8 +294,8 @@
 
 > Escribir primero y confirmar que fallan antes de la implementación.
 
-- [x] T081 [P] [US11] Añadir pruebas de acceso dividido, visibilidad y errores en `tests/integration/ui-contracts.test.js`
-- [x] T082 [P] [US11] Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en `tests/unit/layout-contract.test.js`
+- [x] T081 [P] [US11] Añadir pruebas de acceso dividido, visibilidad y errores en `tests/integration/ui-contracts.test.js` (FR-048, FR-049, FR-050, FR-051)
+- [x] T082 [P] [US11] Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en `tests/unit/layout-contract.test.js` (FR-048)
 
 ### Implementación de la Historia de Usuario 11
 
@@ -321,9 +321,9 @@
 
 ### Implementación de la Historia de Usuario 12
 
-- [x] T089 [US12] Sustituir el SVG de `#menu-toggle` por el contrato de iconos y añadir `aria-hidden`, `focusable` y etiqueta dinámica en `index.html`
+- [x] T089 [US12] Sustituir el SVG de `#menu-toggle` por el contrato de iconos y añadir `aria-hidden`, `focusable` y etiqueta dinámica en `index.html` (FR-054, FR-055)
 - [x] T090 [US12] Implementar lectura/escritura de `sessionStorage['erp.sidebarCollapsed']`, sincronización de ARIA y cierre por Escape/clic fuera en `src/app.js`
-- [x] T091 [US12] Reemplazar `display: none` por la franja de 64 px y el overlay para ≤ 900 px en `src/styles.css`
+- [x] T091 [US12] Reemplazar `display: none` por la franja de 64 px y el overlay para ≤ 900 px en `src/styles.css` (FR-054, FR-055)
 - [x] T092 [US12] Eliminar la preferencia del menú al cerrar sesión en `src/main.js`
 
 **Punto de control**: US12 funciona de forma aislada y no altera US11.
@@ -339,16 +339,16 @@
 ### Pruebas para la Historia de Usuario 13
 
 - [x] T093 [P] [US13] Añadir pruebas unitarias de `computeConversionRate()` que cubran FR-058: `ganadas / (ganadas + perdidas)`, redondeo entero, `0 %` sin oportunidades cerradas, alias `etapa` y sin mutación en `tests/unit/conversion-rate.test.js` (FR-058)
-- [x] T094 [P] [US13] Añadir pruebas de banner, cuatro KPI y estado vacío en `tests/integration/ui-contracts.test.js`
+- [x] T094 [P] [US13] Añadir pruebas de banner, cuatro KPI y estado vacío en `tests/integration/ui-contracts.test.js` (FR-059)
 
 ### Implementación de la Historia de Usuario 13
 
 - [x] T095 [US13] Implementar `computeConversionRate(opportunities)` en `src/domain.js` según FR-058, con redondeo entero y `0` cuando no existan oportunidades cerradas (FR-058)
 - [x] T096 [US13] Añadir `#welcome-title` y las tarjetas `#stat-clients`, `#stat-opportunities`, `#stat-revenue` y `#stat-conversion` con sus etiquetas en `index.html`
-- [x] T097 [US13] Ampliar `updateDashboardStats()` para renderizar los cuatro KPI desde `getCRMOverview()` en `src/app.js`
+- [x] T097 [US13] Ampliar `updateDashboardStats()` para renderizar los cuatro KPI desde `getCRMOverview()` en `src/app.js` (FR-059)
 - [x] T098 [US13] Añadir `renderWelcomeBanner()` leyendo `AUTH_STORAGE_KEY` en `src/app.js`
 - [x] T099 [US13] Sincronizar el alta/edición de `#entity-form` con `addCustomer()`/`updateCustomer()` para FR-060 en `src/app.js`
-- [x] T100 [US13] Ajustar `.stats-grid` y `.welcome-banner` para 1366 × 768 sin desplazamiento vertical en `src/styles.css`
+- [x] T100 [US13] Ajustar `.stats-grid` y `.welcome-banner` para 1366 × 768 sin desplazamiento vertical en `src/styles.css` (FR-059)
 
 **Punto de control**: US13 es verificable de forma aislada y refleja datos vigentes.
 
@@ -362,13 +362,13 @@
 
 ### Pruebas para la Historia de Usuario 14
 
-- [x] T101 [P] [US14] Añadir pruebas de encabezados exactos, agrupación y errores uniformes en `tests/integration/ui-contracts.test.js`
+- [x] T101 [P] [US14] Añadir pruebas de encabezados exactos, agrupación y errores uniformes en `tests/integration/ui-contracts.test.js` (FR-062, FR-063)
 - [x] T102 [P] [US14] Añadir prueba estática de los literales `DATOS DEL CLIENTE` y `CONDICIONES COMERCIALES` en `tests/unit/form-headings.test.js`
 
 ### Implementación de la Historia de Usuario 14
 
 - [x] T103 [US14] Reestructurar `#entity-form` en dos `.form-section` con encabezados literales en mayúsculas en `index.html`
-- [x] T104 [US14] Migrar contacto al primer bloque y moneda/importe/plazos al segundo en `index.html`
+- [x] T104 [US14] Migrar contacto al primer bloque y moneda/importe/plazos al segundo en `index.html` (FR-062, FR-063)
 - [x] T105 [US14] Unificar redacción y ubicación de `.validation-error` en `src/app.js`
 - [x] T106 [US14] Igualar jerarquía, alineación y espaciado de `.form-section-title`, `.form-grid` y `.field` en `src/styles.css`
 
@@ -384,8 +384,8 @@
 
 ### Pruebas para la Historia de Usuario 15
 
-- [x] T107 [P] [US15] Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en `tests/integration/ui-contracts.test.js`
-- [x] T108 [P] [US15] Añadir prueba estática de declaración UTF-8 en `tests/unit/utf8-contract.test.js`
+- [x] T107 [P] [US15] Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en `tests/integration/ui-contracts.test.js` (FR-066)
+- [x] T108 [P] [US15] Añadir prueba estática de declaración UTF-8 en `tests/unit/utf8-contract.test.js` (FR-066)
 
 ### Implementación de la Historia de Usuario 15
 
@@ -686,6 +686,7 @@
 - **Fase 23 (Fundacional US16â€“US24)**: depende de la base existente; BLOQUEA US16â€“US24.
 - **Fases 24â€“32 (US16â€“US24)**: dependen de Fase 23; seguir orden recomendado por plan/prioridad.
 - **Fase 33 (Pulido)**: depende de completar las historias deseadas.
+- **Fase 34 (Alineación integridad FR-058/070/072/073)**: depende de Fase 23 y de las historias base relacionadas (US6, US8, US14, US16); puede ejecutarse en paralelo a Fase 33 si se coordinan archivos compartidos.
 
 ### Dependencias entre Historias de Usuario (US16â€“US24)
 
@@ -699,6 +700,15 @@
 - **US22 (P3)**: depende de Fase 23; coordina con navegaciÃ³n existente.
 - **US24 (P3)**: depende de Fase 23; coordina con US17/US21 para presentaciÃ³n de montos.
 
+
+
+### Dependencias Fase 34 (Integridad)
+
+- **T189 (US14, FR-070)**: independiente; puede ejecutarse en paralelo con T190/T192/T194.
+- **T190 → T191 (US8, FR-072)**: T190 primero (pruebas), T191 después (implementación) en `src/storage.js` y `src/app.js`.
+- **T192 → T193 (US6, FR-058)**: T192 primero (pruebas), T193 después (implementación) en `src/domain.js` y `src/storage.js`.
+- **T194 (US16, FR-073)**: independiente; puede ejecutarse en paralelo con T189/T190/T192.
+- Archivos compartidos: coordinar T191 y T193 si tocan `src/storage.js`; coordinar T191 con otras tareas que editen `src/app.js`.
 ### Dentro de Cada Historia
 
 - Pruebas (si se incluyen) â†’ asegurar que FALLAN antes de implementar.
@@ -749,6 +759,7 @@ Tarea: "T164 [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde 
 2. Completar Fase 24 (US23).
 3. Completar Fase 25 (US16) y Fase 26 (US17).
 4. **DETENER Y VALIDAR**: verificar accesibilidad base, tema oscuro y coherencia de dashboard.
+5. Completar Fase 34 (T189–T194) para cerrar hallazgos de integridad FR-058/070/072/073 antes de pulido final.
 
 ### Entrega Incremental
 
@@ -762,14 +773,12 @@ Tarea: "T164 [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde 
 8. US21 â†’ validar.
 9. US22 â†’ validar.
 10. US24 â†’ validar.
-11. Pulido final â†’ test/lint/build + validaciÃ³n manual.
+11. Fase 34 alineación integridad (T190→T191, T192→T193; T189/T194 independientes) → validar.
+12. Pulido final â†’ test/lint/build + validaciÃ³n manual.
 
 ### Estrategia de Equipo Paralelo
 
 Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C prepara US17 pruebas/almacenamiento. DespuÃ©s: US19 tras US23; US18 y US20/US21 en paralelo con coordinaciÃ³n de `src/app.js`; US22/US24 al final.
-
----
-
 
 ---
 
