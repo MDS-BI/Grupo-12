@@ -92,8 +92,9 @@ function bindAuthHandlers() {
       event.preventDefault();
       const username = document.getElementById('login-username')?.value ?? '';
       const password = document.getElementById('login-password')?.value ?? '';
+      const remember = document.getElementById('login-remember')?.checked === true;
       if (username === VALID_USER && password === VALID_PASSWORD) {
-        setAuthenticated();
+        setAuthenticated(remember);
         navigate('/inicio');
       } else {
         showLogin('Usuario o contraseña incorrectos.');

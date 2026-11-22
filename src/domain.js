@@ -19,11 +19,22 @@ export const INTERACTION_TYPES = ['Llamada', 'Correo', 'Reunión'];
 
 export const TERMINAL_STAGES = ['Ganado', 'Perdido'];
 
+export const VALID_OPPORTUNITY_STAGES = [...OPPORTUNITY_STAGES];
+
+export function getInvalidOpportunityStageCount(opportunities = []) {
+  const records = Array.isArray(opportunities) ? opportunities : [];
+  return records.filter((record) => {
+    const stage = record?.stage ?? record?.etapa;
+    return !VALID_OPPORTUNITY_STAGES.includes(stage);
+  }).length;
+}
+
 export function computeConversionRate(opportunities = []) {
   const records = Array.isArray(opportunities) ? opportunities : [];
   const stageOf = (record) => record?.stage ?? record?.etapa;
-  const won = records.filter((record) => stageOf(record) === 'Ganado').length;
-  const lost = records.filter((record) => stageOf(record) === 'Perdido').length;
+  const valid = records.filter((record) => VALID_OPPORTUNITY_STAGES.includes(stageOf(record)));
+  const won = valid.filter((record) => stageOf(record) === 'Ganado').length;
+  const lost = valid.filter((record) => stageOf(record) === 'Perdido').length;
   const closed = won + lost;
   return closed === 0 ? 0 : Math.round((won / closed) * 100);
 }

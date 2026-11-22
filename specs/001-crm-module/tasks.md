@@ -552,9 +552,9 @@
 - [ ] T154 [P] [US19] AÃ±adir prueba de regresiÃ³n que prohÃ­be `window.confirm` en flujos de eliminaciÃ³n en `tests/unit/ui-contracts.test.js` (FR-079, SC-025)
 ### ImplementaciÃ³n de la Historia de Usuario 19
 
-- [ ] T155 [US19] AÃ±adir marcado del diÃ¡logo de confirmaciÃ³n reutilizable con acciones cancelar/confirmar en `index.html` (FR-079, FR-080)
-- [ ] T156 [US19] Reemplazar `confirm()` por diÃ¡logo modal accesible en flujos de eliminaciÃ³n de clientes y oportunidades en `src/app.js` (FR-079, FR-080, SC-025)
-- [ ] T157 [US19] Aplicar estilos de diÃ¡logo destructivo coherentes con tokens de tema en `src/styles.css` (FR-074, FR-079)
+- [x] T155 [US19] AÃ±adir marcado del diÃ¡logo de confirmaciÃ³n reutilizable con acciones cancelar/confirmar en `index.html` (FR-079, FR-080)
+- [x] T156 [US19] Reemplazar `confirm()` por diÃ¡logo modal accesible en flujos de eliminaciÃ³n de clientes y oportunidades en `src/app.js` (FR-079, FR-080, SC-025)
+- [x] T157 [US19] Aplicar estilos de diÃ¡logo destructivo coherentes con tokens de tema en `src/styles.css` (FR-074, FR-079)
 
 **Punto de control**: US19 funcional y verificable de forma independiente.
 
@@ -573,9 +573,9 @@
 
 ### ImplementaciÃ³n de la Historia de Usuario 18
 
-- [ ] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js`; desmarcado = persistencia limitada a la sesión de navegador/pestaña actual (sin restaurar en nuevo contexto de navegador), marcado = persistencia en el mismo navegador/perfil (FR-078, SC-024)
-- [ ] T161 [US18] Actualizar `isAuthenticated`, restauraciÃ³n de sesiÃ³n y logout para limpiar ambas ubicaciones en `src/main.js` (FR-078, SC-024)
-- [ ] T162 [US18] Conectar el estado del checkbox `#login-remember` en el flujo de login en `index.html` y `src/main.js` (FR-078)
+- [x] T160 [US18] Implementar lectura/escritura de auth en `localStorage` o `sessionStorage` segÃºn `#login-remember` en `src/main.js`; desmarcado = persistencia limitada a la sesión de navegador/pestaña actual (sin restaurar en nuevo contexto de navegador), marcado = persistencia en el mismo navegador/perfil (FR-078, SC-024)
+- [x] T161 [US18] Actualizar `isAuthenticated`, restauraciÃ³n de sesiÃ³n y logout para limpiar ambas ubicaciones en `src/main.js` (FR-078, SC-024)
+- [x] T162 [US18] Conectar el estado del checkbox `#login-remember` en el flujo de login en `index.html` y `src/main.js` (FR-078)
 
 **Punto de control**: US18 funcional y verificable de forma independiente.
 
@@ -788,9 +788,9 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 
 - [ ] T189 [P] [US14] Añadir/actualizar prueba de integración que verifique criterio dirty de FR-070 (línea base al cargar/limpiar/guardar/descartar; disabled/readonly no cuentan) en `tests/integration/unsaved-changes.test.js` (FR-070)
 - [ ] T190 [P] [US8] Añadir pruebas de integración para FR-072 en `tests/integration/storage-recovery.test.js`: estado de bloqueo visible con mensaje y categoría afectada; acción primaria "Reiniciar datos afectados"; acciones dependientes deshabilitadas/ocultas; cancelar/ignorar mantiene bloqueo; fallo de escritura muestra error y control "Reintentar", no altera claves no afectadas ni marca recuperado; reintento exitoso limpia error, deja claves afectadas en `[]` y habilita UI; preserva sesión/tema/vista/sidebar (FR-072)
-- [ ] T191 [US8] Implementar validación de shape por categoría de clave y flujo observable de FR-072 en `src/storage.js` y `src/app.js`: bloqueo con mensaje/categoría afectada, acción "Reiniciar datos afectados", acciones dependientes deshabilitadas/ocultas; cancelar/ignorar mantiene bloqueo; fallo de escritura muestra "Reintentar" sin alterar claves no afectadas ni marcar recuperado; éxito escribe `[]` solo en claves afectadas, preserva sesión/tema/vista/sidebar y habilita UI en estado vacío controlado (FR-072)
+- [x] T191 [US8] Implementar validación de shape por categoría de clave y flujo observable de FR-072 en `src/storage.js` y `src/app.js`: bloqueo con mensaje/categoría afectada, acción "Reiniciar datos afectados", acciones dependientes deshabilitadas/ocultas; cancelar/ignorar mantiene bloqueo; fallo de escritura muestra "Reintentar" sin alterar claves no afectadas ni marcar recuperado; éxito escribe `[]` solo en claves afectadas, preserva sesión/tema/vista/sidebar y habilita UI en estado vacío controlado (FR-072)
 - [ ] T192 [P] [US6] Añadir prueba unitaria/integración para FR-058 en `tests/unit/dashboard-metrics.test.js` (y dashboard integration si aplica): etapas ausentes/nulas/inválidas excluidas de conversión; aviso no bloqueante visible `#dashboard-data-warning` (o equivalente) con cantidad afectada al renderizar dashboard; KPIs válidos se muestran normales; aviso oculto cuando no hay inconsistencias (FR-058)
-- [ ] T193 [US6] Ajustar `computeConversionRate()`/overview y UI de dashboard para FR-058 en `src/domain.js`, `src/storage.js` y `src/app.js`: excluir etapas ausentes/nulas/inválidas de conversión; exponer cantidad afectada; mostrar aviso no bloqueante `#dashboard-data-warning` (o equivalente) al renderizar/cargar dashboard y ocultarlo sin inconsistencias; KPIs válidos normales, sin bloqueo de navegación (FR-058)
+- [x] T193 [US6] Ajustar `computeConversionRate()`/overview y UI de dashboard para FR-058 en `src/domain.js`, `src/storage.js` y `src/app.js`: excluir etapas ausentes/nulas/inválidas de conversión; exponer cantidad afectada; mostrar aviso no bloqueante `#dashboard-data-warning` (o equivalente) al renderizar/cargar dashboard y ocultarlo sin inconsistencias; KPIs válidos normales, sin bloqueo de navegación (FR-058)
 - [ ] T194 [P] [US16] Añadir prueba de accesibilidad de teclado/etiqueta/valor actual para `#theme-select` en `tests/integration/theme.test.js` (FR-073)
 
 

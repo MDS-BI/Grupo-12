@@ -167,13 +167,18 @@
       <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
       <main class="content-area">
-        <div id="storage-error" class="storage-error" role="alert" hidden>
+        <div id="storage-error" class="storage-error" role="alert" aria-live="assertive" hidden>
           <strong>Error de datos del CRM</strong>
           <p id="storage-error-message"></p>
-          <button id="storage-reset" type="button">Reiniciar datos corruptos</button>
+          <p id="storage-error-detail" class="storage-error-detail" hidden></p>
+          <div class="storage-error-actions">
+            <button id="storage-reset" type="button">Reiniciar datos afectados</button>
+            <button id="storage-retry" type="button" hidden>Reintentar</button>
+          </div>
         </div>
         <section id="view-dashboard" class="view">
           <h1 id="dashboard-heading">CRM Pro</h1>
+          <div id="dashboard-data-warning" class="dashboard-data-warning" role="status" aria-live="polite" hidden></div>
 
           <div class="welcome-banner" aria-label="Bienvenida">
             <div class="welcome-content">
@@ -507,6 +512,17 @@
           <div class="confirm-dialog-actions">
             <button id="unsaved-stay" type="button">Permanecer</button>
             <button id="unsaved-discard" type="button" class="danger">Descartar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="delete-confirm-dialog" class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-message" hidden>
+        <div class="confirm-dialog-card" tabindex="-1">
+          <h2 id="delete-confirm-title">Confirmar eliminación</h2>
+          <p id="delete-confirm-message">¿Deseas eliminar este registro?</p>
+          <div class="confirm-dialog-actions">
+            <button id="delete-confirm-cancel" type="button">Cancelar</button>
+            <button id="delete-confirm-accept" type="button" class="danger">Eliminar</button>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { BASE_FIELDS, getConfig, getVisibleCustomFields } from './module-config.js';
+import { getInvalidOpportunityStageCount, VALID_OPPORTUNITY_STAGES } from './domain.js';
 
 const STORE_KEYS = {
   entities: 'erp_base_module:entities',
@@ -1034,7 +1035,12 @@ export function getCRMOverview() {
   const employeeCount = loadEmployees().filter((record) => !record.archived).length;
 
   const activeCustomers = customers.filter((customer) => customer.status === 'Activo').length;
-  const openOpportunities = opportunities.filter((opportunity) => !['Ganado', 'Perdido'].includes(opportunity.stage || 'Evaluación'));
+  const validStages = new Set(VALID_OPPORTUNITY_STAGES);
+  const invalidOpportunityStageCount = getInvalidOpportunityStageCount(opportunities);
+  const openOpportunities = opportunities.filter((opportunity) => {
+    const stage = opportunity.stage || 'Evaluación';
+    return validStages.has(stage) && !['Ganado', 'Perdido'].includes(stage);
+  });
   const totalPipeline = openOpportunities.reduce((sum, opportunity) => sum + (Number(opportunity.amount) || 0), 0);
 
   const today = new Date();
@@ -1054,6 +1060,7 @@ export function getCRMOverview() {
     totalPipeline,
     upcomingClosures,
     upcomingCloses: upcomingClosures,
+    invalidOpportunityStageCount,
     customers,
     opportunities,
     employees: loadEmployees().filter((record) => !record.archived)
@@ -1114,6 +1121,15 @@ function hasValidCRMShape(name, value) {
   });
 }
 
+const COMPATIBILITY_KEYS = Object.freeze({
+  entities: STORE_KEYS.entities,
+  documents: STORE_KEYS.documents
+});
+
+function hasValidCompatibilityShape(value) {
+  return Array.isArray(value) && value.every((entry) => entry && typeof entry === 'object' && !Array.isArray(entry));
+}
+
 // FR-072: una clave ausente es estado vacío; JSON inválido o forma incorrecta
 // es un error que debe mostrarse sin sobrescribir los datos automáticamente.
 export function getCRMStorageErrors() {
@@ -1125,22 +1141,49 @@ export function getCRMStorageErrors() {
     try {
       parsed = JSON.parse(raw);
     } catch {
-      errors.push({ key, reason: 'JSON inválido' });
+      errors.push({ key, category: 'crm', reason: 'JSON inválido' });
       continue;
     }
     if (!hasValidCRMShape(name, parsed)) {
-      errors.push({ key, reason: 'Forma de datos incorrecta' });
+      errors.push({ key, category: 'crm', reason: 'Forma de datos incorrecta' });
+    }
+  }
+  for (const [name, key] of Object.entries(COMPATIBILITY_KEYS)) {
+    const raw = globalThis.localStorage?.getItem?.(key);
+    if (raw === null || raw === undefined || raw === '') continue;
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      errors.push({ key, category: 'compatibility', name, reason: 'JSON inválido' });
+      continue;
+    }
+    if (!hasValidCompatibilityShape(parsed)) {
+      errors.push({ key, category: 'compatibility', name, reason: 'Forma de datos incorrecta' });
     }
   }
   return errors;
 }
 
-export function resetCorruptedCRMStorage() {
-  for (const key of Object.values(CRM_KEYS)) writeCRMStorage(key, []);
+export function resetCorruptedCRMStorage(errors = getCRMStorageErrors()) {
+  const source = Array.isArray(errors) && errors.length > 0 ? errors : getCRMStorageErrors();
+  const targetKeys = new Set();
+  const hasCRM = source.some((e) => e.category === 'crm' || String(e.key || '').startsWith('crm_module:'));
+  const hasCompat = source.some((e) => e.category === 'compatibility' || e.key === STORE_KEYS.entities || e.key === STORE_KEYS.documents);
+  if (hasCRM) Object.values(CRM_KEYS).forEach((k) => targetKeys.add(k));
+  if (hasCompat) {
+    source.filter((e) => e.category === 'compatibility' || e.key === STORE_KEYS.entities || e.key === STORE_KEYS.documents).forEach((e) => targetKeys.add(e.key));
+  }
+  if (!hasCRM && !hasCompat) source.forEach((e) => e?.key && targetKeys.add(e.key));
+  const uniqueKeys = [...targetKeys].filter(Boolean);
+  for (const key of uniqueKeys) {
+    globalThis.localStorage?.setItem?.(key, JSON.stringify([]));
+  }
+  return { resetKeys: uniqueKeys };
 }
 
 export function clearCRMData() {
-  resetCorruptedCRMStorage();
+  resetCorruptedCRMStorage(Object.values(CRM_KEYS).map((key) => ({ key })));
 }
 
 export const customerStatuses = CRM_DEFAULTS.customerStatuses;

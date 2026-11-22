@@ -101,6 +101,44 @@ function hideUnsavedDialog({ restoreFocus = false } = {}) {
   closeAccessibleDialog(dialog, { restoreFocus });
 }
 
+let pendingDeleteAction = null;
+
+function openDeleteConfirmDialog({ title, message, confirmLabel = 'Eliminar', opener, onConfirm }) {
+  const dialog = qs('delete-confirm-dialog');
+  if (!dialog) {
+    const ok = typeof globalThis.confirm === 'function' ? globalThis.confirm(message || title || '¿Eliminar?') : true;
+    if (ok) onConfirm?.();
+    return;
+  }
+  const titleNode = qs('delete-confirm-title');
+  const messageNode = qs('delete-confirm-message');
+  const accept = qs('delete-confirm-accept');
+  if (titleNode) titleNode.textContent = title || 'Confirmar eliminación';
+  if (messageNode) messageNode.textContent = message || '¿Deseas eliminar este registro?';
+  if (accept) accept.textContent = confirmLabel;
+  pendingDeleteAction = onConfirm || null;
+  bindDialogAccessibility(dialog);
+  const cancel = qs('delete-confirm-cancel');
+  const acceptBtn = qs('delete-confirm-accept');
+  if (cancel && !cancel.dataset.bound) {
+    cancel.addEventListener('click', () => {
+      pendingDeleteAction = null;
+      closeAccessibleDialog(dialog, { restoreFocus: true });
+    });
+    cancel.dataset.bound = 'true';
+  }
+  if (acceptBtn && !acceptBtn.dataset.bound) {
+    acceptBtn.addEventListener('click', () => {
+      const action = pendingDeleteAction;
+      pendingDeleteAction = null;
+      closeAccessibleDialog(dialog, { restoreFocus: true });
+      action?.();
+    });
+    acceptBtn.dataset.bound = 'true';
+  }
+  openAccessibleDialog(dialog, opener);
+}
+
 function runNavigation(name, onNavigate) {
   showView(name);
   if (typeof onNavigate === 'function') onNavigate();
@@ -155,33 +193,110 @@ function bindUnsavedDialog() {
   }
 }
 
+let lastStorageRecoveryError = null;
+
+function storageErrorCategory(errors = []) {
+  const hasCRM = errors.some((e) => e.category === 'crm' || String(e.key || '').startsWith('crm_module:'));
+  const hasCompat = errors.some((e) => e.category === 'compatibility' || e.key === 'erp_base_module:entities' || e.key === 'erp_base_module:documents');
+  if (hasCRM && hasCompat) return 'datos CRM y de compatibilidad';
+  if (hasCompat) return 'datos de compatibilidad';
+  return 'datos CRM';
+}
+
+function setOperationalBlocked(blocked) {
+  const main = document.querySelector('main.content-area');
+  if (main) {
+    main.querySelectorAll('section.view, .quick-actions, .stats-grid, .welcome-banner').forEach((el) => {
+      if (el.id === 'storage-error') return;
+      el.style.display = blocked ? 'none' : '';
+    });
+  }
+  document.querySelectorAll('.nav-module, #logout-button, #theme-select, #menu-toggle, #action-new-entity, #action-open-entities, #action-new-document, #action-find').forEach((el) => {
+    if (blocked) {
+      el.setAttribute('disabled', 'true');
+      el.setAttribute('aria-disabled', 'true');
+    } else {
+      el.removeAttribute('disabled');
+      el.removeAttribute('aria-disabled');
+    }
+  });
+}
+
 function renderStorageErrors() {
   const panel = qs('storage-error');
   if (!panel) return;
   const errors = getCRMStorageErrors();
-  panel.hidden = errors.length === 0;
-  if (errors.length) {
-    const message = qs('storage-error-message');
-    if (message) {
-      message.textContent = `No se pudieron leer los datos del CRM (${errors.map((error) => error.key).join(', ')}). Reinicia esas claves para continuar.`;
+  const hasErrors = errors.length > 0 || !!lastStorageRecoveryError;
+  panel.hidden = !hasErrors;
+  const message = qs('storage-error-message');
+  const detail = qs('storage-error-detail');
+  const resetButton = qs('storage-reset');
+  const retryButton = qs('storage-retry');
+  if (!hasErrors) {
+    if (detail) { detail.hidden = true; detail.textContent = ''; }
+    if (retryButton) retryButton.hidden = true;
+    if (resetButton) resetButton.hidden = false;
+    setOperationalBlocked(false);
+    return;
+  }
+  const category = storageErrorCategory(errors);
+  if (message) {
+    message.textContent = `Se detectó un problema en ${category} (${errors.map((error) => error.key).join(', ')}). La aplicación está bloqueada hasta que reinicies los datos afectados.`;
+  }
+  if (detail) {
+    detail.hidden = !lastStorageRecoveryError;
+    detail.textContent = lastStorageRecoveryError ? `No se pudo completar el reinicio: ${lastStorageRecoveryError}. Puedes reintentar.` : '';
+  }
+  if (retryButton) retryButton.hidden = !lastStorageRecoveryError;
+  if (resetButton) resetButton.hidden = false;
+  setOperationalBlocked(true);
+}
+
+function initializeOperationalState() {
+  attachStatusOptions();
+  updateEntitySelect();
+  updateDocumentSelect();
+  populateEntityDropdown();
+  updateEntityFieldOptions();
+  updateDocumentFieldOptions();
+  updateDashboardStats();
+  renderSearchResults();
+  showView('dashboard');
+  markAllFormsClean();
+}
+
+async function attemptStorageRecovery() {
+  const errors = getCRMStorageErrors();
+  if (!errors.length) { lastStorageRecoveryError = null; renderStorageErrors(); return; }
+  try {
+    resetCorruptedCRMStorage(errors);
+    const remaining = getCRMStorageErrors();
+    if (remaining.length > 0) {
+      const failed = remaining.map((e) => e.key).join(', ');
+      lastStorageRecoveryError = `quedaron claves afectadas: ${failed}`;
+      renderStorageErrors();
+      return;
     }
+    lastStorageRecoveryError = null;
+    renderStorageErrors();
+    initializeOperationalState();
+  } catch (error) {
+    lastStorageRecoveryError = error?.message || 'error desconocido';
+    renderStorageErrors();
   }
 }
 
 function bindStorageReset() {
   const button = qs('storage-reset');
-  if (!button || button.dataset.bound) return;
-  button.addEventListener('click', () => {
-    resetCorruptedCRMStorage();
-    renderStorageErrors();
-    updateDashboardStats();
-    updateEntitySelect();
-    updateDocumentSelect();
-    populateEntityDropdown();
-    renderSearchResults();
-    markAllFormsClean();
-  });
-  button.dataset.bound = 'true';
+  const retry = qs('storage-retry');
+  if (button && !button.dataset.bound) {
+    button.addEventListener('click', () => { void attemptStorageRecovery(); });
+    button.dataset.bound = 'true';
+  }
+  if (retry && !retry.dataset.bound) {
+    retry.addEventListener('click', () => { void attemptStorageRecovery(); });
+    retry.dataset.bound = 'true';
+  }
 }
 
 const RUT_LENGTH_ERROR = 'El Rut debe tener entre 8 y 9 dígitos.';
@@ -422,7 +537,9 @@ function formatCurrency(value) {
 function renderWelcomeBanner() {
   const node = qs('welcome-title');
   if (!node) return;
-  const user = localStorage.getItem(AUTH_STORAGE_KEY) || 'Cliente1';
+  const user = localStorage.getItem(AUTH_STORAGE_KEY)
+    || sessionStorage.getItem(AUTH_STORAGE_KEY)
+    || 'Cliente1';
   node.textContent = `Bienvenido, ${user}`;
 }
 
@@ -438,6 +555,15 @@ function updateDashboardStats() {
   for (const [id, value] of Object.entries(values)) {
     const node = qs(id);
     if (node) node.textContent = value;
+  }
+
+  const warning = qs('dashboard-data-warning');
+  if (warning) {
+    const count = Number(overview.invalidOpportunityStageCount) || 0;
+    warning.hidden = count <= 0;
+    warning.textContent = count > 0
+      ? `Se detectaron ${count} oportunidad(es) con etapa ausente, nula o inválida. Fueron excluidas de la tasa de conversión.`
+      : '';
   }
 }
 
@@ -1098,31 +1224,7 @@ function bindSidebarControls() {
   menuToggle.dataset.bound = 'true';
 }
 
-async function boot() {
-  const current = getConfig();
-  const normalized = current && typeof current === 'object' && !Array.isArray(current)
-    ? current
-    : normalizeConfig(null).config;
-  setActiveConfig(normalized);
-  renderStorageErrors();
-  renderBranding();
-  renderWelcomeBanner();
-  renderModuleLabels();
-  attachStatusOptions();
-  updateEntitySelect();
-  updateDocumentSelect();
-  populateEntityDropdown();
-  updateEntityFieldOptions();
-  updateDocumentFieldOptions();
-  updateDashboardStats();
-  renderSearchResults();
-  showView('dashboard');
-  markAllFormsClean();
-
-  bindSidebarControls();
-  bindUnsavedDialog();
-  bindStorageReset();
-
+function bindOperationalHandlers() {
   const entityForm = qs('entity-form');
   if (entityForm && !entityForm.dataset.bound) {
     entityForm.addEventListener('submit', (event) => handleEntitySubmit(event));
@@ -1141,35 +1243,28 @@ async function boot() {
 
   const navButtons = document.querySelectorAll('.nav-module');
   navButtons.forEach((button) => {
+    if (button.dataset.bound) return;
     button.addEventListener('click', () => navigateTo(button.dataset.module));
+    button.dataset.bound = 'true';
   });
 
   const dashboardActions = [
     ['action-new-entity', 'entities', 'name'],
     ['action-new-document', 'documents', 'document-entity'],
     ['action-find', 'search', 'search-input'],
-    ['action-open-entities', 'entities', 'name'],
-    ['action-open-documents', 'documents', 'document-entity']
+    ['action-open-entities', 'entities']
   ];
 
-  for (const [buttonId, target, focusId] of dashboardActions) {
-    const button = qs(buttonId);
-    if (!button) continue;
-    button.addEventListener('click', () => navigateTo(target, () => {
-      if (target === 'entities') resetEntityForm();
-      if (target === 'documents') resetDocumentForm();
-      const focusTarget = qs(focusId);
-      if (focusTarget && document.contains(focusTarget)) {
-        focusTarget.focus();
-      }
-    }));
-  }
-
-  const documentSubmitButton = qs('document-submit-button') || qs('submit-document-button');
-  if (documentSubmitButton && !documentSubmitButton.dataset.labelBound) {
-    documentSubmitButton.textContent = 'Guardar';
-    documentSubmitButton.dataset.labelBound = 'true';
-  }
+  dashboardActions.forEach(([id, viewName, focusId]) => {
+    const button = qs(id);
+    if (!button || button.dataset.bound) return;
+    button.addEventListener('click', () => {
+      navigateTo(viewName, () => {
+        if (focusId) qs(focusId)?.focus();
+      });
+    });
+    button.dataset.bound = 'true';
+  });
 
   const entitySelect = qs('edit-entity');
   if (entitySelect && !entitySelect.dataset.bound) {
@@ -1206,19 +1301,49 @@ async function boot() {
     searchInput.addEventListener('input', renderSearchResults);
     searchInput.dataset.bound = 'true';
   }
+}
+
+async function boot() {
+  const current = getConfig();
+  const normalized = current && typeof current === 'object' && !Array.isArray(current)
+    ? current
+    : normalizeConfig(null).config;
+  setActiveConfig(normalized);
+  renderBranding();
+  renderWelcomeBanner();
+  renderModuleLabels();
+  bindSidebarControls();
+  bindUnsavedDialog();
+  bindStorageReset();
+  bindOperationalHandlers();
+
+  if (getCRMStorageErrors().length > 0) {
+    renderStorageErrors();
+    return;
+  }
+
+  renderStorageErrors();
+  initializeOperationalState();
+
 
   const entityDelete = qs('delete-entity');
   if (entityDelete && !entityDelete.dataset.bound) {
     entityDelete.addEventListener('click', () => {
       const selectedId = qs('entity-id')?.value;
       if (!selectedId) return;
-      const confirmDelete = typeof globalThis.confirm === 'function' ? globalThis.confirm('¿Eliminar la entidad seleccionada?') : true;
-      if (confirmDelete) {
-        deleteEntity(selectedId);
-        updateEntitySelect();
-        resetEntityForm();
-        updateDashboardStats();
-      }
+      openDeleteConfirmDialog({
+        title: 'Confirmar eliminación',
+        message: '¿Deseas eliminar el cliente seleccionado? Esta acción no se puede deshacer.',
+        confirmLabel: 'Eliminar',
+        opener: entityDelete,
+        onConfirm: () => {
+          deleteEntity(selectedId);
+          updateEntitySelect();
+          resetEntityForm();
+          updateDashboardStats();
+          renderSearchResults();
+        }
+      });
     });
     entityDelete.dataset.bound = 'true';
   }
@@ -1228,13 +1353,19 @@ async function boot() {
     documentDelete.addEventListener('click', () => {
       const selectedId = qs('document-id')?.value;
       if (!selectedId) return;
-      const confirmDelete = typeof globalThis.confirm === 'function' ? globalThis.confirm('¿Eliminar el documento seleccionado?') : true;
-      if (confirmDelete) {
-        deleteDocument(selectedId);
-        updateDocumentSelect();
-        resetDocumentForm();
-        updateDashboardStats();
-      }
+      openDeleteConfirmDialog({
+        title: 'Confirmar eliminación',
+        message: '¿Deseas eliminar la oportunidad seleccionada? Esta acción no se puede deshacer.',
+        confirmLabel: 'Eliminar',
+        opener: documentDelete,
+        onConfirm: () => {
+          deleteDocument(selectedId);
+          updateDocumentSelect();
+          resetDocumentForm();
+          updateDashboardStats();
+          renderSearchResults();
+        }
+      });
     });
     documentDelete.dataset.bound = 'true';
   }
