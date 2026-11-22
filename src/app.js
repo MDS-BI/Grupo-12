@@ -15,6 +15,9 @@ const formBaselines = new WeakMap();
 function qs(id) {
   return document.getElementById(id);
 }
+function sanitizeText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
 function escapeHTML(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -669,9 +672,14 @@ function renderEntityList() {
   const tbody = qs('entity-list');
   const empty = qs('entity-list-empty');
   if (!tbody) return;
-  const entities = loadEntities();
+  const filter = sanitizeText(qs('entity-list-filter')?.value || '').toLowerCase();
+  const entities = loadEntities().filter((entity) => !filter || [entity.name, entity.code, entity.email, entity.phone, entity.taxId]
+    .some((v) => String(v || '').toLowerCase().includes(filter)));
   tbody.replaceChildren();
-  if (empty) empty.hidden = entities.length > 0;
+  if (empty) {
+    empty.hidden = entities.length > 0;
+    empty.textContent = loadEntities().length === 0 ? 'No hay clientes registrados.' : 'No hay clientes que coincidan con el filtro.';
+  }
   for (const entity of entities) {
     const tr = document.createElement('tr');
     tr.dataset.entityId = entity.id;
@@ -707,9 +715,14 @@ function renderDocumentList() {
   const tbody = qs('document-list');
   const empty = qs('document-list-empty');
   if (!tbody) return;
-  const docs = loadDocuments();
+  const filter = sanitizeText(qs('document-list-filter')?.value || '').toLowerCase();
+  const docs = loadDocuments().filter((doc) => !filter || [doc.entityName, doc.series, doc.folio, doc.status, doc.totalAmount, doc.currency, [doc.series, doc.folio].filter(Boolean).join('-')]
+    .some((v) => String(v ?? '').toLowerCase().includes(filter)));
   tbody.replaceChildren();
-  if (empty) empty.hidden = docs.length > 0;
+  if (empty) {
+    empty.hidden = docs.length > 0;
+    empty.textContent = loadDocuments().length === 0 ? 'No hay oportunidades registradas.' : 'No hay oportunidades que coincidan con el filtro.';
+  }
   for (const doc of docs) {
     const tr = document.createElement('tr');
     tr.dataset.documentId = doc.id;
@@ -1024,19 +1037,22 @@ function renderSearchResults() {
 
 function navigateToSearchResult(result) {
   if (!result) return;
-  if (result.type === 'client') {
-    showView('entities');
-    const entity = loadEntities().find((e) => e.id === result.id || e.entity_id === result.id);
-    if (entity) fillEntityForm(entity);
-    const select = qs('edit-entity');
-    if (select) select.value = entity?.id || result.id;
-  } else if (result.type === 'opportunity') {
-    showView('documents');
-    const doc = loadDocuments().find((d) => d.id === result.id);
-    if (doc) fillDocumentForm(doc);
-    const select = qs('edit-document');
-    if (select) select.value = doc?.id || result.id;
-  }
+  const go = () => {
+    if (result.type === 'client') {
+      const entity = loadEntities().find((e) => e.id === result.id || e.entity_id === result.id);
+      if (entity) fillEntityForm(entity);
+      const select = qs('edit-entity');
+      if (select) select.value = entity?.id || result.id;
+    } else if (result.type === 'opportunity') {
+      const doc = loadDocuments().find((d) => d.id === result.id);
+      if (doc) fillDocumentForm(doc);
+      const select = qs('edit-document');
+      if (select) select.value = doc?.id || result.id;
+    }
+  };
+  const view = result.type === 'client' ? 'entities' : result.type === 'opportunity' ? 'documents' : null;
+  if (!view) return;
+  navigateTo(view, go);
 }
 
 function attachStatusOptions(currentStatus = '') {
@@ -1405,6 +1421,17 @@ function bindOperationalHandlers() {
   if (searchInput && !searchInput.dataset.bound) {
     searchInput.addEventListener('input', renderSearchResults);
     searchInput.dataset.bound = 'true';
+  }
+
+  const entityFilter = qs('entity-list-filter');
+  if (entityFilter && !entityFilter.dataset.bound) {
+    entityFilter.addEventListener('input', renderEntityList);
+    entityFilter.dataset.bound = 'true';
+  }
+  const documentFilter = qs('document-list-filter');
+  if (documentFilter && !documentFilter.dataset.bound) {
+    documentFilter.addEventListener('input', renderDocumentList);
+    documentFilter.dataset.bound = 'true';
   }
 }
 

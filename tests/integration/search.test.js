@@ -38,6 +38,34 @@ describe('US20 - Búsqueda unificada', () => {
     expect(oppOnly[0].dataset.searchType).toBe('opportunity');
   });
 
+  it('T196: navegar desde resultado respeta guard de cambios sin guardar (FR-070)', async () => {
+    seed();
+    await bootApp();
+    document.querySelector('#nav-entities').click();
+    document.querySelector('#name').value = 'Cambio sucio';
+    document.querySelector('#name').dispatchEvent(new Event('input', { bubbles: true }));
+
+    document.querySelector('#nav-search').click();
+    const input = document.querySelector('#search-input');
+    input.value = 'Acme';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    const clientBtn = document.querySelector('#search-results-list [data-search-type="client"] button, #search-results-list button[data-search-type="client"]');
+    expect(clientBtn).toBeTruthy();
+    clientBtn.click();
+
+    const unsaved = document.querySelector('#unsaved-dialog');
+    expect(unsaved.hidden).toBe(false);
+    document.querySelector('#unsaved-stay').click();
+    expect(document.querySelector('#view-search').hidden).toBe(false);
+    expect(document.querySelector('#name').value).toBe('Cambio sucio');
+
+    // discard then navigate
+    clientBtn.click();
+    document.querySelector('#unsaved-discard').click();
+    expect(document.querySelector('#view-entities').hidden).toBe(false);
+    expect(document.querySelector('#name').value).toBe('Acme');
+  });
+
   it('T163: muestra estado vacío claro cuando no hay coincidencias', async () => {
     seed();
     await bootApp();
