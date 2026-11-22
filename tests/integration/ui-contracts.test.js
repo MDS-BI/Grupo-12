@@ -56,7 +56,7 @@ describe('US1 - acceso dividido', () => {
     document.querySelector('#login-password').value = '1234';
     document.querySelector('#login-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser') === 'Cliente1' || sessionStorage.getItem('erp.authenticatedUser') === 'Cliente1').toBe(true);
     expect(document.querySelector('#app-shell').hidden).toBe(false);
   });
 });
@@ -166,5 +166,61 @@ describe('US5 - UTF-8 limpio', () => {
     expect(saved).toBeTruthy();
     expect(saved.currency).toBe('€');
     expect(document.body.textContent).not.toContain('\uFFFD');
+  });
+});
+
+describe('US19/US18 - contratos de regresión', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it('T154: flujos de eliminación no usan window.confirm', async () => {
+    const originalConfirm = window.confirm;
+    const confirmSpy = vi.fn(() => true);
+    window.confirm = confirmSpy;
+    try {
+      mountLiveDom();
+      localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+      await boot();
+      const { addEntity } = await import('../../src/storage.js');
+      const entity = addEntity({ name: 'SinConfirm SA', code: 'SC-1', email: 'sinconfirm@sa.cl', phone: '912345678', creditLimit: 1000 });
+      mountLiveDom();
+      localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+      await boot();
+      document.querySelector('#nav-entities').click();
+      const select = document.querySelector('#edit-entity');
+      select.value = entity.id;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('#delete-entity').click();
+      expect(confirmSpy).not.toHaveBeenCalled();
+      const dialog = document.querySelector('#delete-confirm-dialog');
+      expect(dialog).toBeTruthy();
+      expect(dialog.hidden).toBe(false);
+    } finally {
+      window.confirm = originalConfirm;
+    }
+  });
+
+  it('T159: logout limpia auth de localStorage y sessionStorage', async () => {
+    localStorage.clear(); sessionStorage.clear();
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    sessionStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/inicio');
+    await import('../../src/main.js');
+    const tick = () => new Promise((r) => setTimeout(r, 30));
+    const waitFor = async (fn, tries = 40) => {
+      for (let i = 0; i < tries; i++) { if (fn()) return true; await tick(); }
+      return fn();
+    };
+    await waitFor(() => document.querySelector('#app-shell')?.hidden === false);
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    sessionStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    document.querySelector('#logout-button').click();
+    await waitFor(() => !localStorage.getItem('erp.authenticatedUser') && !sessionStorage.getItem('erp.authenticatedUser'));
+    expect(localStorage.getItem('erp.authenticatedUser')).toBeNull();
+    expect(sessionStorage.getItem('erp.authenticatedUser')).toBeNull();
   });
 });

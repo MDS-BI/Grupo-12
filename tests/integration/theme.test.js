@@ -64,4 +64,26 @@ describe('FR-073 / SC-021 - selector de tema Claro/Oscuro', () => {
       expect(document.querySelector(sel)).toBeTruthy();
     }
   });
-});
+
+
+  it('T194/FR-073: #theme-select es accesible por teclado, tiene etiqueta y refleja valor actual', async () => {
+    localStorage.setItem(THEME_STORAGE_KEY, 'Oscuro');
+    mountLiveDom();
+    vi.resetModules();
+    await import('../../src/main.js');
+
+    const selector = document.querySelector('#theme-select');
+    const label = document.querySelector('label[for="theme-select"]');
+    expect(label).toBeTruthy();
+    expect(label.textContent.toLowerCase()).toContain('tema');
+    expect(selector.getAttribute('aria-label') || label.textContent).toMatch(/tema/i);
+    expect(selector.value).toBe('Oscuro');
+
+    selector.focus();
+    expect(document.activeElement).toBe(selector);
+    selector.value = 'Claro';
+    selector.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(selector.value).toBe('Claro');
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('Claro');
+  });});

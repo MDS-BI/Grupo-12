@@ -16,16 +16,23 @@ function qs(id) {
 }
 
 // FR-070: cualquier formulario CRM del DOM real se considera con cambios
-// cuando sus valores difieren de la última línea base registrada.
-function formSignature(form) {
+// cuando sus valores editables difieren de la última línea base registrada.
+function editableFormFields(form) {
   return [...form.querySelectorAll('input, select, textarea')]
     .filter((field) => !['hidden', 'submit', 'button', 'reset'].includes(field.type))
-    .map((field) => `${field.name || field.id}=${field.value ?? ''}`)
-    .join('&');
+    .filter((field) => !field.disabled && !field.readOnly);
+}
+
+function formBaselineMap(form) {
+  const map = new Map();
+  for (const field of editableFormFields(form)) {
+    map.set(field.name || field.id, field.value ?? '');
+  }
+  return map;
 }
 
 function markFormClean(form) {
-  if (form) formBaselines.set(form, formSignature(form));
+  if (form) formBaselines.set(form, formBaselineMap(form));
 }
 
 function markAllFormsClean() {
@@ -33,8 +40,15 @@ function markAllFormsClean() {
 }
 
 function hasUnsavedChanges() {
-  return [...document.querySelectorAll(CRM_FORM_SELECTOR)]
-    .some((form) => formBaselines.has(form) && formBaselines.get(form) !== formSignature(form));
+  return [...document.querySelectorAll(CRM_FORM_SELECTOR)].some((form) => {
+    const baseline = formBaselines.get(form);
+    if (!baseline) return false;
+    for (const field of editableFormFields(form)) {
+      const key = field.name || field.id;
+      if ((field.value ?? '') !== (baseline.get(key) ?? '')) return true;
+    }
+    return false;
+  });
 }
 
 let lastDialogFocus = null;

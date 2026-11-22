@@ -9,15 +9,20 @@ const VALID_PASSWORD = '1234';
 const { config } = loadModuleConfig();
 
 function isAuthenticated() {
-  return localStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER;
+  return localStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER
+    || sessionStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER;
 }
 
-function setAuthenticated() {
-  localStorage.setItem(AUTH_STORAGE_KEY, VALID_USER);
+function setAuthenticated(remember = true) {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem(AUTH_STORAGE_KEY, VALID_USER);
 }
 
 function clearAuthenticated() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
   sessionStorage.removeItem(SIDEBAR_STORAGE_KEY);
 }
 

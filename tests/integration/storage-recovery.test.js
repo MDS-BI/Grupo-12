@@ -65,4 +65,57 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
     expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
     expect(localStorage.getItem('crm.theme')).toBe('Claro');
   });
+
+
+  it('T190/FR-072: bloqueo visible, acciones dependientes deshabilitadas, retry ante fallo y preservación de sesión/tema/vista/sidebar', async () => {
+    localStorage.setItem('crm_module:customers', '{no-es-json');
+    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('crm.theme', 'Oscuro');
+    localStorage.setItem('erp.activeView', 'dashboard');
+    sessionStorage.setItem('erp.sidebarCollapsed', 'true');
+
+    mountLiveDom();
+    await boot();
+
+    const errorPanel = document.querySelector('#storage-error');
+    expect(errorPanel.hidden).toBe(false);
+    expect(errorPanel.textContent).toMatch(/Reiniciar datos afectados/);
+    expect(errorPanel.textContent).toMatch(/crm_module:customers/);
+
+    const blockedSelectors = ['#nav-dashboard', '#nav-entities', '#nav-documents', '#nav-search', '#logout-button', '#theme-select'];
+    for (const sel of blockedSelectors) {
+      const el = document.querySelector(sel);
+      expect(el?.getAttribute('disabled') === 'true' || el?.getAttribute('aria-disabled') === 'true').toBe(true);
+    }
+
+    const originalSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function(key, value) {
+      if (key === 'crm_module:customers') throw new Error('quota');
+      return originalSetItem.call(this, key, value);
+    };
+    document.querySelector('#storage-reset').click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(document.querySelector('#storage-error').hidden).toBe(false);
+    expect(document.querySelector('#storage-error-detail').hidden).toBe(false);
+    expect(document.querySelector('#storage-retry').hidden).toBe(false);
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('crm.theme')).toBe('Oscuro');
+    expect(localStorage.getItem('erp.activeView')).toBe('dashboard');
+    expect(sessionStorage.getItem('erp.sidebarCollapsed')).toBe('true');
+
+    Storage.prototype.setItem = originalSetItem;
+    document.querySelector('#storage-retry').click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(document.querySelector('#storage-error').hidden).toBe(true);
+    expect(localStorage.getItem('crm_module:customers')).toBe('[]');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('crm.theme')).toBe('Oscuro');
+    expect(localStorage.getItem('erp.activeView')).toBe('dashboard');
+    expect(sessionStorage.getItem('erp.sidebarCollapsed')).toBe('true');
+    expect(document.querySelector('#nav-dashboard').hasAttribute('disabled')).toBe(false);
+  });
 });

@@ -64,6 +64,28 @@ describe('FR-068 - oportunidades de clientes archivados en el dashboard', () => 
     expect(getDashboardMetrics()).toEqual(getCRMOverview());
   });
 
+    it('T192/FR-058: etapas inválidas se excluyen de conversión y se reportan como inconsistencia recuperable', () => {
+    const customer = addCustomer({ companyName: 'C', contactName: 'Ana', email: 'c2@c.cl', phone: '912345678', status: 'Activo' });
+    const employee = addEmployee({ name: 'Emp', role: 'Ventas' });
+    addOpportunity({ clientId: customer.id, employeeId: employee.id, amount: 100, closeDate: closeDateWithin30Days(), stage: 'Ganado' });
+    addOpportunity({ clientId: customer.id, employeeId: employee.id, amount: 100, closeDate: closeDateWithin30Days(), stage: 'Perdido' });
+    // Seed invalid stages directly to simulate recoverable inconsistency
+    const raw = JSON.parse(localStorage.getItem('crm_module:opportunities') || '[]');
+    raw.push(
+      { id: 'opp_bad_1', clientId: customer.id, employeeId: employee.id, amount: 100, closeDate: closeDateWithin30Days(), stage: 'EtapaRara', archived: false },
+      { id: 'opp_bad_2', clientId: customer.id, employeeId: employee.id, amount: 100, closeDate: closeDateWithin30Days(), stage: null, archived: false }
+    );
+    localStorage.setItem('crm_module:opportunities', JSON.stringify(raw));
+
+    const overview = getCRMOverview();
+    expect(overview.invalidOpportunityStageCount).toBe(2);
+    const valid = ['Prospección','Calificación','Evaluación','Propuesta','Negociación','Cierre','Ganado','Perdido'];
+    const v = overview.opportunities.filter(o => valid.includes(o.stage ?? o.etapa));
+    const won = v.filter(o => (o.stage ?? o.etapa) === 'Ganado').length;
+    const lost = v.filter(o => (o.stage ?? o.etapa) === 'Perdido').length;
+    expect(Math.round((won/(won+lost))*100)).toBe(50);
+  });
+
   it('T147: reconcilia documentos legacy a oportunidades canónicas sin duplicar (idempotente)', async () => {
     const { reconcileLegacyDocumentsToCanonicalOpportunities } = await import('../../src/storage.js');
     localStorage.setItem('erp_base_module:documents', JSON.stringify([

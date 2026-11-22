@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it } from 'vitest';
-import { bootApp, seedAuth } from './live-dom.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { bootApp, mountLiveDom, seedAuth } from './live-dom.js';
 import { addEmployee, addCustomer, addOpportunity, getCRMOverview } from '../../src/storage.js';
 
 async function boot() {
@@ -80,5 +80,133 @@ describe('US17 - dashboard coherente con oportunidades', () => {
     expect(rev).toMatch(/100/);
     const overview = getCRMOverview();
     expect(overview.openOpportunities).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('US19 - confirmación accesible para eliminaciones', () => {
+  beforeEach(async () => {
+    await boot();
+  });
+
+  it('T153: abre diálogo, cancelar/Escape no borra, confirmar elimina con restauración de foco', async () => {
+    const { addEntity } = await import('../../src/storage.js');
+    const entity = addEntity({ name: 'Borrar SA', code: 'DEL-1', email: 'borrar@sa.cl', phone: '912345678', creditLimit: 1000 });
+    // refresh selects without guarded boot
+    document.querySelector('#nav-entities').click();
+    const select = document.querySelector('#edit-entity');
+    // repopulate manually by reloading app
+    const { boot: bootAgain } = await import('../../src/app.js');
+    await bootAgain(); // guarded - ignore
+    // force refresh
+    const { loadEntities } = await import('../../src/storage.js');
+    select.innerHTML = '<option value="">Seleccionar...</option>';
+    for (const e of loadEntities()) {
+      const opt = document.createElement('option');
+      opt.value = e.id; opt.textContent = `${e.name} - ${e.code || ''}`; select.appendChild(opt);
+    }
+    select.value = entity.id;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+
+    const deleteBtn = document.querySelector('#delete-entity');
+    deleteBtn.focus();
+    deleteBtn.click();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const dialog = document.querySelector('#delete-confirm-dialog');
+    expect(dialog).toBeTruthy();
+    expect(dialog.hidden).toBe(false);
+    expect(dialog.getAttribute('role')).toBe('dialog');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    expect(dialog.contains(document.activeElement)).toBe(true);
+
+    document.querySelector('#delete-confirm-cancel').click();
+    expect(dialog.hidden).toBe(true);
+    expect(document.activeElement).toBe(deleteBtn);
+    expect([...document.querySelector('#edit-entity').options].some((o) => o.value === entity.id)).toBe(true);
+
+    deleteBtn.focus();
+    deleteBtn.click();
+    expect(dialog.hidden).toBe(false);
+    dialog.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+    expect(dialog.hidden).toBe(true);
+    expect(document.activeElement).toBe(deleteBtn);
+    expect([...document.querySelector('#edit-entity').options].some((o) => o.value === entity.id)).toBe(true);
+
+    deleteBtn.focus();
+    deleteBtn.click();
+    document.querySelector('#delete-confirm-accept').click();
+    expect(dialog.hidden).toBe(true);
+    expect([...document.querySelector('#edit-entity').options].some((o) => o.value === entity.id)).toBe(false);
+  });
+});
+
+describe('US18 - Recordar mi sesión', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+
+  it('T158: marcado persiste en localStorage; desmarcado en sessionStorage sin restaurar en nuevo contexto; logout limpia ambas', async () => {
+    const tick = () => new Promise((r) => setTimeout(r, 30));
+    const waitFor = async (fn, tries = 40) => {
+      for (let i = 0; i < tries; i++) { if (fn()) return true; await tick(); }
+      return fn();
+    };
+
+    // Checked: remember -> localStorage
+    localStorage.clear(); sessionStorage.clear();
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/');
+    await import('../../src/main.js');
+    await waitFor(() => document.querySelector('#login-form'));
+    document.querySelector('#login-username').value = 'Cliente1';
+    document.querySelector('#login-password').value = '1234';
+    document.querySelector('#login-remember').checked = true;
+    document.querySelector('#login-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await waitFor(() => localStorage.getItem('erp.authenticatedUser') === 'Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(sessionStorage.getItem('erp.authenticatedUser')).toBeNull();
+
+    // New browser context: session cleared, localStorage kept
+    sessionStorage.clear();
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/inicio');
+    await import('../../src/main.js');
+    await waitFor(() => document.querySelector('#app-shell')?.hidden === false);
+    expect(document.querySelector('#app-shell').hidden).toBe(false);
+
+    document.querySelector('#logout-button').click();
+    await waitFor(() => !localStorage.getItem('erp.authenticatedUser') && !sessionStorage.getItem('erp.authenticatedUser'));
+    expect(localStorage.getItem('erp.authenticatedUser')).toBeNull();
+    expect(sessionStorage.getItem('erp.authenticatedUser')).toBeNull();
+
+    // Unchecked: session only
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/');
+    await import('../../src/main.js');
+    await waitFor(() => document.querySelector('#login-view')?.hidden === false);
+    document.querySelector('#login-username').value = 'Cliente1';
+    document.querySelector('#login-password').value = '1234';
+    const remember = document.querySelector('#login-remember');
+    if (remember) remember.checked = false;
+    document.querySelector('#login-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await waitFor(() => sessionStorage.getItem('erp.authenticatedUser') === 'Cliente1');
+    expect(sessionStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBeNull();
+
+    // New browser context: no session auth
+    sessionStorage.clear();
+    localStorage.removeItem('erp.authenticatedUser');
+    mountLiveDom();
+    vi.resetModules();
+    window.history.replaceState({}, '', '/inicio');
+    await import('../../src/main.js');
+    await waitFor(() => document.querySelector('#login-view')?.hidden === false);
+    expect(document.querySelector('#login-view').hidden).toBe(false);
+    expect(document.querySelector('#app-shell').hidden).toBe(true);
   });
 });
