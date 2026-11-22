@@ -39,9 +39,15 @@ Define claves de almacenamiento, reglas de integridad, recuperación y nuevas cl
 
 ## Validación y recuperación (FR-072)
 
-- Clave ausente: estado vacío.
-- JSON inválido/forma incorrecta en claves `crm_module:*`: error visible, no sobrescribir automáticamente, reinicio explícito.
-- Reinicio solo afecta claves CRM de entidad; no toca sesión, tema, vista activa salvo decisión explícita documentada.
+- **Momento**: validar en cada arranque, antes de renderizar estado operativo.
+- **Criterio de corrupción**: JSON inválido; valor parseado no conforme a la forma esperada. Claves de entidad `crm_module:customers|employees|opportunities|interactions` deben ser arreglos; cada registro objeto con `id` string no vacío. Oportunidades con `stage` ausente/nula/inválida se tratan como inconsistencia recuperable reportada, no como corrupción total salvo forma estructural inválida. Claves de compatibilidad `erp_base_module:entities|documents`, si son leídas por la ruta activa, deben ser arreglos de objetos.
+- **Categorías de clave**:
+  - Entidad CRM afectable: `crm_module:customers`, `crm_module:employees`, `crm_module:opportunities`, `crm_module:interactions`.
+  - Compatibilidad afectable solo si se usa y está corrupta: `erp_base_module:entities`, `erp_base_module:documents`.
+  - No afectadas por reset de corrupción: `erp.authenticatedUser`, `erp.sidebarCollapsed`, `erp.activeView`, `crm.theme`.
+- **Reinicio explícito**: escribe `[]` solo en claves afectadas de las categorías afectables. No modifica claves no afectadas.
+- **Flujos alternos/excepción**: cancelar/ignorar reinicio mantiene bloqueo de operaciones sobre datos afectados y el error visible con acción disponible. Si falla la escritura del reinicio, mostrar error de recuperación con opción de reintentar; no borrar claves no afectadas; no marcar recuperación completada.
+- **Fiabilidad**: detección en 100% de arranques; reinicio exitoso deja claves afectadas en `[]` y permite estado vacío controlado.
 
 ## Campos personalizados huérfanos (FR-071)
 

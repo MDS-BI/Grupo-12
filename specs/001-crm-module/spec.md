@@ -172,7 +172,7 @@ Como ejecutivo comercial, quiero buscar clientes y filtrar oportunidades por eta
 3. **Dadas** varias oportunidades, **cuando** el usuario filtra por etapa, **entonces** solo se muestran las oportunidades de esa etapa.
 4. **Dadas** varias oportunidades, **cuando** el usuario filtra por empleado responsable o por rango de fecha de cierre, **entonces** solo se muestran las que cumplen el filtro.
 5. **Dados** varios filtros activos, **cuando** el usuario los combina, **entonces** los resultados respetan todos los criterios seleccionados.
-6. **Dadas** cientos de clientes u oportunidades, **cuando** el usuario busca o filtra, **entonces** los resultados aparecen con prontitud sin retraso perceptible.
+6. **Dadas** al menos 500 clientes u oportunidades asociadas, **cuando** el usuario busca o filtra, **entonces** la búsqueda devuelve resultados en <= 10 s y el renderizado inicial de listas en <= 2 s, conforme FR-042 y SC-004.
 
 ---
 
@@ -500,6 +500,9 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - Cuando un registro contiene valores de campos personalizados que ya no están declarados, esos valores se conservan en el almacenamiento pero no se muestran ni se editan.
 - Al navegar fuera de cualquier formulario CRM con cambios sin guardar hacia otra sección de la aplicación, el sistema pide confirmación y solo descarta los cambios si el usuario confirma que desea salir; recargar la página o usar Atrás del navegador queda fuera de alcance del MVP.
 - Cuando el almacenamiento local está vacío, los indicadores se muestran en cero; cuando contiene JSON inválido o datos con forma incorrecta en las claves de entidad, el sistema muestra un error claro y ofrece reiniciar solo esas claves con arreglos vacíos, conservando sesión y tema.
+- Si el usuario cancela o ignora la acción de reinicio ante corrupción, la app no debe continuar con operaciones normales sobre datos afectados; el error y la acción de reinicio permanecen disponibles.
+- Si el reinicio explícito falla al escribir en almacenamiento, se muestra error de recuperación con opción de reintentar, no se alteran claves no afectadas y el estado no se marca como recuperado.
+- Cuando una oportunidad tiene etapa ausente, nula o inválida, se excluye del cálculo de conversión y se reporta como inconsistencia recuperable sin impedir el cálculo del resto de KPIs.
 - Contraseñas muy largas o con caracteres especiales al alternar repetidamente la visibilidad: el texto no se trunca ni se pierde.
 - Pantalla de acceso en un viewport estrecho: los dos paneles se apilan y el formulario sigue siendo utilizable sin desplazamiento horizontal.
 - Menú contraído en pantallas estrechas: el botón permanece visible y, si no hay espacio para la franja de iconos, la navegación se presenta como capa superpuesta sin ocultar el contenido activo.
@@ -579,7 +582,7 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **FR-055**: El cambio de estado del menú DEBE ajustar el área de contenido sin superponerlo ni ocultar información.
 - **FR-056**: El estado del menú DEBE conservarse durante la sesión del usuario.
 - **FR-057**: El Dashboard DEBE mostrar un banner de bienvenida en español que incluya el nombre del usuario autenticado.
-- **FR-058**: El Dashboard DEBE mostrar tarjetas KPI para clientes, oportunidades activas, ingresos y tasa de conversión, con etiqueta y valor legibles. La tasa de conversión DEBE calcularse como `ganadas / (ganadas + perdidas)`, redondeada a un porcentaje entero, y DEBE ser `0 %` cuando no existan oportunidades cerradas.
+- **FR-058**: El Dashboard DEBE mostrar tarjetas KPI para clientes, oportunidades activas, ingresos y tasa de conversión, con etiqueta y valor legibles. La tasa de conversión DEBE calcularse como `ganadas / (ganadas + perdidas)`, redondeada a un porcentaje entero, y DEBE ser `0 %` cuando no existan oportunidades cerradas. Las etapas ausentes, nulas o inválidas no se consideran cerradas para la conversión; se excluyen del denominador y deben registrarse/reportarse como inconsistencia de datos recuperable sin bloquear el resto de KPIs.
 - **FR-059**: Las tarjetas KPI DEBEN mostrar un valor neutro cuando no existan datos, sin generar mensajes de error.
 - **FR-060**: Los valores de las tarjetas KPI DEBEN corresponder a los datos vigentes del CRM al ingresar al Dashboard.
 - **FR-061**: Los formularios de cliente DEBEN agrupar la identificación y el contacto bajo el encabezado exacto "DATOS DEL CLIENTE".
@@ -591,10 +594,14 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **FR-067**: Los encabezados en mayúsculas DEBEN permanecer completos y legibles, sin cortes ni caracteres deformados.
 - **FR-068**: El sistema DEBE incluir en los indicadores de oportunidades abiertas, monto total en pipeline y próximos cierres las oportunidades de clientes archivados, siempre que su etapa no sea terminal.
 - **FR-069**: El sistema DEBE mantener reservado el correo de un cliente archivado, impidiendo que se reutilice al registrar otro cliente.
-- **FR-070**: El sistema DEBE pedir confirmación antes de abandonar cualquier formulario CRM con cambios sin guardar mediante navegación interna, permitiendo al usuario permanecer en él o descartar los cambios. La recarga de la página y el botón Atrás del navegador quedan fuera de alcance del MVP.
+- **FR-070**: El sistema DEBE pedir confirmación antes de abandonar cualquier formulario CRM con cambios sin guardar mediante navegación interna, permitiendo al usuario permanecer en él o descartar los cambios. **Criterio de cambios sin guardar**: un formulario se considera “dirty” cuando el valor actual serializado de cualquier campo editable (`input`, `select`, `textarea`) difiere de la línea base capturada al cargar, limpiar, guardar con éxito o descartar; los campos deshabilitados/solo lectura no cuentan. Tras guardar con éxito o descartar, la línea base se restablece y el formulario vuelve a estado limpio. La recarga de la página y el botón Atrás del navegador quedan fuera de alcance del MVP.
 - **FR-071**: El sistema DEBE conservar en el almacenamiento los valores de campos personalizados que ya no estén declarados en la configuración, omitiéndolos de formularios, listas y búsquedas.
-- **FR-072**: El sistema DEBE mostrar un error claro y ofrecer una acción explícita de reinicio cuando detecte JSON inválido o datos con forma incorrecta en las claves de entidad `crm_module:*` al arrancar, en lugar de reiniciar silenciosamente o fallar sin explicación. El reinicio DEBE escribir arreglos vacíos en esas claves de entidad y NO DEBE modificar las claves de sesión ni la preferencia de tema.
-- **FR-073**: El espacio de trabajo DEBE ofrecer un selector de tema `Claro`/`Oscuro`, guardar la elección en el almacenamiento local del mismo navegador y aplicarla desde el primer render tras recargar.
+- **FR-072**: El sistema DEBE validar las claves de almacenamiento CRM en cada arranque, antes de renderizar el estado operativo, y mostrar un error claro con una acción explícita de reinicio cuando detecte corrupción, en lugar de reiniciar silenciosamente o fallar sin explicación.
+  - **Criterio de corrupción**: se considera corrupta una clave cuando el JSON es inválido, o cuando el valor parseado no cumple la forma esperada: claves de entidad CRM (`crm_module:customers`, `crm_module:employees`, `crm_module:opportunities`, `crm_module:interactions`) deben ser arreglos; cada registro debe ser objeto con `id` string no vacío; registros de oportunidades deben tener `stage`/estado reconocible o ser reportados como inconsistencia recuperable; claves de compatibilidad `erp_base_module:entities` y `erp_base_module:documents`, si existen y son leídas por la ruta activa, deben ser arreglos de objetos.
+  - **Categorías y alcance del reinicio**: el reinicio explícito escribe arreglos vacíos solo en las claves de entidad CRM afectadas (`crm_module:*` de entidad) y, si se usó compatibilidad afectada, en las claves `erp_base_module:*` afectadas. NO DEBE modificar `erp.authenticatedUser`, `erp.sidebarCollapsed`, `erp.activeView`, `crm.theme` ni otras preferencias no pertenecientes a datos de entidad.
+  - **Flujos alternos/excepción**: si el usuario cancela/no confirma el reinicio, la app permanece bloqueada para operaciones de datos afectados y mantiene visible el error con la acción disponible. Si el reinicio falla al escribir almacenamiento, el sistema muestra un error de recuperación con opción de reintentar, no borra claves no afectadas y no marca la recuperación como completada.
+  - **Fiabilidad**: la detección se ejecuta en el 100% de los arranques; un reinicio exitoso deja las claves afectadas en `[]` y permite continuar en estado vacío controlado.
+- **FR-073**: El espacio de trabajo DEBE ofrecer un selector de tema `Claro`/`Oscuro`, guardar la elección en el almacenamiento local del mismo navegador y aplicarla desde el primer render tras recargar. El selector DEBE ser accesible por teclado, tener etiqueta accesible visible o programática, exponer su valor actual y no depender solo del color para comunicar el estado.
 - **FR-074**: El sistema DEBE aplicar los tokens de tema a todas las superficies, componentes, estados y diálogos visibles en los modos `Claro` y `Oscuro`.
 - **FR-075**: El sistema DEBE mantener contraste y legibilidad suficientes para texto, iconos, bordes, mensajes y controles en ambos temas.
 - **FR-076**: Los indicadores del dashboard DEBEN calcularse desde la misma fuente de verdad usada por las altas, ediciones y eliminaciones de oportunidades en la UI.
@@ -608,7 +615,7 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **FR-084**: Los listados DEBEN mantenerse sincronizados con el formulario activo, la selección actual y los cambios guardados o eliminados.
 - **FR-085**: El sistema DEBE restaurar la última vista interna válida tras recargar y hacer fallback seguro al dashboard cuando la vista guardada no sea válida, respetando la autenticación.
 - **FR-086**: Los campos con error de validación DEBEN exponer estado inválido accesible y asociar el mensaje mediante `aria-describedby` o mecanismo equivalente.
-- **FR-087**: Los diálogos modales del CRM DEBEN gestionar foco inicial, focus trap, cierre por Escape y restauración de foco al disparador.
+- **FR-087**: Los diálogos modales del CRM DEBEN gestionar foco inicial, focus trap, cierre por Escape y restauración de foco al disparador. Esto aplica a `#unsaved-dialog`, al diálogo de confirmación de eliminación y a cualquier diálogo modal CRM futuro; controles no modales como el selector de tema deben cumplir accesibilidad por teclado/etiquetado equivalente según FR-073.
 - **FR-088**: El sistema DEBE definir y mostrar una regla consistente de moneda para montos individuales y KPI agregados; en el MVP, los montos agregados se expresan en la moneda base del módulo y la UI evita símbolos o etiquetas contradictorias.
 
 ### Requisitos de Extensibilidad
@@ -670,8 +677,8 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 
 ## Suposiciones
 
-- El módulo gestiona un único espacio de trabajo compartido, sin backend de autenticación ni roles diferenciados en el MVP; se reutiliza el mecanismo de acceso frontend ya implementado (FR-047 a FR-052).
-- La versión inicial es una demostración autónoma con datos ficticios, sin integraciones externas.
+- El módulo gestiona un único espacio de trabajo compartido, sin backend de autenticación ni roles diferenciados en el MVP; se reutiliza el mecanismo de acceso frontend ya implementado (FR-047 a FR-052). Las salvaguardas transversales FR-070–FR-073 prevalecen sobre comportamientos legacy o supuestos históricos del MVP cuando exista conflicto: confirmación de salida con cambios sin guardar, conservación de valores personalizados huérfanos, recuperación explícita ante corrupción y persistencia/aplicación temprana del tema.
+- La versión inicial es una demostración autónoma con datos ficticios, sin integraciones externas. Si el usuario ejecuta el reinicio explícito de almacenamiento corrupto (FR-072), las claves de entidad afectadas quedan en arreglos vacíos y los datos ficticios/previos no se re-sembran automáticamente; el estado vacío resultante es el comportamiento esperado hasta nueva carga de datos.
 - El catálogo de empleados se carga antes de registrar oportunidades e interacciones.
 - El correo electrónico identifica de forma única a cada cliente; varias empresas pueden compartir un nombre similar o idéntico. La unicidad se aplica también a los clientes archivados, cuyo correo permanece reservado.
 - Cada oportunidad pertenece a un único cliente y a un único empleado responsable.

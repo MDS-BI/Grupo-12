@@ -770,6 +770,20 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 
 ---
 
+
+---
+
+## Fase 34: Alineación de checklist de integridad (FR-058, FR-070, FR-072, FR-073)
+
+**Objetivo**: Cubrir aclaraciones agregadas por checklist de integridad de datos (dirty-check, corrupción/categorías/reintento/fiabilidad, etapas inválidas en conversión, accesibilidad de tema).
+
+- [ ] T189 [P] [US14] Añadir/actualizar prueba de integración que verifique criterio dirty de FR-070 (línea base al cargar/limpiar/guardar/descartar; disabled/readonly no cuentan) en `tests/integration/unsaved-changes.test.js` (FR-070)
+- [ ] T190 [P] [US8] Añadir pruebas de integración para FR-072: cancelar/ignorar reinicio mantiene bloqueo, fallo de escritura muestra reintento sin marcar recuperado, reinicio solo afecta claves afectables y preserva sesión/tema/vista/sidebar en `tests/integration/storage-recovery.test.js` (FR-072)
+- [ ] T191 [US8] Implementar validación de shape por categoría de clave y flujo de reintento/bloqueo de FR-072 en `src/storage.js` y `src/app.js` (FR-072)
+- [ ] T192 [P] [US6] Añadir prueba unitaria para excluir etapas ausentes/nulas/inválidas de conversión y reportar inconsistencia recuperable sin bloquear KPIs en `tests/unit/dashboard-metrics.test.js` (FR-058)
+- [ ] T193 [US6] Ajustar `computeConversionRate()`/overview para tratar etapas inválidas según FR-058 en `src/domain.js` y `src/storage.js` (FR-058)
+- [ ] T194 [P] [US16] Añadir prueba de accesibilidad de teclado/etiqueta/valor actual para `#theme-select` en `tests/integration/theme.test.js` (FR-073)
+
 ## Notas
 
 - `[P]` = archivos distintos, sin dependencia incompleta.
@@ -777,4 +791,4 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 - Cada historia de US16â€“US24 debe ser verificable de forma independiente.
 - No editar `src/components/*` ni `dist/` a mano.
 - Se preservan tareas histÃ³ricas T001â€“T129 para trazabilidad.
-- Total nuevas tareas US16â€“US24: T130â€“T188 (59 tareas). Total general: 188 tareas.
+- Total nuevas tareas US16–US24: T130–T188 (59 tareas). Alineación integridad: T189–T194 (6 tareas). Total general: 194 tareas.

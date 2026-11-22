@@ -87,3 +87,13 @@ npm run build
 - `src/components/*` es histórico y no conectado al arranque.
 - No editar `dist/` a mano; regenerar con `npm run build`.
 - Ante fallos de storage corrupto, usar la acción explícita de reinicio; no se borra automáticamente.
+
+## Verificación de Clarificaciones de 2026-11-21 (actualizado)
+
+1. **FR-068**: archiva un cliente con oportunidad abierta. Verifica que oportunidades abiertas, pipeline y próximos cierres la siguen contando.
+2. **FR-069**: intenta crear cliente con correo de cliente archivado. Verifica rechazo.
+3. **FR-070**: edita un formulario CRM y navega a otra sección. Verifica diálogo Permanecer/Descartar; dirty = diferencia entre valor serializado actual y línea base al cargar/limpiar/guardar/descartar; campos disabled/readonly no cuentan. Recarga/Atrás fuera de alcance.
+4. **FR-071**: guarda un valor en campo custom, elimina el campo de config, recarga. Verifica que no se muestra pero persiste en storage.
+5. **FR-072**: inyecta JSON inválido o shape incorrecto en clave de entidad. Recarga. Verifica validación en arranque antes de render operativo, error visible, sin borrado automático. Cancelar/ignorar reinicio mantiene bloqueo de datos afectados; reinicio exitoso escribe `[]` solo en claves afectadas (`crm_module:*` entidad y compatibilidad afectada si aplica) y preserva sesión/tema/vista/sidebar; si falla escritura, muestra error y permite reintentar sin marcar recuperado.
+6. **FR-073**: cambia Claro/Oscuro, recarga. Verifica persistencia y aplicación en primer render. Verifica accesibilidad por teclado/etiqueta/valor actual del selector.
+7. **FR-058**: oportunidad con etapa ausente/nula/inválida no bloquea KPIs; se excluye de conversión y se reporta como inconsistencia recuperable.

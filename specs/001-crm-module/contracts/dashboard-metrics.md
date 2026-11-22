@@ -23,7 +23,7 @@ Fija la fuente de datos, la fórmula, el formato y el estado vacío de las tarje
 
 - **Oportunidades activas**: `stage` no terminal (`Ganado`/`Perdido`). `archived` del cliente no excluye la oportunidad abierta (FR-068).
 - **Ingresos estimados**: suma de montos de oportunidades abiertas. Agregado en moneda base CLP en MVP (FR-088).
-- **Tasa de conversión**: `won/(won+lost)*100`, redondeo entero, 0 si no hay cerradas.
+- **Tasa de conversi�n**: `won/(won+lost)*100`, redondeo entero, 0 si no hay cerradas. Etapas ausentes, nulas o inválidas se excluyen del numerador/denominador de conversión, se reportan como inconsistencia de datos recuperable y no bloquean el resto de KPIs (FR-058).
 - **Consistencia**: tras crear/editar/eliminar oportunidad desde UI, el siguiente ingreso al dashboard refleja el cambio (SC-023).
 
 ## Casos límite

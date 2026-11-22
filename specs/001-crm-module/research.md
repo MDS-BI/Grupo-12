@@ -10,10 +10,13 @@
 - HTML estático sin Vite: más simple, pero Vite ofrece un mejor flujo de desarrollo y un paso de construcción para crecimiento futuro.
 - Persistencia con backend y base de datos: innecesaria para un módulo de espacio único; la capa de almacenamiento está aislada, por lo que un backend puede introducirse más adelante sin reescribir la lógica de dominio.
 
-## Decisiones adicionales
+## Decisiones
 
-- **Persistencia**: `localStorage` del navegador para clientes, empleados, oportunidades e interacciones; sin backend ni autenticación en el MVP.
-- **Datos ficticios**: datos de ejemplo de clientes, empleados, oportunidades e interacciones cargados al iniciar la aplicación si el almacenamiento está vacío.
+- **Vite + JavaScript vanilla**: seleccionados para un arranque rápido, artefactos estáticos simples y configuración mínima. Se prefirió sobre React/Vue para evitar dependencias innecesarias.
+- **Vitest + jsdom**: seleccionados para validar reglas de negocio, búsqueda, filtrado, integridad referencial y comportamiento de la interfaz sin depender de un navegador real.
+- **Persistencia en `localStorage`**: adecuada para la entrega MVP, datos ficticios y ejecución local sin backend. Las claves con prefijo `crm_module:` evitan colisiones; se mantienen claves `erp_base_module:*` solo para compatibilidad.
+- **Alcance histórico vs FR-070–FR-073**: cuando exista conflicto, prevalecen las salvaguardas transversales de `spec.md` (confirmación de salida dirty, conservación de huérfanos, recuperación explícita ante corrupción con criterios/categorías/fiabilidad, persistencia/aplicación temprana de tema y accesibilidad asociada) sobre comportamientos legacy o supuestos previos.
+
 - **Eliminación lógica**: clientes y empleados se archivan (`archived = true`) en lugar de eliminarse físicamente; sus oportunidades e interacciones se conservan íntegras. Se eligió sobre la eliminación en cascada para preservar el historial y la trazabilidad. Las oportunidades e interacciones sí admiten eliminación física.
 - **Correo único**: `storage.js` normaliza (trim + minúsculas) y rechaza duplicados en alta y edición, incluyendo correos de clientes archivados.
 - **Integridad referencial**: solo se pueden asignar clientes y empleados existentes y no archivados a nuevas oportunidades e interacciones. Si al cargar se detecta una referencia inexistente, se reporta visiblemente.

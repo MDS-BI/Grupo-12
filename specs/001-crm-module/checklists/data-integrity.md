@@ -12,62 +12,97 @@
 
 ## Requirement Completeness
 
-- [ ] CHK001 ¿Están definidos los requisitos de persistencia para todas las entidades cuyo estado archivado afecta a los indicadores? [Completeness, Spec §FR-024, FR-068]
-- [ ] CHK002 ¿Están especificados los criterios de reinicio para cada categoría de clave de almacenamiento afectada por corrupción? [Completeness, Spec §FR-072]
-- [ ] CHK003 ¿Están definidos los requisitos de unicidad de correo para clientes activos y archivados? [Completeness, Spec §FR-045, FR-069]
-- [ ] CHK004 ¿Están definidos los requisitos de conservación para valores de campos personalizados omitidos de la configuración activa? [Completeness, Spec §FR-071]
-- [ ] CHK005 ¿Están especificados los requisitos de integridad referencial para registros históricos que referencian entidades archivadas? [Completeness, Spec §FR-025, FR-044]
-- [ ] CHK006 ¿Están documentados los requisitos de fallo de escritura tras un reinicio explícito? [Gap, Spec §FR-072]
+- [x] CHK001 ¿Están definidos los requisitos de persistencia para todas las entidades cuyo estado archivado afecta a los indicadores? [Completeness, Spec §FR-024, FR-068]
+  > Evidencia: `spec.md:548` (FR-024), `spec.md:592` (FR-068), `spec.md:550` (FR-026), `spec.md:644` (SC-005); `data-model.md:22,32,45`; `contracts/dashboard-metrics.md:24`.
+- [x] CHK002 ¿Están especificados los criterios de reinicio para cada categoría de clave de almacenamiento afectada por corrupción? [Completeness, Spec §FR-072]
+  > Evidencia: `spec.md:599-603` (FR-072 criterio corrupción, categorías/alcance reset, flujos alternos, fiabilidad); `contracts/crm-storage.md:41-50` (momento, criterio, categorías afectables/no afectadas, reinicio, flujos alternos, fiabilidad).
+- [x] CHK003 ¿Están definidos los requisitos de unicidad de correo para clientes activos y archivados? [Completeness, Spec §FR-045, FR-069]
+  > Evidencia: `spec.md:569` (FR-045), `spec.md:593` (FR-069), `spec.md:62` (US1-7), `spec.md:483` (caso límite); `data-model.md:19`; `research.md:18`.
+- [x] CHK004 ¿Están definidos los requisitos de conservación para valores de campos personalizados omitidos de la configuración activa? [Completeness, Spec §FR-071]
+  > Evidencia: `spec.md:595` (FR-071), `spec.md:216` (US9-5), `spec.md:500` (caso límite); `data-model.md:23`; `contracts/crm-storage.md:40-44` contexto claves y preservación referida en spec.
+- [x] CHK005 ¿Están especificados los requisitos de integridad referencial para registros históricos que referencian entidades archivadas? [Completeness, Spec §FR-025, FR-044]
+  > Evidencia: `spec.md:548-549` (FR-024,FR-025), `spec.md:568` (FR-044), `spec.md:490-492,497` (casos límite US8/archivado); `data-model.md:39,54-55`.
+- [x] CHK006 ¿Están documentados los requisitos de fallo de escritura tras un reinicio explícito? [Gap, Spec §FR-072]
+  > Evidencia: `spec.md:602,604` (FR-072 fallo escritura + reintentar sin marcar recuperado; reinicio exitoso deja `[]`); `spec.md:504` (caso límite); `contracts/crm-storage.md:49-50`; `tasks.md` Fase 34 T190-T191.
 
 ## Requirement Clarity
 
-- [ ] CHK007 ¿Se define «datos con forma incorrecta» con criterios estructurales concretos? [Ambiguity, Spec §FR-072]
-- [ ] CHK008 ¿Se define «cambios sin guardar» con criterios concretos de detección? [Ambiguity, Spec §FR-070]
-- [ ] CHK009 ¿Está definido con criterios observables el momento de «primera visualización» de la preferencia de tema? [Clarity, Spec §FR-073, SC-021]
-- [ ] CHK010 ¿Están definidas con fórmulas o reglas explícitas las cuatro etiquetas KPI? [Clarity, Spec §FR-026, FR-058]
-- [ ] CHK011 ¿Está definido sin ambigüedad el resultado del reinicio como arreglos vacíos frente a datos semilla? [Clarity, Spec §FR-072]
+- [x] CHK007 ¿Se define «datos con forma incorrecta» con criterios estructurales concretos? [Ambiguity, Spec §FR-072]
+  > Evidencia: `spec.md:600` (FR-072 criterio corrupción: JSON inválido o shape esperada por clave; arreglos; objeto con `id` string no vacío; compatibilidad arrays de objetos); `contracts/crm-storage.md:43`.
+- [x] CHK008 ¿Se define «cambios sin guardar» con criterios concretos de detección? [Ambiguity, Spec §FR-070]
+  > Evidencia: `spec.md:597` (FR-070 dirty: valor serializado de campos editables difiere de línea base al cargar/limpiar/guardar/descartar; disabled/readonly no cuentan; reset baseline); `contracts/ui-contracts.md:59`; `quickstart.md` verificación FR-070; `tasks.md` T189.
+- [x] CHK009 ¿Está definido con criterios observables el momento de «primera visualización» de la preferencia de tema? [Clarity, Spec §FR-073, SC-021]
+  > Evidencia: `spec.md:597` (FR-073, "desde el primer render tras recargar"), `spec.md:660` (SC-021, "antes de que el contenido sea visible"); `quickstart.md:24`; `research.md:42-43`.
+- [x] CHK010 ¿Están definidas con fórmulas o reglas explícitas las cuatro etiquetas KPI? [Clarity, Spec §FR-026, FR-058]
+  > Evidencia: `spec.md:550` (FR-026), `spec.md:582` (FR-058 fórmula conversión), `spec.md:592` (FR-068), `spec.md:570` (FR-046 próximos cierres); `contracts/dashboard-metrics.md:15-20,24-27`.
+- [x] CHK011 ¿Está definido sin ambigüedad el resultado del reinicio como arreglos vacíos frente a datos semilla? [Clarity, Spec §FR-072]
+  > Evidencia: `spec.md:596` (FR-072, "escribe arreglos vacíos en esas claves de entidad"), `spec.md:198` (US8-10), `spec.md:502` (caso límite); `contracts/crm-storage.md:44`.
 
 ## Requirement Consistency
 
-- [ ] CHK012 ¿Son coherentes los requisitos de actualización de indicadores entre FR-027 y SC-005? [Consistency, Spec §FR-027, SC-005]
-- [ ] CHK013 ¿Son coherentes las reglas de oportunidades de clientes archivados entre FR-026, FR-046, FR-068 y las suposiciones? [Consistency, Spec §FR-026, FR-046, FR-068]
-- [ ] CHK014 ¿Son coherentes los requisitos de correo único entre FR-045, FR-069 y los escenarios de US1? [Consistency, Spec §FR-045, FR-069, US1]
-- [ ] CHK015 ¿Son coherentes los requisitos de tema entre US10, FR-073, SC-021 y las suposiciones? [Consistency, Spec §US10, FR-073, SC-021]
-- [ ] CHK016 ¿Son coherentes los requisitos de salida de formularios entre FR-070, US14 y los casos límite? [Consistency, Spec §FR-070, US14]
+- [x] CHK012 ¿Son coherentes los requisitos de actualización de indicadores entre FR-027 y SC-005? [Consistency, Spec §FR-027, SC-005]
+  > Evidencia: `spec.md:551` (FR-027, actualiza al mostrar, no automático mientras abierta), `spec.md:644` (SC-005, "Cada vez que se muestra el dashboard...").
+- [x] CHK013 ¿Son coherentes las reglas de oportunidades de clientes archivados entre FR-026, FR-046, FR-068 y las suposiciones? [Consistency, Spec §FR-026, FR-046, FR-068]
+  > Evidencia: `spec.md:550` (FR-026), `spec.md:570` (FR-046), `spec.md:592` (FR-068), `spec.md` Suposiciones "oportunidades abiertas... incluidas las de clientes archivados"; `contracts/dashboard-metrics.md:24`.
+- [x] CHK014 ¿Son coherentes los requisitos de correo único entre FR-045, FR-069 y los escenarios de US1? [Consistency, Spec §FR-045, FR-069, US1]
+  > Evidencia: `spec.md:569` (FR-045), `spec.md:593` (FR-069), `spec.md:60-62` (US1 escenarios 6-7), `spec.md:483` (caso límite).
+- [x] CHK015 ¿Son coherentes los requisitos de tema entre US10, FR-073, SC-021 y las suposiciones? [Consistency, Spec §US10, FR-073, SC-021]
+  > Evidencia: `spec.md:234` (US10-5), `spec.md:597` (FR-073), `spec.md:660` (SC-021), `spec.md:35` (clarificación misma instancia/navegador), Suposiciones mismo entorno.
+- [x] CHK016 ¿Son coherentes los requisitos de salida de formularios entre FR-070, US14 y los casos límite? [Consistency, Spec §FR-070, US14]
+  > Evidencia: `spec.md:594` (FR-070), `spec.md:308` (US14-6), `spec.md:501` (caso límite recarga/Atrás fuera de alcance).
 
 ## Acceptance Criteria Quality
 
-- [ ] CHK017 ¿Son medibles los criterios de recuperación ante almacenamiento corrupto, incluido el estado final de las claves? [Acceptance Criteria, Spec §FR-072]
-- [ ] CHK018 ¿Son medibles por separado las opciones «Permanecer» y «Descartar» en la confirmación de salida? [Acceptance Criteria, Spec §FR-070]
-- [ ] CHK019 ¿Son medibles los criterios de oportunidades abiertas, pipeline y próximos cierres para clientes archivados? [Acceptance Criteria, Spec §FR-068, SC-005]
-- [ ] CHK020 ¿Son medibles los criterios de conservación y ocultamiento de valores de campos eliminados? [Acceptance Criteria, Spec §FR-071]
-- [ ] CHK021 ¿Es medible el criterio de conservación del tema desde la primera visualización? [Acceptance Criteria, Spec §SC-021]
+- [x] CHK017 ¿Son medibles los criterios de recuperación ante almacenamiento corrupto, incluido el estado final de las claves? [Acceptance Criteria, Spec §FR-072]
+  > Evidencia: `spec.md:596` (FR-072) especifica error claro, acción explícita, arreglos vacíos en claves de entidad `crm_module:*`, sin modificar sesión/tema; `contracts/crm-storage.md:42-44`.
+- [x] CHK018 ¿Son medibles por separado las opciones «Permanecer» y «Descartar» en la confirmación de salida? [Acceptance Criteria, Spec §FR-070]
+  > Evidencia: `spec.md:594` (FR-070) y `spec.md:308` (US14-6) distinguen "Permanecer" y "Descartar"; `contracts/ui-contracts.md`/`contracts/corrections-us16-us24.md` cubren diálogo unsaved.
+- [x] CHK019 ¿Son medibles los criterios de oportunidades abiertas, pipeline y próximos cierres para clientes archivados? [Acceptance Criteria, Spec §FR-068, SC-005]
+  > Evidencia: `spec.md:592` (FR-068), `spec.md:644` (SC-005), `spec.md:156` (US6-7); `contracts/dashboard-metrics.md:24,38-39`.
+- [x] CHK020 ¿Son medibles los criterios de conservación y ocultamiento de valores de campos eliminados? [Acceptance Criteria, Spec §FR-071]
+  > Evidencia: `spec.md:595` (FR-071), `spec.md:216` (US9-5), `spec.md:500` (caso límite); `data-model.md:23`.
+- [x] CHK021 ¿Es medible el criterio de conservación del tema desde la primera visualización? [Acceptance Criteria, Spec §SC-021]
+  > Evidencia: `spec.md:660` (SC-021, medible por recarga misma navegador y visibilidad antes del contenido); `spec.md:597` (FR-073).
 
 ## Scenario Coverage
 
-- [ ] CHK022 ¿Están cubiertos los flujos principal, alterno y de excepción para la recuperación de almacenamiento? [Scenario Coverage, Spec §US8]
-- [ ] CHK023 ¿Está cubierto el escenario de campos personalizados eliminados en formularios, listas y búsqueda? [Scenario Coverage, Spec §US9, FR-071]
-- [ ] CHK024 ¿Está cubierto el escenario de exposición de oportunidades abiertas de clientes archivados en el dashboard? [Scenario Coverage, Spec §US6, FR-068]
+- [x] CHK022 ¿Están cubiertos los flujos principal, alterno y de excepción para la recuperación de almacenamiento? [Scenario Coverage, Spec §US8]
+  > Evidencia: `spec.md:602` (FR-072 cancelar/ignorar mantiene bloqueo; fallo escritura reintentar sin marcar recuperado), `spec.md:503-504` (casos límite alterno/excepción), `spec.md:198` (US8-10); `contracts/crm-storage.md:49`; `tasks.md` T190-T191.
+- [x] CHK023 ¿Está cubierto el escenario de campos personalizados eliminados en formularios, listas y búsqueda? [Scenario Coverage, Spec §US9, FR-071]
+  > Evidencia: `spec.md:216` (US9-5, formularios, listas o búsqueda), `spec.md:595` (FR-071), `spec.md:410` (US20-4 alineado).
+- [x] CHK024 ¿Está cubierto el escenario de exposición de oportunidades abiertas de clientes archivados en el dashboard? [Scenario Coverage, Spec §US6, FR-068]
+  > Evidencia: `spec.md:156` (US6-7), `spec.md:592` (FR-068), `spec.md:644` (SC-005).
 
 ## Edge Case Coverage
 
-- [ ] CHK025 ¿Están definidos los casos límite para registros que referencian clientes o empleados archivados? [Edge Case, Spec §Casos Límite]
-- [ ] CHK026 ¿Están definidos los casos límite para claves de campos personalizados que chocan con campos base? [Edge Case, Spec §Casos Límite]
-- [ ] CHK027 ¿Están definidos los casos límite para etapas ausentes o inválidas en el cálculo de conversión? [Gap, Spec §FR-058]
+- [x] CHK025 ¿Están definidos los casos límite para registros que referencian clientes o empleados archivados? [Edge Case, Spec §Casos Límite]
+  > Evidencia: `spec.md:490-492,497` (casos límite: archivar cliente/empleado con asociaciones, asignar archivado, referencia inexistente), `spec.md:548-549,568` (FR-024,FR-025,FR-044).
+- [x] CHK026 ¿Están definidos los casos límite para claves de campos personalizados que chocan con campos base? [Edge Case, Spec §Casos Límite]
+  > Evidencia: `spec.md:499` (caso límite clave personalizada choca con campo base); `spec.md:561` (FR-037 config inválida/conflictiva).
+- [x] CHK027 ¿Están definidos los casos límite para etapas ausentes o inválidas en el cálculo de conversión? [Gap, Spec §FR-058]
+  > Evidencia: `spec.md:585` (FR-058 excluye etapas ausentes/nulas/inválidas de conversión, reporta inconsistencia recuperable sin bloquear KPIs), `spec.md:505` (caso límite); `contracts/dashboard-metrics.md` regla tasa de conversión; `quickstart.md` FR-058; `tasks.md` T192-T193.
 
 ## Non-Functional Requirements
 
-- [ ] CHK028 ¿Están cuantificados los objetivos de búsqueda y de visualización de listas con 500 clientes? [Measurability, Spec §FR-042, SC-004]
-- [ ] CHK029 ¿Está especificada la expectativa de fiabilidad para la validación de almacenamiento al iniciar? [Completeness, Spec §FR-072]
-- [ ] CHK030 ¿Están definidos los requisitos de accesibilidad para el selector de tema y el diálogo de cambios sin guardar? [Gap]
+- [x] CHK028 ¿Están cuantificados los objetivos de búsqueda y de visualización de listas con 500 clientes? [Measurability, Spec §FR-042, SC-004]
+  > Evidencia: `spec.md:566` (FR-042, búsqueda <=10s, render listas <=2s, 500 clientes), `spec.md:643` (SC-004).
+- [x] CHK029 ¿Está especificada la expectativa de fiabilidad para la validación de almacenamiento al iniciar? [Completeness, Spec §FR-072]
+  > Evidencia: `spec.md:599,603` (FR-072 valida en cada arranque antes de render operativo; fiabilidad 100% arranques, reinicio exitoso deja `[]`); `contracts/crm-storage.md:41,50`.
+- [x] CHK030 ¿Están definidos los requisitos de accesibilidad para el selector de tema y el diálogo de cambios sin guardar? [Gap]
+  > Evidencia: `spec.md:604` (FR-073 selector accesible por teclado, etiqueta visible/programática, valor actual, no depende solo del color), `spec.md:618` (FR-087 aplica a diálogos y controles no modales como tema cumplen accesibilidad equivalente); `contracts/ui-contracts.md:57,59`; `quickstart.md` FR-073; `tasks.md` T194.
 
 ## Dependencies & Assumptions
 
-- [ ] CHK031 ¿Está reconciliada la ausencia de backend con los requisitos de persistencia local? [Assumption, Spec §Suposiciones]
-- [ ] CHK032 ¿Está documentada la suposición de una sola instancia de navegador para tema y almacenamiento? [Assumption, Spec §Clarifications]
+- [x] CHK031 ¿Está reconciliada la ausencia de backend con los requisitos de persistencia local? [Assumption, Spec §Suposiciones]
+  > Evidencia: `spec.md:672-688` (Suposiciones: MVP sin backend auth, datos conservados en mismo entorno), `plan.md:22,93-100`; `contracts/crm-storage.md:1-20`.
+- [x] CHK032 ¿Está documentada la suposición de una sola instancia de navegador para tema y almacenamiento? [Assumption, Spec §Clarifications]
+  > Evidencia: `spec.md:35` (clarificación 2026-11-21: misma instancia/navegador del MVP), `spec.md:597` (FR-073 mismo navegador), Suposiciones mismo entorno.
 
 ## Ambiguities & Conflicts
 
-- [ ] CHK033 ¿Existe conflicto entre los datos ficticios de demostración y un reinicio con arreglos vacíos? [Conflict, Spec §Suposiciones, FR-072]
-- [ ] CHK034 ¿Existe conflicto entre el alcance de interfaz existente y las nuevas salvaguardas transversales FR-070 a FR-073? [Conflict, Spec §Suposiciones, FR-070–FR-073]
-- [ ] CHK035 ¿Están cuantificados los adjetivos «ágiles», «prontitud» y «sin retraso perceptible» en los escenarios de usuario? [Ambiguity, Spec §US7]
+- [x] CHK033 ¿Existe conflicto entre los datos ficticios de demostración y un reinicio con arreglos vacíos? [Conflict, Spec §Suposiciones, FR-072]
+  > Evidencia: `spec.md:681` (Suposición reconciliada: tras reinicio explícito FR-072 claves afectadas quedan en `[]`, datos ficticios/previos no se re-sembran automáticamente; estado vacío esperado).
+- [x] CHK034 ¿Existe conflicto entre el alcance de interfaz existente y las nuevas salvaguardas transversales FR-070 a FR-073? [Conflict, Spec §Suposiciones, FR-070–FR-073]
+  > Evidencia: `spec.md:680` (Suposición: FR-070–FR-073 prevalecen sobre comportamientos legacy/supuestos históricos); `plan.md` sección "Reconciliación de alcance histórico"; `research.md` decisión "Alcance histórico vs FR-070–FR-073".
+- [x] CHK035 ¿Están cuantificados los adjetivos «ágiles», «prontitud» y «sin retraso perceptible» en los escenarios de usuario? [Ambiguity, Spec §US7]
+  > Evidencia: `spec.md:175` (US7 escenario 6 cuantificado: búsqueda <=10 s, render inicial listas <=2 s con >=500 registros, conforme FR-042 y SC-004); `spec.md` FR-042/SC-004.

@@ -44,17 +44,19 @@ Define los selectores, estados, atributos y textos observables de la interfaz. E
 
 **Fuente**: KPIs calculados desde la misma fuente canónica que CRUD de oportunidades; sin divergencia tras crear/editar/eliminar.
 
-## 4. Formularios (FR-061 a FR-064, FR-086)
+## 4. Formularios (FR-061 a FR-064, FR-070, FR-073, FR-086-FR-087)
 
 | Elemento | Selector | Contrato |
 |---|---|---|
 | Formulario | `#entity-form` | contenedor visible en alta y edición |
-| Secciones | `.form-section` | exactamente dos; primera con «DATOS DEL CLIENTE», segunda con «CONDICIONES COMERCIALES» |
+| Secciones | `.form-section` | exactamente dos; primera con “DATOS DEL CLIENTE”, segunda con “CONDICIONES COMERCIALES” |
 | Campos DATOS | `#name`, `#code`, `#taxId`, `#category`, `#email`, `#phone`, `#address` | presentes dentro de la primera sección |
 | Campos CONDICIONES | `#entity-currency`, `#creditLimit`, `#paymentTerms`, `#targetDate` | presentes dentro de la segunda sección |
 | Errores | `#error-name`, `#error-code`, `#error-taxId`, `#error-email`, `#error-phone`, `#error-creditLimit`, `#error-targetDate` | visibles junto al campo; mismo patrón en alta y edición |
 | Accesibilidad error | campo inválido | `aria-invalid="true"` y `aria-describedby` incluye el id del mensaje; foco al primer inválido en submit inválido |
+| Selector de tema | `#theme-select` | accesible por teclado, etiqueta visible/programática, expone valor actual; no depende solo del color (FR-073) |
 
+**Cambios sin guardar (FR-070)**: un formulario CRM es dirty cuando el valor serializado actual de campos editables (`input`, `select`, `textarea`) difiere de la línea base capturada al cargar, limpiar, guardar con éxito o descartar. Campos deshabilitados/solo lectura no cuentan. Guardar/descartar restablece la línea base.
 ## 5. Diálogos modales (FR-070, FR-079, FR-080, FR-087)
 
 ### Cambios sin guardar
