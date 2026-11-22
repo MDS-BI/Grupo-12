@@ -646,9 +646,11 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 
 ### Resultados Medibles
 
-- **SC-001**: Los usuarios pueden crear un cliente y verlo en la lista en menos de 2 minutos.
+> **Clasificación de cobertura**: SC-001, SC-003, SC-012–SC-020 son métricas de resultado/QA (usabilidad, comprensión, revisión visual, soporte post-despliegue). Su validación es manual/QA según quickstart/revisión; exclusión intencional de cobertura automatizada de tareas salvo brecha detectada. El resto de SC son verificables por build/tests/contratos.
+
+- **SC-001**: *(Resultado/QA)* Los usuarios pueden crear un cliente y verlo en la lista en menos de 2 minutos.
 - **SC-002**: Los usuarios pueden encontrar un cliente existente mediante la búsqueda en menos de 10 segundos tras introducir un término relevante.
-- **SC-003**: Al menos el 90% de los usuarios de prueba pueden completar las tareas de crear, editar y buscar clientes, registrar oportunidades e interacciones sin ayuda.
+- **SC-003**: *(Resultado/QA)* Al menos el 90% de los usuarios de prueba pueden completar las tareas de crear, editar y buscar clientes, registrar oportunidades e interacciones sin ayuda.
 - **SC-004**: Con al menos 500 clientes y sus oportunidades e interacciones asociadas, el sistema conserva toda la funcionalidad central, cumple el umbral de búsqueda de SC-002 y renderiza listas en 2 segundos o menos.
 - **SC-005**: Cada vez que se muestra el dashboard, sus indicadores coinciden con los datos almacenados, incluidas las oportunidades abiertas de clientes archivados; la tasa de conversión sigue la fórmula de FR-058.
 - **SC-006**: El 100% de las oportunidades e interacciones creadas quedan asociadas a un cliente y a un empleado existentes.
@@ -657,15 +659,15 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **SC-009**: Un desarrollador puede adaptar el módulo mediante configuración sin modificar el código central.
 - **SC-010**: Cada pantalla presenta el mismo espacio de trabajo con marca y el usuario puede identificar el área activa de un vistazo.
 - **SC-011**: El sistema rechaza el 100% de los intentos de registrar un cliente con un correo ya existente, incluidos los archivados.
-- **SC-012**: El 100 % de los usuarios puede revelar y ocultar la contraseña sin perder el texto introducido en una sola acción.
-- **SC-013**: Al menos el 95 % de los usuarios completa el acceso en su primer intento en menos de un minuto.
-- **SC-014**: El 100 % de los usuarios contrae y expande el menú lateral en menos de dos segundos desde cualquier sección.
-- **SC-015**: En pantallas de escritorio estándar, el banner y las cuatro tarjetas KPI son visibles sin desplazamiento vertical en el 100 % de las cargas del Dashboard.
-- **SC-016**: El 100 % de los formularios de cliente presentan los encabezados "DATOS DEL CLIENTE" y "CONDICIONES COMERCIALES" con la misma jerarquía visual en alta y edición.
-- **SC-017**: El 100 % de los mensajes de error aparece junto al campo correspondiente con la misma redacción en ambos bloques de formulario.
-- **SC-018**: En una revisión completa de todas las pantallas y estados, se encuentran cero caracteres mal formados en textos en español o símbolos monetarios.
-- **SC-019**: Al menos el 90 % de los usuarios identifica el propósito de cada tarjeta KPI sin ayuda externa en una prueba de comprensión.
-- **SC-020**: Las solicitudes de soporte relacionadas con confusión de navegación o captura de clientes disminuyen un 30 % después del despliegue de la interfaz.
+- **SC-012**: *(Resultado/QA)* El 100 % de los usuarios puede revelar y ocultar la contraseña sin perder el texto introducido en una sola acción.
+- **SC-013**: *(Resultado/QA)* Al menos el 95 % de los usuarios completa el acceso en su primer intento en menos de un minuto.
+- **SC-014**: *(Resultado/QA)* El 100 % de los usuarios contrae y expande el menú lateral en menos de dos segundos desde cualquier sección.
+- **SC-015**: *(Resultado/QA)* En pantallas de escritorio estándar, el banner y las cuatro tarjetas KPI son visibles sin desplazamiento vertical en el 100 % de las cargas del Dashboard.
+- **SC-016**: *(Resultado/QA)* El 100 % de los formularios de cliente presentan los encabezados "DATOS DEL CLIENTE" y "CONDICIONES COMERCIALES" con la misma jerarquía visual en alta y edición.
+- **SC-017**: *(Resultado/QA)* El 100 % de los mensajes de error aparece junto al campo correspondiente con la misma redacción en ambos bloques de formulario.
+- **SC-018**: *(Resultado/QA)* En una revisión completa de todas las pantallas y estados, se encuentran cero caracteres mal formados en textos en español o símbolos monetarios.
+- **SC-019**: *(Resultado/QA)* Al menos el 90 % de los usuarios identifica el propósito de cada tarjeta KPI sin ayuda externa en una prueba de comprensión.
+- **SC-020**: *(Resultado/QA)* Las solicitudes de soporte relacionadas con confusión de navegación o captura de clientes disminuyen un 30 % después del despliegue de la interfaz.
 - **SC-021**: El 100 % de las recargas en el mismo navegador conserva el tema elegido y lo aplica antes de que el contenido sea visible.
 - **SC-022**: En una revisión visual de acceso, shell, dashboard, formularios, búsqueda y diálogos en tema oscuro, se encuentran 0 superficies críticas con fondo claro fijo o texto ilegible.
 - **SC-023**: El 100 % de las altas, ediciones y eliminaciones de oportunidades realizadas desde la UI se reflejan en los KPI del dashboard al siguiente ingreso a la pantalla.

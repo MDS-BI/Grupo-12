@@ -787,11 +787,17 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 **Objetivo**: Cubrir aclaraciones agregadas por checklist de integridad de datos (dirty-check, corrupción/categorías/reintento/fiabilidad, etapas inválidas en conversión, accesibilidad de tema).
 
 - [ ] T189 [P] [US14] Añadir/actualizar prueba de integración que verifique criterio dirty de FR-070 (línea base al cargar/limpiar/guardar/descartar; disabled/readonly no cuentan) en `tests/integration/unsaved-changes.test.js` (FR-070)
-- [ ] T190 [P] [US8] Añadir pruebas de integración para FR-072: cancelar/ignorar reinicio mantiene bloqueo, fallo de escritura muestra reintento sin marcar recuperado, reinicio solo afecta claves afectables y preserva sesión/tema/vista/sidebar en `tests/integration/storage-recovery.test.js` (FR-072)
-- [ ] T191 [US8] Implementar validación de shape por categoría de clave y flujo de reintento/bloqueo de FR-072 en `src/storage.js` y `src/app.js` (FR-072)
-- [ ] T192 [P] [US6] Añadir prueba unitaria para excluir etapas ausentes/nulas/inválidas de conversión y reportar inconsistencia recuperable sin bloquear KPIs en `tests/unit/dashboard-metrics.test.js` (FR-058)
-- [ ] T193 [US6] Ajustar `computeConversionRate()`/overview para tratar etapas inválidas según FR-058 en `src/domain.js` y `src/storage.js` (FR-058)
+- [ ] T190 [P] [US8] Añadir pruebas de integración para FR-072 en `tests/integration/storage-recovery.test.js`: estado de bloqueo visible con mensaje y categoría afectada; acción primaria "Reiniciar datos afectados"; acciones dependientes deshabilitadas/ocultas; cancelar/ignorar mantiene bloqueo; fallo de escritura muestra error y control "Reintentar", no altera claves no afectadas ni marca recuperado; reintento exitoso limpia error, deja claves afectadas en `[]` y habilita UI; preserva sesión/tema/vista/sidebar (FR-072)
+- [ ] T191 [US8] Implementar validación de shape por categoría de clave y flujo observable de FR-072 en `src/storage.js` y `src/app.js`: bloqueo con mensaje/categoría afectada, acción "Reiniciar datos afectados", acciones dependientes deshabilitadas/ocultas; cancelar/ignorar mantiene bloqueo; fallo de escritura muestra "Reintentar" sin alterar claves no afectadas ni marcar recuperado; éxito escribe `[]` solo en claves afectadas, preserva sesión/tema/vista/sidebar y habilita UI en estado vacío controlado (FR-072)
+- [ ] T192 [P] [US6] Añadir prueba unitaria/integración para FR-058 en `tests/unit/dashboard-metrics.test.js` (y dashboard integration si aplica): etapas ausentes/nulas/inválidas excluidas de conversión; aviso no bloqueante visible `#dashboard-data-warning` (o equivalente) con cantidad afectada al renderizar dashboard; KPIs válidos se muestran normales; aviso oculto cuando no hay inconsistencias (FR-058)
+- [ ] T193 [US6] Ajustar `computeConversionRate()`/overview y UI de dashboard para FR-058 en `src/domain.js`, `src/storage.js` y `src/app.js`: excluir etapas ausentes/nulas/inválidas de conversión; exponer cantidad afectada; mostrar aviso no bloqueante `#dashboard-data-warning` (o equivalente) al renderizar/cargar dashboard y ocultarlo sin inconsistencias; KPIs válidos normales, sin bloqueo de navegación (FR-058)
 - [ ] T194 [P] [US16] Añadir prueba de accesibilidad de teclado/etiqueta/valor actual para `#theme-select` en `tests/integration/theme.test.js` (FR-073)
+
+
+### Cobertura de Criterios de Éxito
+
+- **Métricas de resultado/QA (cobertura intencional fuera de tareas automatizadas/build)**: SC-001, SC-003, SC-012, SC-013, SC-014, SC-015, SC-016, SC-017, SC-018, SC-019, SC-020. Se validan por pruebas manuales/revisión/QA según quickstart/spec; no requieren tarea de implementación adicional salvo que se detecte brecha.
+- El resto de SC con impacto build/verificable en código o tests están cubiertos por tareas explícitas o históricas.
 
 ## Notas
 

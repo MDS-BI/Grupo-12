@@ -45,9 +45,9 @@ Define claves de almacenamiento, reglas de integridad, recuperación y nuevas cl
   - Entidad CRM afectable: `crm_module:customers`, `crm_module:employees`, `crm_module:opportunities`, `crm_module:interactions`.
   - Compatibilidad afectable solo si se usa y está corrupta: `erp_base_module:entities`, `erp_base_module:documents`.
   - No afectadas por reset de corrupción: `erp.authenticatedUser`, `erp.sidebarCollapsed`, `erp.activeView`, `crm.theme`.
-- **Reinicio explícito**: escribe `[]` solo en claves afectadas de las categorías afectables. No modifica claves no afectadas.
-- **Flujos alternos/excepción**: cancelar/ignorar reinicio mantiene bloqueo de operaciones sobre datos afectados y el error visible con acción disponible. Si falla la escritura del reinicio, mostrar error de recuperación con opción de reintentar; no borrar claves no afectadas; no marcar recuperación completada.
-- **Fiabilidad**: detección en 100% de arranques; reinicio exitoso deja claves afectadas en `[]` y permite estado vacío controlado.
+- **Comportamiento observable de bloqueo**: UI muestra estado de error visible con mensaje claro y categoría/clave afectada, más acción primaria "Reiniciar datos afectados". Acciones de crear/editar/eliminar/cargar listados dependientes de claves afectadas quedan deshabilitadas u ocultas; navegación no destructiva independiente puede permanecer disponible. Cancelar/ignorar mantiene bloqueo y mensaje visible.
+- **Reintento ante fallo**: si falla la escritura del reinicio, mantener bloqueo, mostrar error de recuperación con detalle comprensible y control "Reintentar"; no borrar claves no afectadas ni marcar recuperación completada. Reintento exitoso escribe `[]` solo en claves afectadas, limpia error, habilita UI y continúa en estado vacío controlado.
+- **Fiabilidad**: detección en 100% de arranques; reinicio exitoso deja claves afectadas en `[]`.
 
 ## Campos personalizados huérfanos (FR-071)
 

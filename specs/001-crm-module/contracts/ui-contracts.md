@@ -41,6 +41,7 @@ Define los selectores, estados, atributos y textos observables de la interfaz. E
 | Oportunidades activas | `#stat-opportunities`, `#stat-opportunities-label` | entero, neutro `0` |
 | Ingresos estimados | `#stat-revenue`, `#stat-revenue-label` | moneda base CLP, neutro `$0` |
 | Tasa de conversión | `#stat-conversion`, `#stat-conversion-label` | porcentaje entero, neutro `0 %` |
+| Aviso inconsistencia etapas | `#dashboard-data-warning` (o equivalente) | visible solo cuando hay oportunidades con etapa ausente/nula/inválida; texto claro + cantidad afectada; no bloqueante; oculto cuando no hay inconsistencias |
 
 **Fuente**: KPIs calculados desde la misma fuente canónica que CRUD de oportunidades; sin divergencia tras crear/editar/eliminar.
 
@@ -95,6 +96,18 @@ Seleccionar resultado/fila navega/carga registro en formulario. Gestión princip
 - Sin U+FFFD/mojibake en textos visibles.
 - `data-theme="light|dark"` aplicado temprano desde `crm.theme`.
 - Cobertura visual coherente en ambos temas.
+
+
+## 9. Recuperación de almacenamiento (FR-072)
+
+| Elemento | Contrato |
+|---|---|
+| Estado de bloqueo | visible cuando hay corrupción no resuelta; mensaje claro con categoría/clave afectada |
+| Acción primaria | botón "Reiniciar datos afectados" disponible mientras haya corrupción |
+| Cancelar/ignorar | mantiene bloqueo y mensaje visible; no habilita operaciones sobre datos afectados |
+| Acciones dependientes | crear/editar/eliminar/cargar listados dependientes de claves afectadas deshabilitadas u ocultas |
+| Fallo de reinicio | muestra error de recuperación con detalle comprensible y control "Reintentar"; no altera claves no afectadas; no marca recuperado |
+| Reintento exitoso | limpia error, claves afectadas en `[]`, habilita UI, estado vacío controlado; preserva sesión/tema/vista/sidebar |
 
 ## Verificación
 

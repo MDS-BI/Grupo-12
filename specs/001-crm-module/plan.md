@@ -177,6 +177,14 @@ Ver [research.md](research.md) para decisiones detalladas. No quedan NEEDS CLARI
 - **III. UX**: PASA. Contratos cubren consistencia visual, ARIA y estados vacíos/errores.
 - **IV. Rendimiento**: PASA. Búsqueda/listados en memoria con filtros simples; sin dependencias nuevas; render acotado por DOM existente.
 
+
+## Alineación de integridad (Fase 34, tasks.md)
+
+Secuencia/dependencias de Fase 34 ya definidas en `tasks.md`:
+- **T190 → T191 (US8, FR-072)**: pruebas primero, implementación después; flujo observable de bloqueo/reintento/reset en `tests/integration/storage-recovery.test.js`, `src/storage.js`, `src/app.js`.
+- **T192 → T193 (US6, FR-058)**: pruebas primero, implementación después; aviso no bloqueante de inconsistencia y exclusión de etapas inválidas en `tests/unit/dashboard-metrics.test.js`, `src/domain.js`, `src/storage.js`, `src/app.js`.
+- **T189 (US14, FR-070)** y **T194 (US16, FR-073)**: independientes, paralelizables con coordinación de archivos compartidos.
+
 ## Fase 2: Planificación de Implementación (entrada para /speckit.tasks)
 
 ### Orden recomendado
