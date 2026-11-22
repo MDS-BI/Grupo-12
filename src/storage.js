@@ -310,6 +310,42 @@ export function searchEntities(term = '') {
   });
 }
 
+export function searchCRM(term = '') {
+  const search = sanitizeCRMText(String(term ?? '')).toLowerCase();
+  if (!search) return [];
+  const customers = loadCustomers();
+  const employees = loadEmployees();
+  const customerResults = customers
+    .filter((c) => !c.archived)
+    .filter((c) => [c.nombreEmpresa, c.personaContacto, c.correo, c.telefono, c.estado, c.codigo, c.rut, c.direccion, c.categoria]
+      .some((v) => sanitizeCRMText(v).toLowerCase().includes(search)))
+    .map((c) => ({
+      type: 'client',
+      typeLabel: 'Cliente',
+      id: c.id,
+      label: c.nombreEmpresa,
+      detail: [c.personaContacto, c.correo, c.estado].filter(Boolean).join(' · '),
+    }));
+
+  const opportunityResults = loadOpportunities()
+    .map((o) => {
+      const customer = customers.find((c) => c.id === o.clienteId);
+      const employee = employees.find((e) => e.id === o.empleadoId);
+      return { o, customer, employee };
+    })
+    .filter(({ o, customer, employee }) => [o.etapa, o.montoEstimado, o.fechaEstimadaCierre, o.descripcion, customer?.nombreEmpresa, employee?.nombre]
+      .some((v) => String(v ?? '').toLowerCase().includes(search)))
+    .map(({ o, customer, employee }) => ({
+      type: 'opportunity',
+      typeLabel: 'Oportunidad',
+      id: o.id,
+      label: customer?.nombreEmpresa ? `Oportunidad · ${customer.nombreEmpresa}` : `Oportunidad ${o.id}`,
+      detail: [o.etapa, employee?.nombre, o.fechaEstimadaCierre].filter(Boolean).join(' · '),
+    }));
+
+  return [...customerResults, ...opportunityResults];
+}
+
 export function validateDocument(data = {}) {
   const values = sanitizeDocumentInput(data);
   const errors = {};

@@ -1,6 +1,7 @@
 import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
 import { computeConversionRate } from './domain.js';
-import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, getCRMStorageErrors, loadCustomers, loadDocuments, loadEntities, resetCorruptedCRMStorage, searchEntities, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
+import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, getCRMStorageErrors, loadCustomers, loadDocuments, loadEntities, resetCorruptedCRMStorage,
+  searchCRM, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
 
 export const AUTH_STORAGE_KEY = 'erp.authenticatedUser';
 export const SIDEBAR_STORAGE_KEY = 'erp.sidebarCollapsed';
@@ -13,6 +14,14 @@ const formBaselines = new WeakMap();
 
 function qs(id) {
   return document.getElementById(id);
+}
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // FR-070: cualquier formulario CRM del DOM real se considera con cambios
@@ -656,32 +665,117 @@ function renderModuleLabels() {
   if (qs('search-empty')) qs('search-empty').textContent = `No hay coincidencias para su búsqueda.`;
 }
 
+function renderEntityList() {
+  const tbody = qs('entity-list');
+  const empty = qs('entity-list-empty');
+  if (!tbody) return;
+  const entities = loadEntities();
+  tbody.replaceChildren();
+  if (empty) empty.hidden = entities.length > 0;
+  for (const entity of entities) {
+    const tr = document.createElement('tr');
+    tr.dataset.entityId = entity.id;
+    tr.innerHTML = `<td>${escapeHTML(entity.name || '')}</td><td>${escapeHTML(entity.code || '')}</td><td>${escapeHTML(entity.email || '')}</td><td>${escapeHTML(entity.phone || '')}</td>`
+      + `<td class="row-actions"><button type="button" class="row-action" data-action="edit" data-entity-id="${escapeHTML(entity.id)}">Editar</button>`
+      + `<button type="button" class="row-action danger" data-action="delete" data-entity-id="${escapeHTML(entity.id)}">Eliminar</button></td>`;
+    tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+      fillEntityForm(entity);
+      const select = qs('edit-entity');
+      if (select) select.value = entity.id;
+      qs('entity-form')?.scrollIntoView?.({ block: 'nearest' });
+    });
+    tr.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+      openDeleteConfirmDialog({
+        title: 'Confirmar eliminación',
+        message: '¿Deseas eliminar el cliente seleccionado? Esta acción no se puede deshacer.',
+        confirmLabel: 'Eliminar',
+        opener: e.currentTarget,
+        onConfirm: () => {
+          deleteEntity(entity.id);
+          if (qs('entity-id')?.value === entity.id) resetEntityForm();
+          updateEntitySelect();
+          updateDashboardStats();
+          renderSearchResults();
+        }
+      });
+    });
+    tbody.appendChild(tr);
+  }
+}
+
+function renderDocumentList() {
+  const tbody = qs('document-list');
+  const empty = qs('document-list-empty');
+  if (!tbody) return;
+  const docs = loadDocuments();
+  tbody.replaceChildren();
+  if (empty) empty.hidden = docs.length > 0;
+  for (const doc of docs) {
+    const tr = document.createElement('tr');
+    tr.dataset.documentId = doc.id;
+    const folio = [doc.series, doc.folio].filter(Boolean).join('-');
+    tr.innerHTML = `<td>${escapeHTML(doc.entityName || '')}</td><td>${escapeHTML(folio)}</td><td>${escapeHTML(doc.status || '')}</td><td>${escapeHTML(doc.totalAmount ?? '')} ${escapeHTML(doc.currency || '')}</td>`
+      + `<td class="row-actions"><button type="button" class="row-action" data-action="edit" data-document-id="${escapeHTML(doc.id)}">Editar</button>`
+      + `<button type="button" class="row-action danger" data-action="delete" data-document-id="${escapeHTML(doc.id)}">Eliminar</button></td>`;
+    tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+      fillDocumentForm(doc);
+      const select = qs('edit-document');
+      if (select) select.value = doc.id;
+      qs('document-form')?.scrollIntoView?.({ block: 'nearest' });
+    });
+    tr.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+      openDeleteConfirmDialog({
+        title: 'Confirmar eliminación',
+        message: '¿Deseas eliminar la oportunidad seleccionada? Esta acción no se puede deshacer.',
+        confirmLabel: 'Eliminar',
+        opener: e.currentTarget,
+        onConfirm: () => {
+          deleteDocument(doc.id);
+          if (qs('document-id')?.value === doc.id) resetDocumentForm();
+          updateDocumentSelect();
+          updateDashboardStats();
+          renderSearchResults();
+        }
+      });
+    });
+    tbody.appendChild(tr);
+  }
+}
+
 function updateEntitySelect() {
   const select = qs('edit-entity');
-  if (!select) return;
-  const entities = loadEntities();
-  select.replaceChildren(new Option('Seleccionar...', ''));
-  for (const entity of entities) {
-    const option = document.createElement('option');
-    option.value = entity.id;
-    option.textContent = `${entity.name || 'Sin nombre'} — ${entity.code || entity.entity_id || 'Sin código'}`;
-    select.appendChild(option);
+  if (select) {
+    const entities = loadEntities();
+    const selected = select.value;
+    select.replaceChildren(new Option('Seleccionar...', ''));
+    for (const entity of entities) {
+      const option = document.createElement('option');
+      option.value = entity.id;
+      option.textContent = `${entity.name || 'Sin nombre'} - ${entity.code || entity.entity_id || 'Sin código'}`;
+      select.appendChild(option);
+    }
+    select.value = selected;
   }
+  renderEntityList();
 }
 
 function updateDocumentSelect() {
   const select = qs('edit-document');
-  if (!select) return;
-  const documents = loadDocuments();
-  select.replaceChildren(new Option('Seleccionar...', ''));
-  for (const record of documents) {
-    const entity = loadEntities().find((item) => item.entity_id === record.entity_id || item.id === record.entity_id);
-    const label = [record.series || 'SIN-SERIE', record.folio || '0'].join(' - ');
-    const option = document.createElement('option');
-    option.value = record.id;
-    option.textContent = `${label}${entity ? ` · ${entity.name}` : ''}`;
-    select.appendChild(option);
+  if (select) {
+    const documents = loadDocuments();
+    const selected = select.value;
+    select.replaceChildren(new Option('Seleccionar...', ''));
+    for (const record of documents) {
+      const entity = loadEntities().find((item) => item.entity_id === record.entity_id || item.id === record.entity_id);
+      const label = [record.series || 'SIN-SERIE', record.folio || '0'].join(' - ');
+      const option = document.createElement('option');
+      option.value = record.id;
+      option.textContent = `${label}${entity ? ` · ${entity.name}` : ''}`;
+      select.appendChild(option);
+    }
+    select.value = selected;
   }
+  renderDocumentList();
 }
 
 function updateEntityFieldOptions() {
@@ -895,55 +989,53 @@ function renderSearchResults() {
   if (!input || !resultsList || !emptyState) return;
 
   const term = input.value.trim();
-  const results = searchEntities(term);
   resultsList.replaceChildren();
-  const matches = results.filter(Boolean);
+  if (!term) {
+    emptyState.hidden = true;
+    emptyState.textContent = 'No hay coincidencias para su búsqueda.';
+    return;
+  }
 
+  const matches = searchCRM(term);
   if (!matches.length) {
     emptyState.hidden = false;
-    resultsList.replaceChildren();
+    emptyState.textContent = 'No hay coincidencias para su búsqueda.';
     return;
   }
 
   emptyState.hidden = true;
-  const config = getActiveConfig();
   for (const result of matches) {
     const item = document.createElement('li');
-    item.className = 'entity-item';
-    const detail = [];
-    detail.push(`${result.name || 'Sin nombre'}${result.code ? ` — ${result.code}` : ''}`);
-
-    for (const field of config.customFields || []) {
-      if ((field.target || 'entity') !== 'entity') continue;
-      const value = result[field.key];
-      if (value !== undefined && value !== null && value !== '') {
-        detail.push(`${field.label || field.key}: ${value}`);
-      }
-    }
-
-    const status = loadDocuments()
-      .filter((doc) => doc.entity_id === result.entity_id || doc.entity_id === result.id)
-      .map((doc) => doc.status)
-      .filter(Boolean)
-      .at(-1);
-
-    const text = document.createElement('span');
-    text.textContent = detail.join(' | ');
-    item.appendChild(text);
-
-    if (status) {
-      const modifier = String(status)
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-');
-      const badge = document.createElement('span');
-      badge.className = `status-badge status-badge--${modifier}`;
-      badge.textContent = status;
-      item.appendChild(badge);
-    }
-
+    item.className = 'search-result-item';
+    item.dataset.searchType = result.type;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'search-result-button';
+    btn.dataset.searchId = result.id;
+    btn.dataset.searchType = result.type;
+    btn.innerHTML = `<span class="search-result-type">${escapeHTML(result.typeLabel)}</span>`
+      + `<span class="search-result-body"><strong class="search-result-label">${escapeHTML(result.label)}</strong>`
+      + `<span class="search-result-detail">${escapeHTML(result.detail || '')}</span></span>`;
+    btn.addEventListener('click', () => navigateToSearchResult(result));
+    item.appendChild(btn);
     resultsList.appendChild(item);
+  }
+}
+
+function navigateToSearchResult(result) {
+  if (!result) return;
+  if (result.type === 'client') {
+    showView('entities');
+    const entity = loadEntities().find((e) => e.id === result.id || e.entity_id === result.id);
+    if (entity) fillEntityForm(entity);
+    const select = qs('edit-entity');
+    if (select) select.value = entity?.id || result.id;
+  } else if (result.type === 'opportunity') {
+    showView('documents');
+    const doc = loadDocuments().find((d) => d.id === result.id);
+    if (doc) fillDocumentForm(doc);
+    const select = qs('edit-document');
+    if (select) select.value = doc?.id || result.id;
   }
 }
 

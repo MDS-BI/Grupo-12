@@ -589,15 +589,15 @@
 
 ### Pruebas para la Historia de Usuario 20
 
-- [ ] T163 [P] [US20] AÃ±adir pruebas de integraciÃ³n para bÃºsqueda unificada de clientes y oportunidades en `tests/integration/search.test.js` (FR-081, SC-026)
-- [ ] T164 [P] [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde resultado a vista/registro en `tests/integration/corrections-us16-us24.test.js` (FR-082, SC-026)
+- [x] T163 [P] [US20] AÃ±adir pruebas de integraciÃ³n para bÃºsqueda unificada de clientes y oportunidades en `tests/integration/search.test.js` (FR-081, SC-026)
+- [x] T164 [P] [US20] AÃ±adir prueba de integraciÃ³n para navegaciÃ³n desde resultado a vista/registro en `tests/integration/corrections-us16-us24.test.js` (FR-082, SC-026)
 
 ### ImplementaciÃ³n de la Historia de Usuario 20
 
-- [ ] T165 [US20] Implementar consulta unificada tipada de clientes y oportunidades en `src/storage.js` (FR-081)
-- [ ] T166 [US20] Renderizar resultados con tipo, etiqueta y detalle en `#search-results-list` en `src/app.js` (FR-081, FR-082)
-- [ ] T167 [US20] Navegar al registro seleccionado y cargarlo en formulario/vista correspondiente en `src/app.js` (FR-082, SC-026)
-- [ ] T168 [US20] Ajustar estilos de resultados tipados y estado vacÃ­o en `src/styles.css` (FR-081, FR-075)
+- [x] T165 [US20] Implementar consulta unificada tipada de clientes y oportunidades en `src/storage.js` (FR-081)
+- [x] T166 [US20] Renderizar resultados con tipo, etiqueta y detalle en `#search-results-list` en `src/app.js` (FR-081, FR-082)
+- [x] T167 [US20] Navegar al registro seleccionado y cargarlo en formulario/vista correspondiente en `src/app.js` (FR-082, SC-026)
+- [x] T168 [US20] Ajustar estilos de resultados tipados y estado vacÃ­o en `src/styles.css` (FR-081, FR-075)
 
 **Punto de control**: US20 funcional y verificable de forma independiente.
 
@@ -611,15 +611,15 @@
 
 ### Pruebas para la Historia de Usuario 21
 
-- [ ] T169 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de clientes con acciones por fila en `tests/integration/entities.test.js` (FR-083, FR-084, SC-027)
-- [ ] T170 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de oportunidades con acciones por fila en `tests/integration/documents.test.js` (FR-083, FR-084, SC-027)
+- [x] T169 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de clientes con acciones por fila en `tests/integration/entities.test.js` (FR-083, FR-084, SC-027)
+- [x] T170 [P] [US21] AÃ±adir pruebas de integraciÃ³n para listados de oportunidades con acciones por fila en `tests/integration/documents.test.js` (FR-083, FR-084, SC-027)
 
 ### ImplementaciÃ³n de la Historia de Usuario 21
 
-- [ ] T171 [P] [US21] AÃ±adir contenedores de listado/tablas en `#view-entities` y `#view-documents` en `index.html` (FR-083)
-- [ ] T172 [US21] Renderizar filas de clientes con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js` (FR-083, FR-084, SC-027)
-- [ ] T173 [US21] Renderizar filas de oportunidades con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js` (FR-083, FR-084, SC-027)
-- [ ] T174 [US21] AÃ±adir estilos responsivos y accesibles para listados escalables en `src/styles.css` (FR-083, FR-075)
+- [x] T171 [P] [US21] AÃ±adir contenedores de listado/tablas en `#view-entities` y `#view-documents` en `index.html` (FR-083)
+- [x] T172 [US21] Renderizar filas de clientes con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js` (FR-083, FR-084, SC-027)
+- [x] T173 [US21] Renderizar filas de oportunidades con acciones Editar/Eliminar y sincronizaciÃ³n con formulario en `src/app.js` (FR-083, FR-084, SC-027)
+- [x] T174 [US21] AÃ±adir estilos responsivos y accesibles para listados escalables en `src/styles.css` (FR-083, FR-075)
 
 **Punto de control**: US21 funcional y verificable de forma independiente.
 
