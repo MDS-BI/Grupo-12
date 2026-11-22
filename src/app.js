@@ -375,6 +375,7 @@ function nounSelectionSuffix(label) {
 }
 
 function renderModuleLabels() {
+  const config = getActiveConfig();
   const nav = [
     ['nav-dashboard', 'dashboard'],
     ['nav-entities', 'entities'],
@@ -384,13 +385,13 @@ function renderModuleLabels() {
 
   for (const [buttonId, key] of nav) {
     const labelNode = qs(`${buttonId}-label`);
-    if (labelNode) labelNode.textContent = labelFor(key);
+    if (labelNode) labelNode.textContent = labelFor(key, config);
   }
 
-  const entityLabel = labelFor('entities');
-  const documentLabel = labelFor('documents');
-  const entitySingular = labelFor('entity');
-  const documentSingular = labelFor('document');
+  const entityLabel = labelFor('entities', config);
+  const documentLabel = labelFor('documents', config);
+  const entitySingular = labelFor('entity', config);
+  const documentSingular = labelFor('document', config);
   const entityArticle = nounArticle(entitySingular, { newItem: false });
   const documentArticle = nounArticle(documentSingular, { newItem: false });
   const entityNewArticle = nounArticle(entitySingular, { newItem: true });
@@ -446,7 +447,7 @@ function updateEntityFieldOptions() {
   const config = getActiveConfig();
   const container = qs('entity-custom-fields');
   if (!container) return;
-  const fields = getVisibleCustomFields('entity');
+  const fields = getVisibleCustomFields('entity', config);
   container.replaceChildren();
   container.hidden = fields.length === 0;
 
@@ -498,7 +499,7 @@ function updateDocumentFieldOptions() {
   const config = getActiveConfig();
   const container = qs('document-custom-fields');
   if (!container) return;
-  const fields = getVisibleCustomFields('document');
+  const fields = getVisibleCustomFields('document', config);
   container.replaceChildren();
   container.hidden = fields.length === 0;
 
@@ -602,7 +603,7 @@ function fillEntityForm(entity) {
   qs('paymentTerms').value = entity.paymentTerms || '';
 
   const config = getActiveConfig();
-  for (const field of getVisibleCustomFields('entity')) {
+  for (const field of getVisibleCustomFields('entity', config)) {
     const input = qs(`cf-${field.key}`);
     if (input) input.value = entity[field.key] ?? '';
   }
@@ -636,7 +637,7 @@ function fillDocumentForm(record) {
   }
 
   const config = getActiveConfig();
-  for (const field of getVisibleCustomFields('document')) {
+  for (const field of getVisibleCustomFields('document', config)) {
     const input = qs(`cf-${field.key}`);
     if (input) input.value = record[field.key] ?? '';
   }

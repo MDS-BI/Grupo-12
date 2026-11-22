@@ -174,11 +174,12 @@ function toSafeFieldArray(value) {
 export function normalizeConfig(rawConfig) {
   const defaults = cloneDefaultConfig();
   const source = rawConfig && typeof rawConfig === 'object' ? rawConfig : {};
+  const rawLabels = source.labels && typeof source.labels === 'object' && !Array.isArray(source.labels) ? source.labels : {};
   const normalized = {
     moduleName: typeof source.moduleName === 'string' && source.moduleName.trim() ? source.moduleName.trim() : defaults.moduleName,
     labels: {
       ...defaults.labels,
-      ...(source.labels && typeof source.labels === 'object' && !Array.isArray(source.labels) ? source.labels : {})
+      ...rawLabels
     },
     customFields: Array.isArray(source.customFields) ? source.customFields.map((field) => ({ ...field })) : [...defaults.customFields],
     statusLifecycle: source.statusLifecycle === undefined ? defaults.statusLifecycle : source.statusLifecycle,
@@ -188,6 +189,19 @@ export function normalizeConfig(rawConfig) {
     },
     moduleType: source.moduleType === 'generic' ? 'generic' : (source.moduleType === 'crm' ? 'crm' : defaults.moduleType)
   };
+
+  // Compatibilidad: aceptar etiquetas legadas y mapearlas a las claves canónicas.
+  const labelAliases = {
+    entity: ['cliente', 'customer'],
+    entities: ['clientes', 'customers'],
+    document: ['documento', 'opportunity'],
+    documents: ['documentos', 'opportunities']
+  };
+  for (const [canonical, aliases] of Object.entries(labelAliases)) {
+    if (rawLabels[canonical] !== undefined) continue;
+    const alias = aliases.find((key) => rawLabels[key] !== undefined);
+    if (alias !== undefined) normalized.labels[canonical] = rawLabels[alias];
+  }
 
   const errors = [];
 
@@ -323,16 +337,16 @@ export function getConfig() {
 // FR-071: los campos editables/visibles se derivan solo de la configuración
 // activa. Los valores huérfanos permanecen en almacenamiento pero no se
 // renderizan en formularios, listas ni búsquedas.
-export function getVisibleCustomFields(target) {
+export function getVisibleCustomFields(target, config = getConfig()) {
   const wanted = target === 'document' ? 'document' : 'entity';
-  return (getConfig().customFields || []).filter((field) =>
+  return (config.customFields || []).filter((field) =>
     field && typeof field === 'object' && typeof field.key === 'string' && field.key.trim() !== ''
     && (field.target || 'entity') === wanted
   );
 }
 
-export function labelFor(key) {
-  const labels = getConfig().labels || DEFAULT_CONFIG.labels;
+export function labelFor(key, config = getConfig()) {
+  const labels = config.labels || DEFAULT_CONFIG.labels;
   return labels[key] || DEFAULT_CONFIG.labels[key] || key;
 }
 
