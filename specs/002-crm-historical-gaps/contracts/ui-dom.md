@@ -18,7 +18,7 @@
 | Nav interacciones | `#nav-interactions` | abre `#view-interactions` |
 | Vista empleados | `#view-employees` | `section.view`, oculta salvo activa |
 | Vista interacciones | `#view-interactions` | `section.view` |
-| Vista/ficha 360 | `#view-client-360` o `#client-360-panel` | visible al abrir ficha; contiene retorno a clientes |
+| Vista/ficha 360 | `#view-client-360` | vista `section.view` única y canónica; visible al abrir ficha; contiene retorno a clientes |
 
 ## Grupo 1 - Empleados (FR-001..003)
 
@@ -68,7 +68,7 @@
 |---|---|---|
 | Abrir ficha | `[data-action="view-client-360"]` | en fila cliente; abre ficha |
 | Contenedor | `#client-360` | muestra resumen cliente |
-| Volver | `#client-360-back` | regresa a `#view-entities` preservando filtro/selección visible |
+| Volver | `#client-360-back` | regresa a `#view-entities`, restaura `#entity-list-filter`, cliente/fila seleccionada (`#entity_id` o `data-selected`) y vista activa `#view-entities`; usa `crm.gaps002.ui.clients360` y, sin estado previo, vacío |
 | Resumen | `#client-360-summary` | nombre, contacto, estado, archivado |
 | Oportunidades | `#client-360-opportunities` | lista/tabla relacionada |
 | Interacciones | `#client-360-interactions` | lista/tabla relacionada |

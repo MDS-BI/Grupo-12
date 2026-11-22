@@ -156,7 +156,7 @@ Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen re
 - **FR-006**: El sistema DEBE aplicar `opportunityLifecycle` configurado a la creación/edición/cambio de etapa de oportunidades, permitiendo solo transiciones válidas.
 - **FR-007**: El sistema DEBE mostrar feedback claro cuando una transición de etapa no es permitida y no persistir el cambio inválido.
 - **FR-008**: El sistema DEBE exponer una ficha cliente 360° accesible desde el listado de clientes, mostrando datos, oportunidades e interacciones relacionadas.
-- **FR-009**: El sistema DEBE permitir volver desde la ficha 360° al listado de clientes preservando el contexto visible de la lista (filtro/selección cuando aplique).
+- **FR-009**: El sistema DEBE permitir volver desde la ficha 360° al listado de clientes preservando el contexto visible observable: al accionar `#client-360-back` se restaura el valor de `#entity-list-filter`, el cliente/fila seleccionada (`#entity_id` o `data-selected`) y la vista `#view-entities` activa; esos datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío.
 - **FR-010**: El dashboard DEBE mostrar una sección visible "Próximos cierres" con oportunidades abiertas cuyo cierre esté dentro de la ventana operativa definida.
 - **FR-011**: El sistema DEBE mostrar un reporte visible de integridad referencial al cargar datos cuando existan registros con referencias inexistentes.
 - **FR-012**: El sistema DEBE permitir archivar y restaurar clientes desde la UI real, excluyendo archivados de listas/selectores operativos por defecto.

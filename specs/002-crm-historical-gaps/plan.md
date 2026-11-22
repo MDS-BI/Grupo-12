@@ -13,7 +13,7 @@ Enfoque técnico: extender DOM real con vistas/secciones para empleados, interac
 
 **Lenguaje/Versión**: JavaScript ES modules, HTML5, CSS3; Node/npm (Vite 8, Vitest 4, ESLint 9, jsdom 30).  
 **Dependencias Principales**: Ninguna nueva dependencia runtime. Reusar stack existente.  
-**Almacenamiento**: `localStorage` existente (`crm_module:*`, `erp_base_module:*`, claves 001) + claves propias de feature para estado UI no canónico: `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter`. Datos de dominio siguen en stores canónicas existentes (`crm_customers`, `crm_employees`, `crm_opportunities`, `crm_interactions`) vía `src/storage.js`.  
+**Almacenamiento**: `localStorage` existente (`crm_module:*`, `erp_base_module:*`, claves 001) + claves propias de feature para estado UI no canónico: `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees`. Datos de dominio siguen en stores canónicas existentes (`crm_customers`, `crm_employees`, `crm_opportunities`, `crm_interactions`) vía `src/storage.js`.  
 **Pruebas**: Vitest + jsdom, ruta DOM real (`tests/integration/live-dom.js`/mount de app real). Unitarias para reglas puras; integración para UI observable; contrato DOM/storage para nuevos IDs/claves.  
 **Plataforma Destino**: Navegador moderno desktop/móvil, app Vite estática.  
 **Tipo de Proyecto**: SPA frontend single-file shell (`index.html`) con módulos `src/*`.  
@@ -102,7 +102,7 @@ Artefactos: [data-model.md](data-model.md), [contracts/ui-dom.md](contracts/ui-d
 
 #### Grupo 1 - Empleados con UI real (T025, T055/T056 parcial)
 
-- **DOM**: agregar nav `#nav-employees`, vista `#view-employees`, formulario `#employee-form`, campos `#employee-id`, `#employee-name`, `#employee-role`, `#employee-status`, listado `#employee-list`, filtro `#employee-list-filter`, toggle archivados `#employee-show-archived`, empty state `#employee-list-empty`.
+- **DOM**: agregar nav `#nav-employees`, vista `#view-employees`, formulario `#employee-form`, campos `#employee-id`, `#employee-name`, `#employee-role`, listado `#employee-list`, filtro `#employee-list-filter`, toggle archivados `#employee-show-archived`, empty state `#employee-list-empty`. El estado operativo se gestiona con archivar/restaurar (soft-archive), no con un campo `status` en el formulario.
 - **App**: `renderEmployeeList()`, `fillEmployeeForm()`, `resetEmployeeForm()`, submit crea/actualiza; archivar/restaurar por acción de fila; selectores de responsable en oportunidades/interacciones usan solo empleados activos no archivados.
 - **Storage**: reusar `loadEmployees/addEmployee/updateEmployee`; agregar `archiveEmployee(id)`, `restoreEmployee(id)`, `loadEmployees({includeArchived})` o filtro equivalente; mantener `deleteEmployee` como alias compatible si ya usado por tests históricos, pero UI usa archivar/restaurar.
 - **Pruebas**: integración DOM real CRUD + archive/restore + exclusión en selectores.
@@ -125,8 +125,8 @@ Artefactos: [data-model.md](data-model.md), [contracts/ui-dom.md](contracts/ui-d
 
 #### Grupo 4 - Ficha cliente 360° (T041)
 
-- **DOM**: botón/acción "Ver ficha" en fila cliente; sección/panel `#client-360` o vista `#view-client-360` con `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-interactions`, estados vacíos.
-- **App**: navegación lista→ficha→lista; preservar contexto de lista (filtro, scroll/selección razonable) usando estado en memoria + `crm.gaps002.ui.clients360` solo para id seleccionado/retorno; no alterar `erp.activeView` semántica 001 salvo compatibilidad.
+- **DOM**: botón/acción "Ver ficha" en fila cliente; vista `#view-client-360` con `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-interactions`, estados vacíos.
+- **App**: navegación lista→ficha→lista; al volver con `#client-360-back` se restauran `#entity-list-filter`, el cliente/fila seleccionada (`#entity_id` o `data-selected`) y la vista `#view-entities` activa; esos datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío. No alterar `erp.activeView` semántica 001 salvo compatibilidad.
 - **Storage/Domain**: `getCustomer360(customerId)` compone cliente, oportunidades e interacciones (reusar `getCustomerActivity` si encaja).
 - **Pruebas**: integración DOM real abrir ficha, ver secciones, volver y conservar filtro/selección visible.
 
@@ -147,7 +147,7 @@ Artefactos: [data-model.md](data-model.md), [contracts/ui-dom.md](contracts/ui-d
 ## Contratos y no-doble-verdad
 
 - **KPIs 001 canónicos**: `getCRMOverview()`/`getCrmDashboardMetrics()` permanecen fuente canónica para tarjetas KPI existentes. Esta feature no recalcula ni persiste KPI alternativos.
-- **Nuevas claves propias**: `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.*`, `crm.gaps002.ui.lastIntegrityReport` (solo cache de vista opcional, no canónica). 
+- **Nuevas claves propias**: `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees`, `crm.gaps002.ui.lastIntegrityReport` (solo cache de vista opcional, no canónica). 
 - **Stores canónicas de dominio**: seguir usando `crm_customers`, `crm_employees`, `crm_opportunities`, `crm_interactions` a través de `src/storage.js`.
 - **Contratos DOM**: todos los IDs nuevos quedan en `contracts/ui-dom.md`; cualquier cambio requiere actualizar contrato y prueba.
 

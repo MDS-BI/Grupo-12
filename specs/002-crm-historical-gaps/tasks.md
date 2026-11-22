@@ -143,11 +143,11 @@
 ### Pruebas para User Story 4 (escribir primero, FALLAR antes de implementar) ⚠️
 
 - [ ] T031 [P] [US4] Crear prueba de integración DOM real en `tests/integration/client-360.test.js` para abrir `[data-action="view-client-360"]`, renderizar `#client-360-summary`, `#client-360-opportunities`, `#client-360-interactions` y estados vacíos (FR-008, SC-003, T041)
-- [ ] T032 [P] [US4] Extender `tests/integration/client-360.test.js` para verificar `#client-360-back` preserva contexto visible de listado (filtro/selección) usando `crm.gaps002.ui.clients360` (FR-009, SC-003)
+- [ ] T032 [P] [US4] Extender `tests/integration/client-360.test.js` para verificar que `#client-360-back` restaura contexto visible observable: `#entity-list-filter`, cliente/fila seleccionada (`#entity_id` o `data-selected`) y vista `#view-entities` activa; los datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío (FR-009, SC-003)
 
 ### Implementación para User Story 4
 
-- [ ] T033 [US4] Añadir markup de ficha 360 en `index.html`: `#view-client-360`/`#client-360-panel`, `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-opportunities-empty`, `#client-360-interactions`, `#client-360-interactions-empty` según `contracts/ui-dom.md`
+- [ ] T033 [US4] Añadir markup de ficha 360 en `index.html`: `#view-client-360` (selector público canónico único), `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-opportunities-empty`, `#client-360-interactions`, `#client-360-interactions-empty` según `contracts/ui-dom.md`
 - [ ] T034 [US4] Implementar consultas de composición en `src/storage.js`/`src/domain.js` (`getCustomer360` o reutilización de `getCustomerActivity`) con oportunidades/interacciones relacionadas y flags de vacío (FR-008)
 - [ ] T035 [US4] Implementar navegación lista→ficha→lista en `src/app.js`, preservando filtro/selección visible y estado `crm.gaps002.ui.clients360` (FR-009)
 - [ ] T036 [US4] Añadir estilos de ficha 360 en `src/styles.css` (layout, secciones, empty states, responsive)
