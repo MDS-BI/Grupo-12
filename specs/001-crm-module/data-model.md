@@ -105,6 +105,7 @@ Objeto de configuración cargado al arrancar que adapta la terminología, los ca
 - Los valores inválidos o conflictivos se informan con claridad; nunca fallan en silencio.
 - Las claves de campos personalizados no deben chocar con los campos base (`id`, `nombreEmpresa`, `personaContacto`, `correo`, `telefono`, `estado`, `archived`, `nombre`, `cargo`, `clienteId`, `empleadoId`, `descripcion`, `montoEstimado`, `etapa`, `fechaEstimadaCierre`, `fecha`, `tipo`, `createdAt`, `updatedAt`).
 - Los valores de campos personalizados se persisten junto a los campos base sin cambios de esquema.
+- Al eliminar una definición de campo personalizado, sus valores ya guardados se conservan, pero dejan de mostrarse o editarse en formularios, listas y búsquedas (FR-071). Al actualizar un registro se fusiona con la copia almacenada para no borrar esos valores ocultos.
 
 ## Relaciones
 
@@ -122,6 +123,15 @@ Objeto de configuración cargado al arrancar que adapta la terminología, los ca
 - Archivar un cliente o un empleado **no elimina** sus oportunidades ni interacciones.
 - Si al cargar los datos se detecta una referencia a un cliente o empleado inexistente, el sistema informa la inconsistencia en lugar de fallar en silencio.
 - Los clientes y empleados archivados se excluyen de las listas operativas y de los selectores de nuevos registros, pero siguen siendo consultables desde su historial.
+- El correo de un cliente archivado permanece reservado: la unicidad se evalúa sobre todos los clientes, incluidos los archivados (FR-069).
+
+### Reglas derivadas de las clarificaciones de 2026-11-21
+
+- **Oportunidades de archivados**: una oportunidad se considera abierta únicamente por su etapa; el estado `archived` del cliente no la excluye de oportunidades abiertas, pipeline ni próximos cierres (FR-068).
+- **Campos huérfanos**: los valores de campos personalizados eliminados de la configuración sobreviven en el registro; las vistas derivan de la configuración activa qué campos son visibles (FR-071).
+- **Salida de formularios**: los cambios sin guardar bloquean la navegación hasta que el usuario elige quedarse o descartar (FR-070).
+- **Preferencia de tema**: `Claro`/`Oscuro` se guarda en el almacenamiento local del mismo navegador y se aplica antes del primer render cuando el selector esté presente.
+- **Datos corruptos**: al arrancar se validan las claves; ante un valor ilegible se informa y se ofrece un reinicio explícito, sin reemplazar la información automáticamente (FR-072).
 
 ## Reglas de Validación (resumen)
 
@@ -191,10 +201,10 @@ Fuente: `crm_module:customers` a través de `addCustomer()`/`updateCustomer()` (
 | `email` | texto | `#email` | obligatorio y único entre clientes no archivados (`src/storage.js:635-640`) |
 | `phone` | texto | `#phone` | opcional |
 | `status` | enumeración | valor por defecto | `Posible`, `Activo`, `Inactivo`; por defecto `Posible` |
-| `archived` | booleano | eliminación lógica | excluye al cliente de listados y métricas |
+| `archived` | booleano | eliminación lógica | excluye al cliente de listados y del recuento de clientes activos; no excluye sus oportunidades abiertas de los KPI (FR-068) |
 | `creditLimit`, `paymentTerms` | texto/numérico | `#creditLimit`, `#paymentTerms` | se conservan en el registro ERP y se trasladan al adaptador CRM |
 
-**Relación**: un cliente puede tener varias oportunidades (`clientId`); todas las tarjetas KPI se derivan del conjunto de clientes y oportunidades no archivados.
+**Relación**: un cliente puede tener varias oportunidades (`clientId`). El KPI de clientes activos usa solo clientes no archivados; los KPI de oportunidades, pipeline y cierres se calculan por etapa sin filtrar por el estado `archived` del cliente, de modo que una oportunidad abierta de un cliente archivado sigue contando (FR-068).
 
 ### Entidad: Oportunidad (normalizada en la interfaz SaaS)
 

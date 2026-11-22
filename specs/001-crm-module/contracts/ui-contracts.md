@@ -88,6 +88,18 @@ Sin atributos `width`/`height` en línea: el tamaño se define en CSS (22 px par
 - `document.body.textContent` no contiene U+FFFD, `Ã`, `â€` ni entidades HTML de acentos.
 - Los encabezados en mayúsculas se leen completos y sin cortes en los cuatro breakpoints definidos.
 
-## 7. Criterios de aceptación verificables
+## 7. Cambios sin guardar, tema y errores de almacenamiento (FR-070, FR-072)
+
+| Situación | Elemento/contrato observable | Comportamiento |
+|---|---|---|
+| Formulario con cambios sin guardar | `#entity-form` y la navegación (`#nav-*`) | Al intentar salir se muestra un diálogo con «Permanecer» y «Descartar»; sin confirmación explícita no se navega ni se pierden los datos |
+| Elección de «Permanecer» | diálogo de confirmación | Cierra el diálogo, mantiene la vista y los valores introducidos |
+| Elección de «Descartar» | diálogo de confirmación | Cierra el diálogo, descarta los cambios y navega al destino solicitado |
+| Preferencia de tema (si el selector está presente) | `localStorage['crm.theme']` | Guarda `Claro`/`Oscuro` en el mismo navegador; la elección se aplica desde el primer render tras recargar |
+| Datos corruptos al arrancar | `#storage-error`, `#storage-reset` | Se muestra un mensaje comprensible y una acción explícita para reiniciar; no se descartan datos automáticamente |
+
+La navegación interna debe pasar por un único punto de control para que la confirmación no pueda evitarse con enlaces del menú ni con el botón de retroceso.
+
+## 8. Criterios de aceptación verificables
 
 Cada fila anterior es comprobable sin conocer la implementación: consultando el DOM, sus atributos, el texto visible y el almacenamiento del navegador. Las pruebas se agrupan en `tests/integration/ui-contracts.test.js` y `tests/integration/sidebar-collapse.test.js`, cargando el `index.html` real.
