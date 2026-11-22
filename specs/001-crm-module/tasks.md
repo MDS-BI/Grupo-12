@@ -549,8 +549,7 @@
 ### Pruebas para la Historia de Usuario 19
 
 - [ ] T153 [P] [US19] AÃ±adir pruebas de integraciÃ³n para diÃ¡logo de confirmaciÃ³n, cancelaciÃ³n, Escape y confirmaciÃ³n destructiva en `tests/integration/corrections-us16-us24.test.js` (FR-079, FR-080, SC-025)
-- [ ] T154 [P] [US19] AÃ±adir prueba de regresiÃ³n que prohÃ­be `window.confirm` en flujos de eliminaciÃ³n en `tests/unit/ui-contracts.test.js` (FR-079)
-
+- [ ] T154 [P] [US19] AÃ±adir prueba de regresiÃ³n que prohÃ­be `window.confirm` en flujos de eliminaciÃ³n en `tests/unit/ui-contracts.test.js` (FR-079, SC-025)
 ### ImplementaciÃ³n de la Historia de Usuario 19
 
 - [ ] T155 [US19] AÃ±adir marcado del diÃ¡logo de confirmaciÃ³n reutilizable con acciones cancelar/confirmar en `index.html` (FR-079, FR-080)

@@ -599,7 +599,7 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **FR-075**: El sistema DEBE mantener contraste y legibilidad suficientes para texto, iconos, bordes, mensajes y controles en ambos temas.
 - **FR-076**: Los indicadores del dashboard DEBEN calcularse desde la misma fuente de verdad usada por las altas, ediciones y eliminaciones de oportunidades en la UI.
 - **FR-077**: El sistema DEBE evitar divergencias entre los registros de oportunidades visibles en formularios/listas y las métricas del dashboard al mostrar la pantalla.
-- **FR-078**: El sistema DEBE aplicar la preferencia “Recordar mi sesión”: si está marcada conserva la sesión en el mismo navegador tras cerrar y reabrir; si no está marcada, limita la persistencia a la sesión de navegador/pestaña actual.
+- **FR-078**: El sistema DEBE aplicar la preferencia “Recordar mi sesión”: si está marcada, conserva la sesión en el mismo perfil/navegador; si no está marcada, usa `sessionStorage` y no se restaura en un nuevo contexto de navegador/pestaña; el cierre de sesión limpia ambas ubicaciones.
 - **FR-079**: Las eliminaciones de clientes y oportunidades DEBEN solicitar confirmación mediante un diálogo modal propio del CRM, no mediante `window.confirm`.
 - **FR-080**: Los diálogos modales de confirmación DEBEN ser accesibles por teclado, atrapar el foco, permitir cierre seguro y restaurar el foco al control de origen.
 - **FR-081**: La vista de búsqueda DEBE permitir localizar clientes y oportunidades por texto relevante e identificar claramente el tipo de cada resultado.
