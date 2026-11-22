@@ -5,7 +5,7 @@
 
 ## Resumen
 
-Desarrollar un módulo de **Customer Relationship Management (CRM)** integrado a un sistema ERP que permita administrar clientes, mantener un catálogo de empleados responsables, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta. El MVP estará enfocado en el **frontend**, usará **datos ficticios** y persistirá en el navegador; no incluye backend, autenticación ni roles.
+Desarrollar un módulo de **Customer Relationship Management (CRM)** integrado a un sistema ERP que permita administrar clientes, mantener un catálogo de empleados responsables, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta. El MVP estará enfocado en el **frontend**, usará **datos ficticios** y persistirá en el navegador; no incluye backend ni roles, y reutiliza el acceso frontend ya implementado.
 
 El alcance funcional se organiza en las historias de la especificación: gestión de clientes con estado `Posible/Activo/Inactivo`, catálogo de empleados, oportunidades con monto, fecha de cierre y transiciones de etapa (`Evaluación → Propuesta → Negociación → Ganado/Perdido`), registro de interacciones (`Llamada/Correo/Reunión`), ficha 360° del cliente, dashboard con indicadores, búsqueda y filtros, integridad referencial con eliminación lógica, configuración del módulo y un espacio de trabajo consistente.
 
@@ -13,7 +13,7 @@ El modelo de dominio y las reglas se documentan en [data-model.md](data-model.md
 
 Actualizar la capa visual ya implementada del CRM para que exprese un producto SaaS profesional y coherente: acceso con pantalla dividida y visibilidad de contraseña, menú lateral colapsable con hamburguesa SVG, Dashboard con banner personalizado y cuatro tarjetas KPI, formularios con los bloques exactos `DATOS DEL CLIENTE` y `CONDICIONES COMERCIALES`, y texto en español sin caracteres mal formados.
 
-El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/styles.css`, `src/main.js`, `src/app.js`), no sobre `src/components/*`, que no está conectado al arranque. No se introduce backend, framework de UI ni dependencias nuevas. Investigación: [research.md](research.md). Contratos: [ui-contracts.md](contracts/ui-contracts.md) y [dashboard-metrics.md](contracts/dashboard-metrics.md).
+El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/styles.css`, `src/main.js`, `src/app.js`), no sobre `src/components/*`, que no está conectado al arranque. Las tareas de Fases 3–12 que crean componentes en `src/components/*` se conservan como registro histórico: no son prerrequisitos ejecutables y sus comportamientos se validan en el DOM real en Fases 14–21 y Fase 22. No se introduce backend, framework de UI ni dependencias nuevas. Investigación: [research.md](research.md). Contratos: [ui-contracts.md](contracts/ui-contracts.md) y [dashboard-metrics.md](contracts/dashboard-metrics.md).
 
 ## Contexto Técnico
 
@@ -23,7 +23,7 @@ El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/s
 **Pruebas**: Vitest con jsdom para pruebas unitarias y de integración  
 **Plataforma Objetivo**: Navegadores modernos de escritorio y móviles  
 **Tipo de Proyecto**: Aplicación web de página única  
-**Objetivos de Rendimiento**: Búsqueda, filtros y renderizado responsivos para al menos 500 clientes y sus oportunidades e interacciones asociadas (FR-042, SC-004)  
+**Objetivos de Rendimiento**: con al menos 500 clientes y sus oportunidades e interacciones asociadas, búsqueda ≤10 s y renderizado inicial de listas ≤2 s en el navegador de referencia (FR-042, SC-002, SC-004)
 **Restricciones**: Huella mínima de librerías, despliegue simple, sin backend; estructura extensible para módulos personalizados  
 **Seguridad**: Todo contenido introducido por el usuario se sanitiza antes de renderizarse (FR-041)
 
@@ -46,7 +46,7 @@ El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/s
 - **Almacenamiento**: las lecturas de `src/storage.js` distinguen clave ausente, dato válido y dato corrupto; ante corrupción se informa y se ofrece reinicio explícito sin borrar nada automáticamente.
 - **Navegación**: `src/app.js` concentra el cambio de vista para interceptar salidas de formularios con cambios sin guardar y ofrecer «Permanecer»/«Descartar».
 - **Configuración**: `src/module-config.js` deriva los campos visibles de la configuración activa; las actualizaciones fusionan con el registro almacenado para conservar valores de campos eliminados.
-- **Tema**: si se expone el selector, la preferencia se guarda en `localStorage['crm.theme']` y se aplica antes del primer render.
+- **Tema**: la preferencia se guarda en `localStorage['crm.theme']`, clave nueva y separada de `crm_module:*`/`erp_*`, y se aplica antes del primer render.
 - Estas decisiones se incorporaron desde la rama `003-spec-clarifications`; los contratos y las pruebas correspondientes se enumeran en `tasks.md`.
 
 ## Verificación de la Constitución

@@ -8,13 +8,16 @@ La aplicación persiste clientes, empleados, oportunidades e interacciones en el
 
 ## Claves de almacenamiento
 
-- `crm.clients`
-- `crm.employees`
-- `crm.opportunities`
-- `crm.interactions`
-- `crm.theme` (opcional; preferencia `Claro`/`Oscuro` del mismo navegador)
+- `erp.authenticatedUser` — sesión reutilizada (`src/main.js`)
+- `erp.sidebarCollapsed` (`sessionStorage`) — preferencia del menú
+- `erp_base_module:entities` — compatibilidad del formulario estático
+- `crm_module:customers`
+- `crm_module:employees`
+- `crm_module:opportunities`
+- `crm_module:interactions`
+- `crm.theme` — preferencia `Claro`/`Oscuro` del mismo navegador
 
-Cada clave de entidades contiene un arreglo JSON con los registros descritos en [data-model.md](../data-model.md). `crm.theme` contiene el valor de tema elegido; su ausencia significa que no hay preferencia guardada. Nota: la implementación actual usa además las claves normalizadas `crm_module:*` documentadas en [research.md](../research.md); este contrato describe la forma lógica esperada por las reglas de dominio.
+Las claves `crm_module:*` contienen arreglos JSON con los registros normalizados descritos en [data-model.md](../data-model.md) y son la fuente canónica de los KPI. `erp_base_module:entities` se mantiene solo por compatibilidad; [research.md](../research.md) documenta el adaptador de escritura. `crm.theme` es la única clave nueva de preferencia y su ausencia significa que no hay preferencia guardada.
 
 ## Forma de los datos
 
@@ -73,7 +76,7 @@ Cada clave de entidades contiene un arreglo JSON con los registros descritos en 
 
 ### Consultas agregadas
 - `getClientDetail(clientId)`: devuelve el cliente, sus oportunidades y sus interacciones (incluye asociaciones a registros archivados).
-- `getDashboardMetrics(today)`: calcula clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres dentro de los 30 días siguientes (excluye vencidas). Las oportunidades se seleccionan únicamente por etapa: las de clientes archivados cuentan (FR-068); los clientes archivados sí se excluyen del recuento de clientes activos.
+- `getDashboardMetrics(today)`: calcula clientes activos, oportunidades abiertas, monto total en pipeline y próximos cierres dentro de los 30 días siguientes (excluye vencidas). La cuarta tarjeta visible, «Tasa de conversión», se deriva con `computeConversionRate()`; los próximos cierres se presentan en una sección del dashboard, no como quinta tarjeta. Las oportunidades se seleccionan únicamente por etapa: las de clientes archivados cuentan (FR-068); los clientes archivados sí se excluyen del recuento de clientes activos.
 
 ## Validación al arrancar y recuperación
 

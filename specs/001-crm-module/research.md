@@ -92,7 +92,7 @@
 
 **Decisión**: los KPI leen `crm_module:*`; el formulario `#entity-form` sigue guardando en `erp_base_module:entities`, por lo que `handleEntitySubmit()` en `src/app.js` incluirá un adaptador delgado que crea/actualiza el cliente equivalente con `addCustomer()`/`updateCustomer()` de `src/storage.js:645-689`. No se cambian claves ni se migran datos existentes.
 
-**Rationale**: `specs/001-crm-module/contracts/crm-storage.md:11-14` describe `crm.clients` y campos en español, mientras `src/storage.js:440-445` usa `crm_module:customers` y campos normalizados; `feedback.md:36-37` ya registra esta divergencia. Sin el adaptador, dar de alta un cliente en la pantalla no cambiaría el KPI y FR-060 quedaría sin cumplir. El adaptador se mantiene dentro de `app.js` para no añadir una capa de arquitectura.
+**Rationale**: `specs/001-crm-module/contracts/crm-storage.md` declara como claves canónicas `crm_module:*` con campos normalizados, igual que `src/storage.js:440-445`; `erp_base_module:entities` se conserva solo por compatibilidad con el formulario `#entity-form`. Sin el adaptador, dar de alta un cliente en la pantalla no cambiaría el KPI y FR-060 quedaría sin cumplir. El adaptador se mantiene dentro de `app.js` para no añadir una capa de arquitectura.
 
 **Alternativas consideradas**: migrar por completo el formulario a `addCustomer` (mayor riesgo: campos propios como `taxId`, `creditLimit` y `paymentTerms` y compatibilidad con listados actuales); alimentar los KPI de `erp_base_module:*` (mezcla dos modelos y contradice el contrato CRM); dejar la divergencia como deuda sin cerrar FR-060 (inaceptable según la especificación).
 
@@ -100,7 +100,7 @@
 
 - `src/components/*` no está conectado y tiene importaciones rotas; sus suites (`tests/helpers.js`, `tests/integration/clients.test.js`, `workspace-shell.test.js`, `dashboard.test.js`, entre otras) usan selectores `data-nav`/`data-stat`/`data-form` inexistentes en `index.html` y referencias como `addClient` o `resolveLabel` que no existen.
 - `src/main.js:9` no usa `await` con `loadModuleConfig()` (async), por lo que `config` es `undefined` y `app.js` aplica valores por defecto. No bloquea esta funcionalidad; se registra para corrección posterior.
-- Las claves `crm.clients` del contrato y `crm_module:customers` del código siguen divergiendo; esta historia solo añade el adaptador de escritura descrito arriba.
+- Las claves quedaron canonizadas en el contrato: `crm_module:*` para entidades y `crm.theme` para la preferencia de tema; `erp_base_module:entities` se mantiene solo por compatibilidad.
 
 ### Registro de ejecución (acuerdo de deuda)
 

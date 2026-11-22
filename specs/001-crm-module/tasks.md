@@ -158,12 +158,12 @@
 ### Pruebas para la Historia de Usuario 6
 
 - [x] T043 [P] [US6] Añadir pruebas unitarias de cálculo de clientes activos, oportunidades abiertas, pipeline y próximos cierres (30 días, excluye vencidas) en `tests/unit/dashboard.test.js` (FR-026, FR-046)
-- [x] T044 [P] [US6] Añadir pruebas de integración del dashboard con datos, sin datos y tras cambios en registros en `tests/integration/dashboard.test.js` (FR-026, FR-027, FR-028, FR-046)
+- [x] T044 [P] [US6] Añadir pruebas de integración del dashboard, de la sección «Próximos cierres» y del estado vacío en `tests/integration/dashboard.test.js` (FR-026, FR-027, FR-028, FR-046)
 
 ### Implementación de la Historia de Usuario 6
 
 - [x] T045 [P] [US6] Crear `src/components/dashboard.js` con indicadores y accesos rápidos para crear clientes, oportunidades e interacciones (FR-026, FR-028)
-- [ ] T046 [US6] Recalcular los indicadores cada vez que se muestra el dashboard y conectar los accesos rápidos en `src/app.js` (FR-027, FR-028)
+- [ ] T046 [US6] Recalcular los indicadores y la sección «Próximos cierres» cada vez que se muestra el dashboard, y conectar los accesos rápidos en `src/app.js` e `index.html` (FR-026, FR-027, FR-028, FR-046)
 - [x] T047 [US6] Mostrar indicadores en cero sin errores y acceso rápido para empezar cuando no haya datos (FR-026, FR-031)
 
 **Punto de control**: La aplicación abre en un dashboard funcional y coherente con los datos.
@@ -185,7 +185,7 @@
 
 - [x] T050 [P] [US7] Crear `src/components/search.js` con búsqueda de clientes y filtros de oportunidades (FR-029, FR-030)
 - [ ] T051 [US7] Conectar búsqueda/filtros y estado vacío, manteniendo sincronía con las acciones de crear/editar/archivar en `src/app.js` (FR-029, FR-030, FR-031)
-- [ ] T052 [US7] Optimizar búsqueda, filtros y renderizado para 500 clientes y sus registros asociados (FR-042, SC-004)
+- [ ] T052 [US7] Optimizar búsqueda, filtros y renderizado para 500 clientes y sus registros asociados, verificando búsqueda ≤10 s y renderizado inicial ≤2 s (FR-042, SC-002, SC-004)
 
 **Punto de control**: Búsqueda y filtros funcionales y responsivos a la escala objetivo.
 
@@ -261,7 +261,7 @@
 
 - [x] T069 [P] Añadir refinamientos de accesibilidad (etiquetas, foco de teclado, `aria-current`, estructura semántica)
 - [x] T070 [P] Pulir estados vacíos, mensajes de validación y diseño responsivo en todas las vistas
-- [ ] T071 [P] Añadir pruebas de rendimiento con 500 clientes y sus oportunidades e interacciones asociadas (FR-042, SC-004)
+- [ ] T071 [P] Añadir pruebas de rendimiento con 500 clientes y sus oportunidades e interacciones asociadas, con aserciones de búsqueda ≤10 s y renderizado ≤2 s (FR-042, SC-002, SC-004)
 - [ ] T072 Ejecutar la suite completa y verificar SC-005, SC-006, SC-007, SC-008, SC-010 y SC-011
 - [ ] T073 Actualizar `README.md` con los flujos CRM, el archivado lógico y la configuración del módulo
 - [ ] T074 Ejecutar la compilación de producción y verificar que no hay regresiones
@@ -437,7 +437,7 @@
 - [ ] T125 [US14] Centralizar la navegación en `src/app.js` y añadir el diálogo de cambios sin guardar en `index.html`, con opciones «Permanecer» y «Descartar» (FR-070)
 - [ ] T126 [US9] Derivar los campos visibles de la configuración activa en `src/module-config.js` y fusionar actualizaciones con el registro almacenado en `src/storage.js` para conservar valores huérfanos (FR-071)
 - [ ] T127 [US8] Validar las claves del CRM al arrancar en `src/storage.js` y mostrar el error con acción de reinicio explícito en `src/app.js` (FR-072)
-- [ ] T128 [US10] Guardar y aplicar la preferencia `Claro`/`Oscuro` desde `localStorage['crm.theme']` antes del primer render en `src/main.js` e `index.html`, si el selector está presente
+- [ ] T128 [US10] Guardar y aplicar la preferencia `Claro`/`Oscuro` desde `localStorage['crm.theme']` antes del primer render en `src/main.js` e `index.html`, sin escribir en las claves `crm_module:*` ni en `erp_*`
 - [ ] T129 Ejecutar `npm run test:run`, `npm run lint` y `npm run build` y validar el escenario 6 de `specs/001-crm-module/quickstart.md`
 
 **Punto de control**: las clarificaciones están implementadas y son verificables de forma independiente.
@@ -578,6 +578,7 @@ Con varios desarrolladores, tras la Fase 15: Dev A en US11, Dev B en US12, Dev C
 
 - `[P]` implica archivos distintos y ninguna dependencia pendiente; las ediciones sobre `index.html` o `src/app.js` se secuencian aunque pertenezcan a historias distintas
 - `[USn]` garantiza trazabilidad con los FR de `spec.md`
+- **Tareas históricas**: T018, T019, T024, T028, T029, T034, T035, T040, T045, T050 y T066 crean `src/components/*` y no se ejecutan; la fuente de verdad es el DOM real de Fases 14–21 y Fase 22
 - Numeración correlativa T001–T129: 129 tareas totales, sin duplicados ni huecos
-- Todas las tareas incluyen ruta de archivo y son ejecutables sin contexto adicional
+- Las tareas de implementación y prueba incluyen ruta de archivo; las de verificación ejecutan comandos o validan escenarios sin contexto adicional
 - No se editan `src/components/*` ni `dist/index.html` a mano, según `research.md`
