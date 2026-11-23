@@ -1,5 +1,7 @@
 # Investigación: Módulo CRM (Customer Relationship Management)
 
+> **Nota de fusión (2026-11-23)**: este documento integra el contenido íntegro de `002-research.md` (decisiones D-001 a D-009) en la sección final. Las referencias FR/SC de esa feature se renombraron a FR-089–FR-102 / SC-031–SC-035; las decisiones base se conservan sin cambios.
+
 ## Decisión: Usar Vite con HTML, CSS y JavaScript vanilla
 
 **Justificación**: El alcance del MVP es un módulo CRM de frontend con datos ficticios. Vite proporciona un flujo de desarrollo rápido y una compilación simple sin añadir un framework pesado. JavaScript vanilla mantiene el módulo fácil de entender, probar y extender por otros módulos ERP.
@@ -99,3 +101,56 @@
 - Existe dualidad `erp_base_module:*` y `crm_module:*`; US17 debe reducirla sin romper tests heredados.
 - `app.js` concentra mucha lógica; los cambios deben ser quirúrgicos y cubrirse con pruebas.
 - La accesibilidad de diálogos custom requiere cuidado con foco y listeners para no filtrar eventos globales.
+
+## Decisiones del cierre de brechas históricas (integradas de `002-research.md`)
+
+**Fecha original**: 2026-11-22.
+
+### D-001 Ruta ejecutable real
+- **Decision**: Implementar solo en `index.html`, `src/app.js`, `src/main.js`, `src/storage.js`, `src/domain.js`, `src/module-config.js`, `src/styles.css`.
+- **Rationale**: Es la ruta conectada al arranque y validada por tests DOM real. `src/components/*` es histórico/no conectado.
+- **Alternatives considered**: Migrar/usar `src/components/*`. Rechazado por duplicación y desconexión del runtime real.
+
+### D-002 Fuente canónica de KPIs
+- **Decision**: `getCRMOverview()`/`getCrmDashboardMetrics()` en `src/storage.js` siguen siendo la única fuente canónica para KPIs del dashboard base.
+- **Rationale**: Evita doble verdad (FR-076/077, FR-088). Próximos cierres e integridad son derivados read-only con contratos propios.
+- **Alternatives considered**: Calcular KPIs en `app.js` o nuevo servicio. Rechazado por divergencia.
+
+### D-003 Claves propias de feature
+- **Decision**: Estado UI no canónico de esta feature usa prefijo `crm.gaps002.ui.*`.
+- **Rationale**: Evita colisiones con claves base (`erp.activeView`, `crm_module:*`, etc.) y facilita limpieza/diagnóstico.
+- **Alternatives considered**: Reusar claves existentes o sin prefijo. Rechazado por riesgo de regresión.
+
+### D-004 Modelo de archivado
+- **Decision**: Usar soft-archive con `archived: true/false` en clientes y empleados; UI expone Archivar/Restaurar. Historial asociado permanece.
+- **Rationale**: Alineado con comportamiento actual de storage (`deleteCustomer/deleteEmployee` ya marcan archived) y FR-090/FR-091/FR-100.
+- **Alternatives considered**: Borrado físico. Rechazado por pérdida de historial y riesgo referencial.
+
+### D-005 Lifecycle de oportunidades
+- **Decision**: Validar transiciones con `opportunityLifecycle` normalizado (nombre canónico; proviene de `module-config.statusLifecycle` en `module-config.js`) usando función pura de dominio para `canTransition`. En config inválida, fallback seguro + banner visible.
+- **Rationale**: Cumple FR-094/FR-095/FR-101 y mantiene reglas testeables.
+- **Alternatives considered**: Validar solo en UI; hardcodear etapas. Rechazado por fragilidad y desacople de configuración.
+
+### D-006 Integridad referencial
+- **Decision**: Generar reporte read-only en carga/render con hallazgos por registro/referencia faltante; no auto-reparar.
+- **Rationale**: FR-099 pide visibilidad; auto-reparación puede borrar datos válidos en casos ambiguos.
+- **Alternatives considered**: Reparación automática/silenciosa. Rechazado por riesgo de pérdida.
+
+### D-007 Próximos cierres
+- **Decision**: Derivar de oportunidades abiertas con `closeDate` válida dentro de ventana 30 días (`domain/storage`), renderizar sección en dashboard con navegación a oportunidad.
+- **Rationale**: Reusa regla existente de overview; añade visibilidad FR-098 sin cambiar KPI canónico.
+- **Alternatives considered**: Nueva KPI card o nueva fuente. Rechazado por duplicidad.
+
+### D-008 Rendimiento DOM real 500 registros
+- **Decision**: Prueba de integración DOM real que siembra 500 clientes + registros asociados, mide búsqueda/filtro y render inicial con `performance.now()`; umbrales SC-035.
+- **Rationale**: Cierra brecha de T052; la prueba existente es en memoria.
+- **Alternatives considered**: Solo unit test. Rechazado: no observa DOM.
+
+### D-009 Accesibilidad
+- **Decision**: Reusar patrón US23 existente (`aria-invalid`, `aria-describedby`, foco primer error, diálogos accesibles) para nuevas vistas.
+- **Rationale**: Consistencia y cumplimiento constitución III; no repetir T058, extenderlo a nuevas pantallas.
+- **Alternatives considered**: Validación ad-hoc por vista. Rechazado por inconsistencia.
+
+### Clarificaciones resueltas del cierre de brechas
+
+No quedan NEEDS CLARIFICATION. Supuestos documentados en spec: ventana 30 días, reporte informativo no destructivo, `src/components/*` histórico.

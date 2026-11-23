@@ -1,15 +1,17 @@
 ﻿# Tareas: Módulo CRM (Customer Relationship Management)
 
-**Entrada**: Documentos de diseño desde `/specs/001-crm-module/` (módulo CRM + interfaz SaaS profesional)
+**Entrada**: Documentos de diseño desde `/specs/001-crm-module/` (módulo CRM + interfaz SaaS profesional + correcciones US16–US24 + cierre de brechas históricas)
 **Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/crm-storage.md
+
+> **Nota de fusión (2026-11-23)**: este archivo integra el contenido íntegro de `002-tasks.md` en las Fases 37–45. La numeración es continua: T001–T197 corresponden al plan base y T198–T249 al cierre de brechas históricas (antes T001–T052 de 002). Las historias incorporadas son US25–US30 (antes US1–US6 de 002), con FR-089–FR-102 y SC-031–SC-035.
 
 ## Formato: `[ID] [P?] [Historia] Descripción`
 
 - **[P]**: Puede ejecutarse en paralelo (archivos distintos, sin dependencias pendientes)
-- **[USn]**: Historia de usuario de `spec.md` (US1–US15)
+- **[USn]**: Historia de usuario de `spec.md` (US1–US30)
 - Toda tarea que cambia comportamiento de negocio se acompaña de sus pruebas (Constitución, Principio II)
 
-> **Ruta ejecutable**: las Fases 3–13 conservan el registro histórico de la arquitectura basada en `src/components/*`; no son prerrequisitos bloqueantes. La implementación activa se realiza en el DOM real de Fases 14–22 (`index.html`, `src/`) y sus comportamientos se validan allí. Las tareas pendientes de Fases 3–13 se conservan solo como referencia histórica.
+> **Ruta ejecutable**: las Fases 3–13 conservan el registro histórico de la arquitectura basada en `src/components/*`; no son prerrequisitos bloqueantes. La implementación activa se realiza en el DOM real de Fases 14–22 y 37–45 (`index.html`, `src/`) y sus comportamientos se validan allí. Las tareas pendientes de Fases 3–13 se conservan solo como referencia histórica.
 
 ---
 
@@ -806,7 +808,8 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 - Cada historia de US16â€“US24 debe ser verificable de forma independiente.
 - No editar `src/components/*` ni `dist/` a mano.
 - Se preservan tareas histÃ³ricas T001â€“T129 para trazabilidad.
-- Total nuevas tareas US16–US24: T130–T188 (59 tareas). Alineación integridad: T189–T194 (6 tareas). Total general: 194 tareas.
+- Total nuevas tareas US16–US24: T130–T188 (59 tareas). Alineación integridad: T189–T194 (6 tareas). Convergencia base: T195–T197 (3 tareas). Total base: 197 tareas.
+- Tras la fusión se añaden las Fases 37–45 con T198–T249 (52 tareas del cierre de brechas históricas). **Total general: 249 tareas (T001–T249)**.
 
 ---
 
@@ -827,3 +830,290 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 avigateToSearchResult() en src/app.js para usar 
 avigateTo() (o respetar el guard de cambios sin guardar de FR-070) antes de cambiar de vista/cargar registro; si el usuario elige Permanecer, no debe cambiar la vista ni perder el formulario activo. Añadir prueba de regresión en 	ests/integration/search.test.js o 	ests/integration/corrections-us16-us24.test.js. (FR-070, US20/FR-082, partial)
 - [x] T197 [US21] Añadir filtro/búsqueda dentro de #view-entities y #view-documents para reducir resultados en listas largas sin perder contexto de sección, manteniendo sincronía con selección/formulario y acciones por fila. Añadir controles accesibles en index.html, lógica en src/app.js y prueba de integración. (US21/AC2, FR-083, FR-084, SC-027, partial)
+
+---
+
+# Tareas del cierre de brechas históricas (integradas de `002-tasks.md`)
+
+**Entrada**: Documentos de diseño fusionados en `/specs/001-crm-module/` (`plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/ui-contracts.md`, `contracts/crm-storage.md`, `contracts/performance.md`, `quickstart.md`).
+
+**Pruebas**: OBLIGATORIAS. Principio II de la constitución: comportamiento visible y lógica de negocio deben cubrirse con pruebas automatizadas antes o junto a la implementación. Cada historia incluye tareas de prueba que DEBEN escribirse y FALLAR antes de implementar.
+
+**Organización**: Tareas agrupadas por historia de usuario (US25–US30) para implementación y prueba independiente. Los IDs T198–T249 son continuos con el plan base; entre paréntesis se conserva el ID original de 002 para trazabilidad.
+
+## Formato: `[ID] [P?] [Historia] Descripción`
+
+- **[P]**: Puede ejecutarse en paralelo (archivos distintos, sin dependencias incompletas)
+- **[USn]**: Historia de usuario de `spec.md` (US25–US30)
+- Incluir rutas exactas en descripciones
+
+## Ruta activa (obligatoria)
+
+- Implementación: `index.html`, `src/app.js`, `src/main.js`, `src/storage.js`, `src/domain.js`, `src/module-config.js`, `src/styles.css`
+- Pruebas: `tests/unit/*`, `tests/integration/*`
+- `src/components/*` es **histórico/no conectado**: NO crear ni modificar tareas sobre esa ruta.
+
+## Trazabilidad histórica del cierre de brechas
+
+> Los IDs T### citados en las descripciones como históricos (p. ej. T025, T030, T062) son tareas históricas del plan base; los IDs de esta feature son T198–T249 (antes T001–T052 de 002).
+
+| Tarea histórica | Cobertura en esta feature |
+|---|---|
+| T025 | US25 - empleados UI real |
+| T030 | US27 - flujo completo oportunidades + lifecycle |
+| T036 | US26 - interacciones UI real |
+| T041 | US28 - ficha cliente 360° |
+| T046 | US29 - próximos cierres dashboard |
+| T052 | US30 - rendimiento DOM real 500 registros |
+| T055 | US25/US30 - archivar/restaurar visible |
+| T056 | US25/US30 - exclusión archivados en listas/selectores |
+| T057 | US29 - reporte integridad referencial |
+| T062 | US27 - `opportunityLifecycle` configurable aplicado |
+| T064 | US27 - banner visible errores de configuración |
+
+---
+
+## Fase 37: Setup del cierre de brechas (Infraestructura compartida)
+
+**Propósito**: Preparar fixtures/helpers de pruebas DOM real para las nuevas vistas, sin tocar `src/components/*`.
+
+- [x] T198 (antes T001) Revisar y alinear helpers de montaje DOM real en `tests/integration/live-dom.js` para soportar nuevas vistas `#view-employees`, `#view-interactions`, `#view-client-360` según `specs/001-crm-module/contracts/ui-contracts.md`
+- [x] T199 [P] (antes T002) Crear helper de seed determinista de 500 clientes/registros asociados para rendimiento en `tests/integration/helpers/seed-performance.js` (o archivo equivalente bajo `tests/integration/`), citando `specs/001-crm-module/contracts/performance.md`
+- [x] T200 [P] (antes T003) Documentar en comentarios de prueba la convención de claves UI `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.*` según `specs/001-crm-module/contracts/crm-storage.md`
+
+---
+
+## Fase 38: Fundacional del cierre de brechas (Prerrequisitos bloqueantes)
+
+**Propósito**: Base compartida de dominio/storage/UI que bloquea US25–US30. **CRÍTICO**: completar antes de historias.
+
+- [x] T201 (antes T004) Crear pruebas unitarias de transición `opportunityLifecycle` (permitida, inválida, fallback) en `tests/unit/lifecycle-transitions.test.js` cubriendo FR-094, FR-095, FR-101, SC-032; incluir nota de que `opportunityLifecycle` proviene de `module-config.statusLifecycle` normalizado
+- [x] T202 [P] (antes T005) Crear pruebas unitarias de reporte de integridad referencial en `tests/unit/referential-integrity.test.js` cubriendo FR-099, SC-034
+- [x] T203 (antes T006) Implementar funciones puras de lifecycle en `src/domain.js`: validación de transición con `opportunityLifecycle` canónico (normalizado desde `module-config.statusLifecycle`), fallback seguro y mensajes; hacer pasar T201 (FR-094, FR-095, FR-101)
+- [x] T204 [P] (antes T007) Implementar utilidades derivadas read-only en `src/storage.js`/`src/domain.js` para `getReferentialIntegrityReport()` y `getUpcomingClosures({windowDays:30})`, sin modificar `getCRMOverview()` canónico base; hacer pasar T202 (FR-098, FR-099)
+- [x] T205 (antes T008) Añadir contratos de estado UI con defaults seguros en `src/app.js` o módulo pequeño dedicado bajo `src/` para claves `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees` según `specs/001-crm-module/contracts/crm-storage.md`
+- [x] T206 (antes T009) Añadir en `src/main.js` exposición/propagación del resultado de `loadModuleConfig()` (config, errors/usedFallback) para que `src/app.js` pueda renderizar `#config-error-banner`; contrato `specs/001-crm-module/contracts/ui-contracts.md` (FR-101, histórica T064)
+- [x] T207 [P] (antes T010) Añadir estilos base compartidos para nuevas vistas/banners/badges/estados vacíos en `src/styles.css` reutilizando tokens existentes (sin repetir tema T051/US16); cubrir `#config-error-banner`, `.badge-archived`, secciones 360/próximos cierres/integridad
+
+**Checkpoint**: fundación lista; US25–US30 pueden iniciar.
+
+---
+
+## Fase 39: User Story 25 - Gestionar empleados desde la UI real (Prioridad: P1) 🎯 MVP
+
+**Objetivo**: CRUD visible de empleados con archivar/restaurar y exclusión de archivados en selectores operativos.  
+**Prueba independiente**: Crear/editar/archivar/restaurar empleado desde UI real y verificar selectores operativos.  
+**FR/SC**: FR-089, FR-090, FR-091, FR-100 (parcial), SC-031. **Históricas**: T025, T055, T056.
+
+### Pruebas para User Story 25 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T208 [P] [US25] (antes T011) Crear prueba de integración DOM real en `tests/integration/employees-ui.test.js` para alta/edición/listado/filtro de empleados usando `#nav-employees`, `#view-employees`, `#employee-form`, `#employee-name`, `#employee-role`, `#employee-list`, `#employee-list-filter`, `#employee-list-empty` (contrato `contracts/ui-contracts.md`, FR-089, SC-031, histórica T025)
+- [x] T209 [P] [US25] (antes T012) Añadir prueba de integración DOM real en `tests/integration/archive-restore-ui.test.js` para archivar/restaurar empleado con `#employee-show-archived`, `[data-action="archive-employee"]`, `[data-action="restore-employee"]`, `.badge-archived`, y exclusión en selectores operativos (FR-090, FR-091, SC-031, históricas T055, T056)
+
+### Implementación para User Story 25
+
+- [x] T210 [US25] (antes T013) Añadir markup de vista Empleados en `index.html`: `#nav-employees`, `#view-employees`, `#employee-form`, `#employee-id`, `#employee-name`, `#employee-role`, `#employee-submit`, `#employee-reset`, `#employee-list-filter`, `#employee-show-archived`, `#employee-list`, `#employee-list-empty` según `specs/001-crm-module/contracts/ui-contracts.md`
+- [x] T211 [US25] (antes T014) Implementar API aditiva/compatible de empleados en `src/storage.js`: `loadEmployees({includeArchived})`/filtro equivalente, `archiveEmployee(id)`, `restoreEmployee(id)`, preservando historial y compatibilidad con claves canónicas (FR-090, FR-091, históricas T025, T055)
+- [x] T212 [US25] (antes T015) Implementar render/handlers de empleados en `src/app.js`: `renderEmployeeList()`, `fillEmployeeForm()`, `resetEmployeeForm()`, create/update, filtro, toggle archivados usando `crm.gaps002.ui.employeesView` (FR-089, FR-090, FR-091)
+- [x] T213 [US25] (antes T016) Integrar acciones archivar/restaurar por fila y refrescar selectores de responsable en `src/app.js` para excluir empleados archivados por defecto (FR-091, FR-100, histórica T056)
+- [x] T214 [US25] (antes T017) Añadir estilos específicos de vista empleados en `src/styles.css` (tabla responsive, acciones fila, badge archivado) manteniendo consistencia visual existente
+
+**Checkpoint**: US25 funcional e independientemente testeable.
+
+---
+
+## Fase 40: User Story 26 - Registrar interacciones con historial visible (Prioridad: P1)
+
+**Objetivo**: CRUD visible de interacciones con historial por cliente y confirmación de eliminación.  
+**Prueba independiente**: Crear/editar/eliminar interacción desde UI real y ver historial.  
+**FR/SC**: FR-092, FR-093, SC-031. **Histórica**: T036.
+
+### Pruebas para User Story 26 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T215 [P] [US26] (antes T018) Crear prueba de integración DOM real en `tests/integration/interactions-ui.test.js` para crear interacción válida con `#interaction-form`, `#interaction-client-id`, `#interaction-employee-id`, `#interaction-date`, `#interaction-type`, `#interaction-notes`, y verla en `#interaction-list` (FR-092, FR-093, SC-031, histórica T036)
+- [x] T216 [P] [US26] (antes T019) Extender `tests/integration/interactions-ui.test.js` para editar sin duplicar, eliminar con confirmación accesible existente, y estado vacío `#interaction-list-empty` (FR-092, FR-093, SC-031)
+
+### Implementación para User Story 26
+
+- [x] T217 [US26] (antes T020) Añadir markup de vista Interacciones en `index.html`: `#nav-interactions`, `#view-interactions`, `#interaction-form`, `#interaction-id`, `#interaction-client-id`, `#interaction-employee-id`, `#interaction-date`, `#interaction-type`, `#interaction-notes`, `#interaction-list-filter`, `#interaction-list`, `#interaction-list-empty` según `contracts/ui-contracts.md`
+- [x] T218 [US26] (antes T021) Implementar/ajustar API de interacciones en `src/storage.js` para CRUD visible, `loadInteractionsByCustomer(customerId)`, validación de refs activas y orden determinista (FR-092, FR-093, histórica T036)
+- [x] T219 [US26] (antes T022) Implementar render/handlers de interacciones en `src/app.js`: listado, filtro, fill/reset, create/update, delete con diálogo accesible existente, y refresco de historial relacionado (FR-092, FR-093)
+- [x] T220 [US26] (antes T023) Poblar selectores de interacción con clientes/empleados activos no archivados en `src/app.js` y mantener exclusión tras archive/restore (FR-091, FR-092, histórica T056)
+- [x] T221 [US26] (antes T024) Añadir estilos de vista/historial de interacciones en `src/styles.css` (lista/tabla, campos, empty state)
+
+**Checkpoint**: US26 funcional e independientemente testeable.
+
+---
+
+## Fase 41: User Story 27 - Flujo completo de oportunidades con lifecycle configurable (Prioridad: P1)
+
+**Objetivo**: Aplicar `opportunityLifecycle` canónico, bloquear transiciones inválidas con feedback claro y mostrar banner visible de errores de configuración.  
+**Prueba independiente**: Transición permitida persiste; inválida no persiste y muestra feedback; config inválida muestra banner con fallback seguro.  
+**FR/SC**: FR-094, FR-095, FR-101, SC-032. **Históricas**: T030, T062, T064.
+
+### Pruebas para User Story 27 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T222 [P] [US27] (antes T025) Crear prueba de integración DOM real en `tests/integration/opportunities-lifecycle.test.js` para transición permitida persistida y transición inválida bloqueada con feedback en `#status`/`#error-status` o `#lifecycle-feedback` (FR-094, FR-095, SC-032, históricas T030, T062)
+- [x] T223 [P] [US27] (antes T026) Añadir prueba de integración DOM real en `tests/integration/opportunities-lifecycle.test.js` para banner `#config-error-banner`/`#config-error-detail` cuando `loadModuleConfig()` devuelve error/fallback, manteniendo app utilizable (FR-101, SC-032, histórica T064)
+
+### Implementación para User Story 27
+
+- [x] T224 [US27] (antes T027) Actualizar `src/main.js` y/o `src/app.js` para recibir resultado de `loadModuleConfig()` y renderizar `#config-error-banner`/`#config-error-detail`/`#config-error-dismiss` según `contracts/ui-contracts.md` sin bloquear CRUD básico (FR-101, histórica T064)
+- [x] T225 [US27] (antes T028) Integrar validación de transición en `src/storage.js` y `src/app.js` usando `opportunityLifecycle` canónico normalizado desde `module-config.statusLifecycle`; rechazar transición inválida sin persistir (FR-094, FR-095, históricas T030, T062)
+- [x] T226 [US27] (antes T029) Actualizar UI de oportunidad en `index.html`/`src/app.js` para poblar `#status` desde lifecycle vigente y mostrar feedback accesible de transición inválida (FR-094, FR-095)
+- [x] T227 [US27] (antes T030) Añadir estilos/estados de banner de configuración y feedback lifecycle en `src/styles.css` respetando tokens y accesibilidad
+
+**Checkpoint**: US27 funcional; transiciones y config visible cumplen SC-032.
+
+---
+
+## Fase 42: User Story 28 - Ficha cliente 360° (Prioridad: P2)
+
+**Objetivo**: Vista 360° de cliente con datos, oportunidades e interacciones; volver conserva contexto.  
+**Prueba independiente**: Abrir ficha desde listado, ver secciones/estados vacíos, volver conservando filtro/selección.  
+**FR/SC**: FR-096, FR-097, SC-033. **Histórica**: T041.
+
+### Pruebas para User Story 28 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T228 [P] [US28] (antes T031) Crear prueba de integración DOM real en `tests/integration/client-360.test.js` para abrir `[data-action="view-client-360"]`, renderizar `#client-360-summary`, `#client-360-opportunities`, `#client-360-interactions` y estados vacíos (FR-096, SC-033, histórica T041)
+- [x] T229 [P] [US28] (antes T032) Extender `tests/integration/client-360.test.js` para verificar que `#client-360-back` restaura contexto visible observable: `#entity-list-filter`, cliente/fila seleccionada (`#entity_id` o `data-selected`) y vista `#view-entities` activa; los datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío (FR-097, SC-033)
+
+### Implementación para User Story 28
+
+- [x] T230 [US28] (antes T033) Añadir markup de ficha 360 en `index.html`: `#view-client-360` (selector público canónico único), `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-opportunities-empty`, `#client-360-interactions`, `#client-360-interactions-empty` según `contracts/ui-contracts.md`
+- [x] T231 [US28] (antes T034) Implementar consultas de composición en `src/storage.js`/`src/domain.js` (`getCustomer360` o reutilización de `getCustomerActivity`) con oportunidades/interacciones relacionadas y flags de vacío (FR-096)
+- [x] T232 [US28] (antes T035) Implementar navegación lista→ficha→lista en `src/app.js`, preservando filtro/selección visible y estado `crm.gaps002.ui.clients360` (FR-097)
+- [x] T233 [US28] (antes T036) Añadir estilos de ficha 360 en `src/styles.css` (layout, secciones, empty states, responsive)
+
+**Checkpoint**: US28 funcional e independientemente testeable.
+
+---
+
+## Fase 43: User Story 29 - Dashboard operativo y calidad de datos (Prioridad: P2)
+
+**Objetivo**: Mostrar "Próximos cierres" e integridad referencial visible sin romper KPIs canónicos base.  
+**Prueba independiente**: Sembrar oportunidades próximas y referencias inválidas; verificar secciones y estados vacíos.  
+**FR/SC**: FR-098, FR-099, SC-034. **Históricas**: T046, T057.
+
+### Pruebas para User Story 29 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T234 [P] [US29] (antes T037) Crear prueba de integración DOM real en `tests/integration/dashboard-upcoming-integrity.test.js` para renderizar `#upcoming-closures-section`, `#upcoming-closures-list`, `#upcoming-closures-empty` y navegación `[data-action="open-upcoming-opportunity"]` (FR-098, SC-034, histórica T046)
+- [x] T235 [P] [US29] (antes T038) Extender `tests/integration/dashboard-upcoming-integrity.test.js` para reporte `#integrity-report`, `#integrity-report-list`, `#integrity-report-empty` con hallazgos de referencia inexistente y sin falsos positivos (FR-099, SC-034, histórica T057)
+
+### Implementación para User Story 29
+
+- [x] T236 [US29] (antes T039) Añadir markup de dashboard en `index.html` para próximos cierres e integridad referencial según `contracts/ui-contracts.md`, sin alterar tarjetas KPI canónicas base
+- [x] T237 [US29] (antes T040) Implementar render derivado read-only en `src/app.js` usando `getUpcomingClosures()` y `getReferentialIntegrityReport()`; no recalcular ni duplicar `getCRMOverview()` (FR-098, FR-099, históricas T046, T057)
+- [x] T238 [US29] (antes T041) Conectar navegación desde cierre próximo a oportunidad en `src/app.js` (`#view-documents` + selección/carga) preservando comportamiento existente (FR-098)
+- [x] T239 [US29] (antes T042) Añadir estilos de secciones dashboard/próximos cierres/integridad en `src/styles.css` (tablas/listas, estados vacíos, severidad warning)
+
+**Checkpoint**: US29 funcional; dashboard base conserva fuente canónica.
+
+---
+
+## Fase 44: User Story 30 - Archivado visible y rendimiento real (Prioridad: P3)
+
+**Objetivo**: Archivar/restaurar clientes desde UI, excluir archivados consistentemente y cumplir SC-035 en DOM real con 500 registros.  
+**Prueba independiente**: Archivar/restaurar cliente/empleado desde UI; prueba DOM 500 registros cumple umbrales.  
+**FR/SC**: FR-100, FR-102, FR-091 (consistencia), SC-031, SC-035. **Históricas**: T052, T055, T056.
+
+### Pruebas para User Story 30 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T240 [P] [US30] (antes T043) Extender `tests/integration/archive-restore-ui.test.js` para archivar/restaurar cliente con `#entity-show-archived`, `[data-action="restore-entity"]`/`restore-customer`, exclusión en `#entity_id` y `#interaction-client-id` (FR-100, FR-091, SC-031, históricas T055, T056)
+- [x] T241 [P] [US30] (antes T044) Crear prueba de rendimiento DOM real en `tests/integration/performance-dom.test.js` que siembra 500 clientes con registros asociados y verifica SC-035: filtro/búsqueda completa <= 10 s y renderizado inicial de listado <= 2 s (`contracts/performance.md`, FR-102, histórica T052)
+
+### Implementación para User Story 30
+
+- [x] T242 [US30] (antes T045) Implementar/ajustar `archiveCustomer`/`restoreCustomer` y filtros `includeArchived` en `src/storage.js` manteniendo compatibilidad con `deleteCustomer` soft-archive (FR-100, histórica T055)
+- [x] T243 [US30] (antes T046) Añadir controles y acciones de archivado/restauración de clientes en `index.html` y `src/app.js` (`#entity-show-archived`, acciones por fila, badges) según `contracts/ui-contracts.md` (FR-100)
+- [x] T244 [US30] (antes T047) Aplicar exclusión consistente de archivados en listas/selectores operativos de clientes/empleados/oportunidades/interacciones en `src/app.js` (FR-091, FR-100, histórica T056)
+- [x] T245 [US30] (antes T048) Optimizar render/filtro DOM real en `src/app.js` para dataset 500 (DocumentFragment, evitar recomputación innecesaria) sin cambiar comportamiento funcional; validar con T241 (FR-102, SC-035, histórica T052)
+
+**Checkpoint**: US30 funcional; rendimiento SC-035 verificado.
+
+---
+
+## Fase 45: Pulido y Cross-Cutting Concerns del cierre de brechas
+
+**Propósito**: Consolidación transversal, regresión y evidencia de quickstart.
+
+- [x] T246 [P] (antes T049) Actualizar `specs/001-crm-module/quickstart.md` con resultados/ajustes reales de ejecución si cambian IDs o pasos, manteniendo trazabilidad FR/SC/T históricas
+- [x] T247 (antes T050) Ejecutar regresión completa `npm run test:run`, `npm run lint`, `npm run build` en raíz del repo y corregir fallos en ruta activa (`index.html`, `src/*`, `tests/*`) sin tocar `src/components/*`
+- [x] T248 [P] (antes T051) Revisar cobertura final FR-089–FR-102 y SC-031–SC-035 contra pruebas en `tests/unit/*` y `tests/integration/*`; añadir ajuste menor solo si falta evidencia automatizada
+- [x] T249 (antes T052) Verificar manualmente escenarios de `specs/001-crm-module/quickstart.md` para US25–US30 y registrar cualquier brecha como tarea nueva en futura fase (no reescribir tareas existentes)
+
+---
+
+## Dependencias y orden de ejecución del cierre de brechas
+
+### Dependencias de fase
+
+- **Fase 37 (Setup)**: sin dependencias.
+- **Fase 38 (Fundacional)**: depende de Fase 37; **bloquea US25–US30**.
+- **Fases 39–44 (US25–US30)**: dependen de Fase 38; pueden avanzar por prioridad P1→P2→P3, o en paralelo donde no haya solapamiento de archivo.
+- **Fase 45 (Polish)**: depende de historias deseadas completas.
+
+### Dependencias de historias
+
+- **US25 (P1)**: tras Fundacional; base para selectores de empleados.
+- **US26 (P1)**: tras Fundacional; integra con US25 para selectores de empleado activo.
+- **US27 (P1)**: tras Fundacional; usa lifecycle/config base (T201/T203/T206).
+- **US28 (P2)**: tras Fundacional; se beneficia de datos US25/US26 pero es testeable con seed propio.
+- **US29 (P2)**: tras Fundacional; usa derivadas T204; navega a oportunidades existentes.
+- **US30 (P3)**: tras US25/US26/US28 parcialmente por consistencia de archivado, pero sus pruebas deben seedear estado propio; cierra rendimiento SC-035.
+
+### Dentro de cada historia
+
+- Pruebas primero (deben fallar antes de implementar).
+- Storage/domain antes de app wiring cuando aplique.
+- Markup/contrato DOM antes o junto a render handlers.
+- Historia completa y verde antes de pasar a la siguiente prioridad.
+
+## Oportunidades paralelas del cierre de brechas
+
+- T199, T200 en paralelo.
+- T201 y T202 en paralelo; T203 y T204 en paralelo tras sus pruebas.
+- En US25: T208 y T209 en paralelo.
+- En US26: T215 y T216 en paralelo.
+- En US27: T222 y T223 en paralelo.
+- En US28: T228 y T229 en paralelo.
+- En US29: T234 y T235 en paralelo.
+- En US30: T240 y T241 en paralelo.
+
+## Estrategia de implementación del cierre de brechas
+
+### MVP primero (US25)
+1. Completar Fase 37 y 38.
+2. Completar US25 (T208–T214).
+3. Validar US25 independientemente; demo de empleados + archivado básico.
+
+### Entrega incremental
+1. Setup + Fundacional.
+2. US25 → US26 → US27 (P1 núcleo operativo).
+3. US28 → US29 (P2 visibilidad/operación).
+4. US30 (P3 archivado completo + rendimiento SC-035).
+5. Polish y regresión completa.
+
+## Cobertura FR/SC del cierre de brechas
+
+| Requisito | Tareas principales | Prueba/evidencia |
+|---|---|---|
+| FR-089 | T208,T210,T212 | `tests/integration/employees-ui.test.js` |
+| FR-090 | T209,T211,T212,T213 | `tests/integration/archive-restore-ui.test.js` |
+| FR-091 | T209,T213,T220,T244 | archive/restore + selectores activos |
+| FR-092 | T215,T216,T217,T218,T219 | `tests/integration/interactions-ui.test.js` |
+| FR-093 | T215,T218,T219 | historial visible por cliente |
+| FR-094 | T201,T203,T222,T225,T226 | `tests/unit/lifecycle-transitions.test.js`, `tests/integration/opportunities-lifecycle.test.js` |
+| FR-095 | T201,T203,T222,T225,T226 | feedback transición inválida, no persiste |
+| FR-096 | T228,T230,T231 | `tests/integration/client-360.test.js` |
+| FR-097 | T229,T232 | retorno conserva contexto |
+| FR-098 | T204,T234,T236,T237,T238 | `tests/integration/dashboard-upcoming-integrity.test.js` |
+| FR-099 | T202,T204,T235,T236,T237 | reporte integridad visible |
+| FR-100 | T209,T240,T242,T243,T244 | archive/restore clientes UI |
+| FR-101 | T201,T206,T223,T224,T227 | banner config visible + fallback |
+| FR-102 | T199,T241,T245 | `tests/integration/performance-dom.test.js` |
+| SC-031 | T208,T209,T215,T216,T240 | CRUD/archive/restore UI real (Clientes, Empleados e Interacciones) |
+| SC-032 | T201,T222,T223,T225 | lifecycle + transiciones inválidas bloqueadas |
+| SC-033 | T228,T229,T232 | 360° <=3 interacciones, contexto preservado |
+| SC-034 | T234,T235,T237 | próximos cierres + integridad, vacíos claros |
+| SC-035 | T199,T241,T245 | 500 registros, filtro <=10s, render <=2s |

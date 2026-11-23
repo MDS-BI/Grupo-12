@@ -1,5 +1,7 @@
 # Inicio Rápido: Módulo CRM (Customer Relationship Management)
 
+> **Nota de fusión (2026-11-23)**: este documento integra el contenido íntegro de `002-quickstart.md`. Sus historias se renombraron a US25–US30 y sus requisitos a FR-089–FR-102 / SC-031–SC-035 para mantener una numeración única con el módulo base.
+
 ## Configuración
 
 1. Instale dependencias con `npm install`.
@@ -112,3 +114,79 @@ npm run build
 | US22 | FR-085, SC-028 | `tests/integration/corrections-us16-us24.test.js`, `tests/integration/ui-contracts.test.js` |
 | US23 | FR-075, FR-080, SC-029 | `tests/integration/corrections-us16-us24.test.js`, `tests/integration/ui-contracts.test.js` |
 | US24 | FR-088, SC-030 | `tests/unit/currency-format.test.js`, `tests/integration/corrections-us16-us24.test.js` |
+
+## Escenarios del cierre de brechas históricas (US25–US30)
+
+**Feature original**: `002-crm-historical-gaps` | **Ruta activa**: `index.html` + `src/*` (no `src/components/*`)
+
+### Preparación
+
+```bash
+npm install
+npm run test:run
+npm run lint
+npm run build
+npm run dev
+```
+
+### US25 - Empleados (FR-089–FR-091, T025/T055/T056)
+
+1. Iniciar sesión y abrir vista `Empleados`.
+2. Crear empleado válido (nombre + cargo). **Esperado**: aparece en listado y en selectores de responsable activos.
+3. Editar cargo. **Esperado**: cambio visible en listado y selectores.
+4. Archivar empleado. **Esperado**: desaparece de selectores operativos; visible al activar "Mostrar archivados".
+5. Restaurar. **Esperado**: vuelve a selectores/lista operativa.
+
+### US26 - Interacciones (FR-092–FR-093, T036)
+
+1. Abrir `Interacciones`.
+2. Crear interacción con cliente activo, empleado activo, fecha, tipo y nota. **Esperado**: aparece en historial.
+3. Editar nota/tipo. **Esperado**: se actualiza sin duplicar.
+4. Eliminar con confirmación. **Esperado**: desaparece; cancelar no elimina.
+
+### US27 - Oportunidades lifecycle/config (FR-094–FR-095, FR-101, T030/T062/T064)
+
+1. Crear oportunidad en etapa inicial.
+2. Cambiar a transición permitida por lifecycle. **Esperado**: persiste.
+3. Intentar transición no permitida. **Esperado**: mensaje claro, no persiste.
+4. Cargar config inválida (fixture de prueba). **Esperado**: banner visible de error/fallback, app sigue utilizable.
+
+### US28 - Ficha cliente 360° (FR-096–FR-097, T041)
+
+1. Desde listado Clientes, abrir "Ver ficha" de cliente con datos.
+2. **Esperado**: resumen, oportunidades e interacciones relacionadas.
+3. Volver al listado. **Esperado**: conserva filtro/selección visible.
+4. Abrir cliente sin historial. **Esperado**: estados vacíos claros por sección.
+
+### US29 - Próximos cierres e integridad (FR-098–FR-099, T046/T057)
+
+1. Cargar oportunidades abiertas con `closeDate` en próximos 30 días. **Esperado**: sección "Próximos cierres" visible con acceso al registro.
+2. Inyectar referencia inexistente (fixture). **Esperado**: reporte de integridad visible con tipo/registro/referencia faltante.
+3. Sin datos/problemas. **Esperado**: estados vacíos/no-error, sin falsos positivos.
+
+### US30 - Archivado visible y rendimiento 500 (FR-100, FR-102, T052/T055/T056)
+
+1. Archivar cliente desde UI. **Esperado**: fuera de lista operativa y selectores por defecto; visible en archivados.
+2. Restaurar cliente. **Esperado**: vuelve a operativos.
+3. Ejecutar prueba DOM 500 registros. **Esperado**: filtro <=10 s, render inicial <=2 s (SC-035).
+
+### Validación automatizada esperada
+
+```bash
+npm run test:run
+npm run lint
+npm run build
+```
+
+Nuevas pruebas esperadas (plan): `tests/unit/lifecycle-transitions.test.js`, `tests/unit/referential-integrity.test.js`, `tests/integration/employees-ui.test.js`, `tests/integration/interactions-ui.test.js`, `tests/integration/opportunities-lifecycle.test.js`, `tests/integration/client-360.test.js`, `tests/integration/dashboard-upcoming-integrity.test.js`, `tests/integration/archive-restore-ui.test.js`, `tests/integration/performance-dom.test.js`.
+
+### Trazabilidad US25–US30
+
+| US | FR/SC original | FR/SC fusionados | Pruebas principales |
+|---|---|---|---|
+| US25 (antes 002-US1) | FR-001..003, SC-001 | FR-089–FR-091, SC-031 | `tests/integration/employees-ui.test.js`, `tests/integration/archive-restore-ui.test.js` |
+| US26 (antes 002-US2) | FR-004..005, SC-001 | FR-092–FR-093, SC-031 | `tests/integration/interactions-ui.test.js` |
+| US27 (antes 002-US3) | FR-006..007, FR-013, SC-002 | FR-094–FR-095, FR-101, SC-032 | `tests/integration/opportunities-lifecycle.test.js` |
+| US28 (antes 002-US4) | FR-008..009, SC-003 | FR-096–FR-097, SC-033 | `tests/integration/client-360.test.js` |
+| US29 (antes 002-US5) | FR-010..011, SC-004 | FR-098–FR-099, SC-034 | `tests/integration/dashboard-upcoming-integrity.test.js` |
+| US30 (antes 002-US6) | FR-012, FR-014, SC-001/SC-005 | FR-100, FR-102, SC-031/SC-035 | `tests/integration/archive-restore-ui.test.js`, `tests/integration/performance-dom.test.js` |

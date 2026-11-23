@@ -1,7 +1,8 @@
 # Contrato de Rendimiento: DOM real 500 registros
 
-**Feature**: 002-crm-historical-gaps  
-**Cubre**: T052, FR-014, SC-005
+**Funcionalidad**: `001-crm-module` (cierre de brechas históricas, antes `002-crm-historical-gaps`)  
+**Cubre**: histórica T052, FR-102, SC-035  
+**Nota de fusión (2026-11-23)**: contrato conservado íntegramente; sus identificadores originales eran FR-014 y SC-005 de la spec 002.
 
 ## Presupuesto
 
@@ -16,7 +17,7 @@
 2. Montar/bootear DOM real (`index.html` + app real).
 3. Medir render inicial de listado objetivo (clientes/empleados/oportunidades según escenario definido por prueba).
 4. Aplicar filtro/búsqueda representativa y medir hasta que DOM refleje resultado.
-5. Assert umbrales SC-005.
+5. Assert umbrales SC-035 (antes 002-SC-005; equivalentes a FR-042/SC-004 del módulo base).
 6. No usar sleeps largos; esperar condición DOM/estado.
 
 ## No regresión

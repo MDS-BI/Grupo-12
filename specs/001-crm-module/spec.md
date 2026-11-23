@@ -1,11 +1,14 @@
 # Especificación de la Funcionalidad: Módulo CRM (Customer Relationship Management)
 
-**Rama de la funcionalidad**: 001-crm-module  
+**Rama de la funcionalidad**: 001-crm-module (incluye el cierre de brechas históricas, documentado originalmente como `002-crm-historical-gaps`)  
 **Creada**: 2026-07-08  
-**Actualizada**: 2026-11-21
+**Actualizada**: 2026-11-23
 
 **Estado**: Borrador  
-**Entrada**: Descripción del usuario: "Construir un módulo CRM integrado a un ERP que permita administrar clientes, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta, con datos ficticios y un alcance inicial acotado." Además: "Agrega una nueva Historia de Usuario para la interfaz SaaS profesional del CRM ya implementada: inicio de sesión con diseño dividido (split screen) y mostrar/ocultar contraseña, menú lateral colapsable con botón hamburguesa SVG, banner de bienvenida en el Dashboard, tarjetas KPI, estandarización de formularios ('DATOS DEL CLIENTE' y 'CONDICIONES COMERCIALES') y codificación UTF-8 limpia"
+**Entrada**: Descripción del usuario: "Construir un módulo CRM integrado a un ERP que permita administrar clientes, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta, con datos ficticios y un alcance inicial acotado." Además: "Agrega una nueva Historia de Usuario para la interfaz SaaS profesional del CRM ya implementada: inicio de sesión con diseño dividido (split screen) y mostrar/ocultar contraseña, menú lateral colapsable con botón hamburguesa SVG, banner de bienvenida en el Dashboard, tarjetas KPI, estandarización de formularios ('DATOS DEL CLIENTE' y 'CONDICIONES COMERCIALES') y codificación UTF-8 limpia"  
+**Entrada adicional (cierre de brechas históricas, 2026-11-22)**: "Cierre de brechas históricas del CRM - auditar 13 tareas históricas de 001-crm-module y especificar solo brechas reales".
+
+> **Nota de fusión (2026-11-23)**: esta especificación integra el contenido íntegro de la spec 002 (`002-spec.md`) en el documento base. Las historias, requisitos y criterios de éxito incorporados usan identificadores continuos: US25–US30, FR-089–FR-102 y SC-031–SC-035. Las referencias a FR/SC/US del módulo base (FR-001…FR-088, SC-001…SC-030, US1…US24) conservan su numeración original.
 
 ## Propósito
 
@@ -18,6 +21,41 @@ El módulo se enfoca en el ciclo de vida de la relación con el cliente y en el 
 Esta historia describe y valida la experiencia visual de la interfaz SaaS profesional del CRM ya implementada. El objetivo es que cada ejecutivo comercial reconozca la marca al ingresar, acceda con confianza, navegue por el espacio de trabajo sin fricción, entienda de un vistazo el estado del negocio y capture información de clientes de forma coherente y legible.
 
 El alcance cubre únicamente la capa de experiencia de usuario: pantalla de acceso, navegación lateral, Dashboard, formularios de cliente y corrección de caracteres. No modifica las reglas de negocio ni los datos del módulo CRM existente.
+
+## Contexto y auditoría obligatoria del cierre de brechas históricas (Paso 0)
+
+Se auditó el código actual (`index.html`, `src/app.js`, `src/main.js`, `src/storage.js`, `src/domain.js`, `src/module-config.js`, `src/styles.css`, `tests/`) contra las 13 tareas históricas de `tasks.md`. El análisis se realizó sobre la ruta ejecutable real; `src/components/*` se considera histórico/no conectado. Los hallazgos y decisiones de esa auditoría se conservan íntegramente a continuación (el documento 002 original indicaba que no modificaba esta carpeta; tras la fusión de 2026-11-23 su contenido pasa a formar parte de este `spec.md`).
+
+| Tarea histórica | Estado | Evidencia | Decisión |
+|---|---|---|---|
+| T025 | **Parcial** | Storage/API existen: `loadEmployees`, `addEmployee`, `updateEmployee`, `deleteEmployee` en `src/storage.js`. UI real no expone CRUD de empleados en `index.html`/`src/app.js`; pruebas existentes (`tests/integration/employees.test.js`) usan `mountApp`/`src/components/*`, ruta histórica no conectada al DOM real. | Brecha real: UI real de empleados. |
+| T030 | **Parcial** | `src/app.js` tiene formulario de oportunidades/documentos con alta/edición/eliminación y validación básica; `src/storage.js` tiene `addOpportunity/updateOpportunity`. Falta flujo completo observable de transición por etapa con `opportunityLifecycle` configurable, reglas de transición visibles y validación de transición en la UI real. | Brecha real: flujo completo de oportunidades con lifecycle. |
+| T036 | **Parcial** | Storage/API existen: `loadInteractions`, `addInteraction`, `updateInteraction`, `deleteInteraction` en `src/storage.js`. No hay sección/formulario/historial de interacciones en `index.html`/`src/app.js`; `tests/integration/interactions.test.js` depende de componentes históricos. | Brecha real: UI real de interacciones. |
+| T041 | **No cubierta** | No existe ficha cliente 360° en DOM real ni navegación lista→ficha→lista preservando contexto. `getCustomerActivity` existe en `src/storage.js`, pero `src/app.js` no la expone en UI. `tests/integration/client-detail.test.js` usa componentes históricos. | Brecha real: ficha cliente 360°. |
+| T046 | **Parcial** | `getCRMOverview()` calcula `upcomingClosures` en `src/storage.js`; dashboard en `src/app.js` muestra KPIs y refresca al mostrar dashboard. No hay sección visible "Próximos cierres" ni accesos rápidos conectados a ese listado en DOM real. | Brecha real: sección Próximos cierres. |
+| T051 | **Cubierta** | US20/US21 implementaron búsqueda unificada y listados con filtro/acciones en DOM real (`src/app.js`, `index.html`, `tests/integration/search.test.js`, `tests/integration/entities.test.js`, `tests/integration/documents.test.js`, T197). | No especificar de nuevo. |
+| T052 | **Parcial** | Existe presupuesto unitario/storage en `tests/unit/performance-budget.test.js` (500 registros, búsqueda/render en memoria). No hay evidencia de prueba/optimización equivalente sobre ruta DOM real con filtros/listados visibles. | Brecha real: optimización/rendimiento observable en DOM real. |
+| T055 | **Parcial** | Storage tiene archivado lógico (`deleteCustomer` marca archived, `deleteEmployee` marca archived, filtros por archived). UI real expone eliminación de cliente/oportunidad pero no acción visible de archivar/restaurar ni consulta de historial archivado en vista operativa. | Brecha real: archivado/restauración visible. |
+| T056 | **Parcial** | Storage excluye archivados en varias consultas (`loadActiveCustomers`, `loadOpportunities` filtra por clientes activos en algunos casos, `getCRMOverview` cuenta activos). En DOM real no hay control visible para incluir archivados/historial y falta verificación explícita de exclusión en todos los selectores/listas operativas tras archivar/restaurar desde UI. | Brecha real: exclusión visible y consistente en UI. |
+| T057 | **No cubierta** | No hay reporte visible de integridad referencial en UI real. `src/storage.js` valida formas/referencias en algunas operaciones, pero no expone un reporte de registros con referencias inexistentes al cargar datos; no hay banner/sección en `index.html`/`src/app.js`. | Brecha real: reporte de integridad referencial. |
+| T058 | **Cubierta** | US23 cerró accesibilidad/validación consistente con `aria-invalid`, `aria-describedby`, foco, y pruebas (`tests/integration/corrections-us16-us24.test.js`, `tests/integration/ui-contracts.test.js`). | No especificar de nuevo. |
+| T062 | **Parcial** | `src/module-config.js` define `statusLifecycle`/transiciones; `src/app.js` usa `statusLifecycle` para poblar estados. No hay aplicación completa y observable de transiciones configuradas en el flujo de edición/cambio de etapa con feedback claro de transición inválida. | Brecha real: lifecycle configurable aplicado. |
+| T064 | **Parcial** | `src/main.js` carga config con `loadModuleConfig()` y arranca con `normalizeConfig`. No hay banner visible de errores de configuración en DOM real; errores solo quedan en resultado de normalización/tests. | Brecha real: banner visible de errores de config. |
+
+### Brechas reales incluidas
+
+- Empleados e Interacciones con UI real (T025, T036).
+- Flujo completo de oportunidades (T030) y ficha cliente 360° (T041).
+- Dashboard "Próximos cierres" y reporte de integridad referencial (T046, T057).
+- Archivado/restauración visible y exclusión de listas/selectores (T055, T056).
+- Lifecycle configurable y banner visible de errores de configuración (T062, T064).
+- Optimización real para 500 registros (T052).
+
+### Exclusiones explícitas
+
+- No repetir T051/T058 ni funcionalidades ya cerradas (tema, auth, storage recovery, filtros/listados US20/US21/T197).
+- No reintroducir documentos duplicados con prefijo `002-`: su contenido quedó fusionado en este `spec.md`, `plan.md`, `data-model.md`, `tasks.md`, `research.md`, `quickstart.md`, `checklists/requirements.md` y los contratos correspondientes.
+- `src/components/*` se considera histórico/no conectado; la implementación objetivo es la ruta activa `index.html` + `src/*`.
 
 ## Clarifications
 
@@ -477,6 +515,114 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 
 ---
 
+### Historia de Usuario 25 - Gestionar empleados desde la UI real (Prioridad: P1)
+
+*(Incorporada de la spec 002; US1 de ese documento. Cierra T025 y parte de T056.)*
+
+Como usuario comercial, quiero crear, editar y archivar empleados desde la interfaz real para asignar responsables válidos a oportunidades e interacciones.
+
+**Por qué esta prioridad**: Sin empleados visibles no se puede completar el flujo comercial real; T025 y parte de T056 dependen de esto.
+
+**Prueba Independiente**: Abrir vista Empleados, crear empleado, editarlo, archivarlo y verificar que aparece/no aparece en selectores operativos.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** usuario autenticado, **cuando** navega a Empleados y guarda un empleado válido, **entonces** el empleado aparece en listado y en selectores de responsable activos.
+2. **Dado** empleado existente, **cuando** edita nombre/cargo y guarda, **entonces** el listado y los selectores muestran datos actualizados.
+3. **Dado** empleado activo, **cuando** lo archiva, **entonces** deja de aparecer en selectores de nuevos registros pero sigue consultable en historial/archivados.
+
+---
+
+### Historia de Usuario 26 - Registrar interacciones con historial visible (Prioridad: P1)
+
+*(Incorporada de la spec 002; US2 de ese documento. Cierra T036.)*
+
+Como usuario comercial, quiero registrar, editar y eliminar interacciones desde la UI real para mantener el historial de contacto por cliente.
+
+**Por qué esta prioridad**: Cierra T036 y habilita la ficha 360° con datos reales.
+
+**Prueba Independiente**: Crear cliente y empleado, registrar interacción, verla en listado/historial, editarla y eliminarla con confirmación.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** cliente y empleado activos, **cuando** registro una interacción con fecha, tipo, cliente y responsable, **entonces** se guarda y aparece en el historial visible.
+2. **Dado** interacción existente, **cuando** la edito, **entonces** el historial refleja los cambios sin duplicar registros.
+3. **Dado** interacción existente, **cuando** la elimino y confirmo, **entonces** desaparece del historial y la UI muestra estado coherente.
+
+---
+
+### Historia de Usuario 27 - Flujo completo de oportunidades con lifecycle configurable (Prioridad: P1)
+
+*(Incorporada de la spec 002; US3 de ese documento. Cierra T030/T062 en el comportamiento visible principal del CRM.)*
+
+Como usuario comercial, quiero avanzar oportunidades según etapas/transiciones configuradas para que el pipeline refleje reglas reales del negocio.
+
+**Por qué esta prioridad**: Cierra T030/T062 en el comportamiento visible principal del CRM.
+
+**Prueba Independiente**: Configurar lifecycle, crear oportunidad, aplicar transición permitida, intentar transición no permitida y verificar feedback/estado.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** una oportunidad en etapa inicial, **cuando** selecciono una transición permitida por `opportunityLifecycle`, **entonces** la etapa se actualiza y se persiste.
+2. **Dado** una oportunidad en etapa X, **cuando** intento cambiar a una etapa no permitida, **entonces** la UI bloquea el cambio y muestra mensaje claro sin corromper datos.
+3. **Dado** configuración de lifecycle inválida o parcial, **cuando** inicia la app, **entonces** se usa fallback seguro y se muestra banner visible de error de configuración.
+
+---
+
+### Historia de Usuario 28 - Ficha cliente 360° (Prioridad: P2)
+
+*(Incorporada de la spec 002; US4 de ese documento. Cierra T041.)*
+
+Como usuario comercial, quiero ver una ficha 360° del cliente con sus datos, oportunidades e interacciones para entender el contexto antes de actuar.
+
+**Por qué esta prioridad**: Cierra T041 y mejora la usabilidad del CRM sobre datos ya existentes.
+
+**Prueba Independiente**: Desde listado de clientes abrir ficha, verificar secciones de datos/oportunidades/interacciones, volver al listado conservando contexto.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** cliente con oportunidades e interacciones, **cuando** abro su ficha, **entonces** veo datos del cliente, oportunidades relacionadas e interacciones en la misma vista.
+2. **Dado** cliente sin historial, **cuando** abro su ficha, **entonces** veo estados vacíos claros por sección.
+3. **Dado** estoy en ficha 360°, **cuando** vuelvo al listado, **entonces** regreso al listado y conservo filtros/selección visible según el contexto previo.
+
+---
+
+### Historia de Usuario 29 - Dashboard operativo y calidad de datos (Prioridad: P2)
+
+*(Incorporada de la spec 002; US5 de ese documento. Cierra T046/T057 con señales operativas visibles.)*
+
+Como usuario, quiero ver próximos cierres y problemas de integridad referencial para priorizar trabajo y detectar datos inconsistentes.
+
+**Por qué esta prioridad**: Cierra T046/T057 con señales operativas visibles.
+
+**Prueba Independiente**: Sembrar oportunidades con fechas próximas y referencias inválidas; verificar sección Próximos cierres y reporte de integridad al cargar.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** oportunidades abiertas con fecha de cierre próxima, **cuando** abro dashboard, **entonces** veo sección "Próximos cierres" con registros y acceso al detalle.
+2. **Dado** datos con referencias inexistentes, **cuando** carga la app, **entonces** veo reporte visible de integridad referencial con tipo de registro y referencia faltante.
+3. **Dado** no hay cierres próximos o inconsistencias, **cuando** abro dashboard/app, **entonces** veo estados vacíos/no-error claros sin bloquear uso normal.
+
+---
+
+### Historia de Usuario 30 - Archivado visible y rendimiento real (Prioridad: P3)
+
+*(Incorporada de la spec 002; US6 de ese documento. Cierra T055/T056/T052; importante pero posterior al flujo funcional principal.)*
+
+Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen rendimiento con 500 registros para operar el CRM a escala básica.
+
+**Por qué esta prioridad**: Cierra T055/T056/T052; importante pero posterior al flujo funcional principal.
+
+**Prueba Independiente**: Archivar/restaurar cliente/empleado desde UI, confirmar exclusión en listas/selectores; ejecutar prueba DOM con 500 registros.
+
+**Escenarios de Aceptación**:
+
+1. **Dado** cliente o empleado activo, **cuando** lo archivo desde UI, **entonces** se oculta de listas/selectores operativos y queda disponible en vista de archivados.
+2. **Dado** registro archivado, **cuando** lo restauro, **entonces** vuelve a estar disponible en listas/selectores operativos.
+3. **Dado** 500 clientes con registros asociados, **cuando** uso búsqueda/filtros/listados en DOM real, **entonces** la interacción cumple presupuesto definido y la UI sigue utilizable.
+
+---
+
 ### Casos Límite
 
 - ¿Qué ocurre cuando un usuario intenta guardar un cliente sin nombre de empresa, contacto, correo o teléfono?
@@ -520,6 +666,11 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - ¿Qué ocurre cuando se recarga la página en una vista interna o con una vista guardada inválida?
 - ¿Qué ocurre cuando un usuario navega solo con teclado por formularios inválidos o diálogos modales?
 - ¿Qué ocurre cuando se registran montos con monedas distintas o cuando el KPI agrega montos con una moneda fija?
+- Lifecycle configurado con etapa faltante o transición inválida: usar fallback seguro, registrar/revelar error visible, no bloquear CRUD básico.
+- Empleado archivado asignado a oportunidades/interacciones históricas: conservar historial, impedir nuevas asignaciones.
+- Cliente archivado con ficha 360° abierta: permitir consulta histórica, indicar estado archivado y bloquear nuevas interacciones/oportunidades si la regla lo exige.
+- Referencias inexistentes detectadas al cargar: mostrar reporte, no borrar datos automáticamente, permitir continuar con áreas no afectadas.
+- 500 registros con filtros combinados: resultados vacíos deben ser claros y rápidos; selección actual no debe perderse si el registro sigue visible.
 
 ## Requisitos *(obligatorio)*
 
@@ -620,6 +771,23 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **FR-087**: Los diálogos modales del CRM DEBEN gestionar foco inicial, focus trap, cierre por Escape y restauración de foco al disparador. Esto aplica a `#unsaved-dialog`, al diálogo de confirmación de eliminación y a cualquier diálogo modal CRM futuro; controles no modales como el selector de tema deben cumplir accesibilidad por teclado/etiquetado equivalente según FR-073.
 - **FR-088**: El sistema DEBE definir y mostrar una regla consistente de moneda para montos individuales y KPI agregados; en el MVP, los montos agregados se expresan en la moneda base del módulo y la UI evita símbolos o etiquetas contradictorias.
 
+#### Requisitos incorporados del cierre de brechas históricas (spec 002, FR-089–FR-102)
+
+- **FR-089** *(antes 002-FR-001)*: El sistema DEBE exponer una vista de Empleados en la ruta DOM real (`index.html` + `src/app.js`) con listado y formulario para crear y editar empleados activos.
+- **FR-090** *(antes 002-FR-002)*: El sistema DEBE permitir archivar y restaurar empleados desde la UI real, manteniendo su historial asociado.
+- **FR-091** *(antes 002-FR-003)*: El sistema DEBE excluir empleados archivados de selectores de responsables para nuevos registros, manteniéndolos consultables en historial/archivados.
+- **FR-092** *(antes 002-FR-004)*: El sistema DEBE exponer una vista/sección de Interacciones en la ruta DOM real para crear, editar y eliminar interacciones asociadas a cliente y empleado.
+- **FR-093** *(antes 002-FR-005)*: El sistema DEBE mostrar historial visible de interacciones por cliente con fecha, tipo, responsable y descripción.
+- **FR-094** *(antes 002-FR-006)*: El sistema DEBE aplicar `opportunityLifecycle` configurado a la creación/edición/cambio de etapa de oportunidades, permitiendo solo transiciones válidas.
+- **FR-095** *(antes 002-FR-007)*: El sistema DEBE mostrar feedback claro cuando una transición de etapa no es permitida y no persistir el cambio inválido.
+- **FR-096** *(antes 002-FR-008)*: El sistema DEBE exponer una ficha cliente 360° accesible desde el listado de clientes, mostrando datos, oportunidades e interacciones relacionadas.
+- **FR-097** *(antes 002-FR-009)*: El sistema DEBE permitir volver desde la ficha 360° al listado de clientes preservando el contexto visible observable: al accionar `#client-360-back` se restaura el valor de `#entity-list-filter`, el cliente/fila seleccionada (`#entity_id` o `data-selected`) y la vista `#view-entities` activa; esos datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío.
+- **FR-098** *(antes 002-FR-010)*: El dashboard DEBE mostrar una sección visible "Próximos cierres" con oportunidades abiertas, no archivadas, con `closeDate` válida dentro de los próximos 30 días desde hoy.
+- **FR-099** *(antes 002-FR-011)*: El sistema DEBE mostrar un reporte visible de integridad referencial al cargar datos cuando existan registros con referencias inexistentes.
+- **FR-100** *(antes 002-FR-012)*: El sistema DEBE permitir archivar y restaurar clientes desde la UI real, excluyendo archivados de listas/selectores operativos por defecto.
+- **FR-101** *(antes 002-FR-013)*: El sistema DEBE cargar configuración al arrancar con fallback seguro y mostrar banner visible cuando existan errores de configuración.
+- **FR-102** *(antes 002-FR-014)*: El sistema DEBE mantener rendimiento utilizable en la ruta DOM real con 500 clientes y registros asociados en búsqueda/filtros/listados (ver SC-035).
+
 ### Requisitos de Extensibilidad
 
 - **XR-001**: El módulo DEBE permitir añadir campos personalizados a clientes, empleados, oportunidades e interacciones sin cambiar la estructura base de almacenamiento.
@@ -641,6 +809,16 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **Cliente (vista SaaS)**: titular de la ficha capturada; aporta la identificación y los datos de contacto presentados en "DATOS DEL CLIENTE".
 - **Condiciones comerciales**: información de moneda, importe, forma y plazo de pago asociada a un cliente u oportunidad, presentada en "CONDICIONES COMERCIALES".
 - **Métrica del Dashboard**: indicador mostrado en una tarjeta KPI, con etiqueta, valor y representación neutra cuando no hay datos.
+
+Las entidades incorporadas del cierre de brechas históricas (spec 002) completan y detallan las anteriores sin reemplazarlas:
+
+- **Empleado (vista real)**: responsable comercial; atributos clave: nombre, cargo, estado archivado; referencia de oportunidades e interacciones. Debe poderse crear/editar/archivar/restaurar desde la UI real y debe estar ausente de los selectores operativos cuando está archivado (FR-089–FR-091).
+- **Interacción (vista real)**: registro de contacto; atributos clave: cliente, empleado, fecha, tipo, descripción, archivado/eliminación según regla; CRUD visible con historial por cliente y confirmación de eliminación (FR-092, FR-093).
+- **Oportunidad (lifecycle aplicado)**: negocio comercial; atributos clave: cliente, empleado, monto, fecha de cierre, etapa, estado archivado; sujeta a `opportunityLifecycle` y a reglas de transición configuradas (FR-094, FR-095).
+- **Cliente (archivado visible / ficha 360°)**: cuenta comercial; atributos clave: identificación/contacto, estado, archivado; agrega oportunidades e interacciones en ficha 360° con retorno que preserva filtro/selección (FR-096, FR-097, FR-100).
+- **Reporte de integridad referencial**: hallazgo visible de registros huérfanos; atributos clave: tipo de registro, id, referencia faltante, acción sugerida. Es informativo y no destructivo (FR-099).
+- **Próximos cierres (vista derivada)**: oportunidades abiertas, no archivadas, con `closeDate` válida en los próximos 30 días; no sustituye ni duplica los KPI canónicos del dashboard (FR-098).
+- **Estado UI `crm.gaps002.ui.*`**: claves no canónicas para filtros de empleados/clientes archivados y contexto de ficha 360° (`employeesView`, `clients360`, `archivedFilter.entities`, `archivedFilter.employees`).
 
 ## Criterios de Éxito *(obligatorio)*
 
@@ -678,6 +856,26 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - **SC-028**: El 100 % de las recargas en vistas internas válidas restauran la sección esperada, y las vistas inválidas hacen fallback seguro al dashboard.
 - **SC-029**: El 100 % de los formularios y diálogos críticos pueden completarse o cancelarse solo con teclado, con mensajes de error asociados y sin pérdida de foco.
 - **SC-030**: El 100 % de los montos individuales y KPI agregados muestran una moneda/regla consistente, sin símbolos o etiquetas contradictorias.
+
+#### Criterios incorporados del cierre de brechas históricas (spec 002, SC-031–SC-035)
+
+- **SC-031** *(antes 002-SC-001)*: 100% de las operaciones CRUD/archive/restore de Clientes, Empleados e Interacciones son ejecutables desde la UI real sin usar consola.
+- **SC-032** *(antes 002-SC-002)*: 100% de los cambios de etapa de oportunidad respetan `opportunityLifecycle`; transiciones inválidas son bloqueadas con mensaje visible.
+- **SC-033** *(antes 002-SC-003)*: Un usuario puede abrir ficha 360° de un cliente y volver al listado en <= 3 interacciones, preservando contexto visible.
+- **SC-034** *(antes 002-SC-004)*: Dashboard muestra "Próximos cierres" y el reporte de integridad referencial es visible cuando hay datos correspondientes; en estado vacío no hay falsos positivos.
+- **SC-035** *(antes 002-SC-005)*: Con 500 clientes y registros asociados en la ruta DOM real, la búsqueda/filtro completa tarda <= 10 s y el renderizado inicial del listado <= 2 s, medido por prueba automatizada (umbrales heredados de FR-042/SC-004 de este módulo base).
+
+## Trazabilidad del cierre de brechas históricas
+
+| ID | Cubre tareas históricas | Historia | Criterio de éxito |
+|---|---|---|---|
+| FR-089, FR-090, FR-091 | T025, T055, T056 | US25, US30 | SC-031 |
+| FR-092, FR-093 | T036 | US26, US28 | SC-031 |
+| FR-094, FR-095, FR-101 | T030, T062, T064 | US27 | SC-032 |
+| FR-096, FR-097 | T041 | US28 | SC-033 |
+| FR-098, FR-099 | T046, T057 | US29 | SC-034 |
+| FR-100 | T055, T056 | US30 | SC-031, SC-034 |
+| FR-102 | T052 | US30 | SC-035 |
 
 ## Suposiciones
 
@@ -717,3 +915,7 @@ Como usuario, quiero que los montos y KPIs muestren la moneda de forma clara y c
 - En pantallas estrechas, los paneles de acceso se apilan y el menú se presenta como capa superpuesta, conservando todas las funciones.
 - El formato vectorial (SVG) del icono de hamburguesa es un requisito visual explícito del usuario, no una decisión de arquitectura.
 - Las entidades Cliente, Oportunidad y los datos ficticios son los documentados en esta misma especificación.
+- La ruta activa sigue siendo `index.html` + `src/app.js`/`src/main.js`/`src/storage.js`/`src/domain.js`/`src/module-config.js`/`src/styles.css`; `src/components/*` no se conecta.
+- "Próximos cierres" usa la ventana operativa ya definida por el dominio/storage (30 días) salvo ajuste explícito futuro; la sección es derivada y read-only y no modifica los KPI canónicos 001.
+- El reporte de integridad referencial es informativo y no elimina datos automáticamente.
+- El presupuesto de rendimiento se valida con pruebas automatizadas en entorno de prueba, como proxy observable del DOM real.
