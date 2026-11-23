@@ -1994,15 +1994,22 @@ function bindOperationalHandlers() {
 }
 
 async function boot() {
-  const moduleResult = (globalThis.__crmModuleConfigResult && typeof globalThis.__crmModuleConfigResult === 'object')
-    ? globalThis.__crmModuleConfigResult
-    : (typeof globalThis.userConfig !== 'undefined' ? normalizeConfig(globalThis.userConfig) : normalizeConfig(null));
+  const injectedResult = globalThis.__crmModuleConfigResult;
+  const hasModuleResult = injectedResult && typeof injectedResult === 'object' && !injectedResult.__bootOwned;
+  const hasUserConfig = typeof globalThis.userConfig !== 'undefined';
+  const current = getConfig();
+  const moduleResult = hasModuleResult
+    ? injectedResult
+    : hasUserConfig
+      ? normalizeConfig(globalThis.userConfig)
+      : (current && typeof current === 'object' ? { config: current, errors: [], usedFallback: false } : normalizeConfig(null));
   if (moduleResult?.config) setActiveConfig(moduleResult.config);
   else setActiveConfig(normalizeConfig(null).config);
   globalThis.__crmModuleConfigResult = {
     config: getActiveConfig(),
     errors: Array.isArray(moduleResult?.errors) ? moduleResult.errors : [],
-    usedFallback: Boolean(moduleResult?.usedFallback)
+    usedFallback: Boolean(moduleResult?.usedFallback),
+    __bootOwned: true
   };
 
   renderBranding();
