@@ -58,7 +58,11 @@ describe('US4 - Ficha cliente 360 (FR-008, FR-009, SC-003, T041)', () => {
     // re-open to reflect archived state
     document.querySelector('#client-360-back').click();
     document.querySelector('#nav-entities').click();
-    document.querySelector('[data-action="view-client-360"]')?.click();
+    const showArchived = document.querySelector('#entity-show-archived');
+    showArchived.checked = true;
+    showArchived.dispatchEvent(new Event('change', { bubbles: true }));
+    const archivedRow = document.querySelector(`#entity-list [data-entity-id="${selectedId}"]`);
+    archivedRow?.querySelector('[data-action="view-client-360"]')?.click();
 
     const summary = document.querySelector('#client-360-summary');
     expect((summary?.textContent || '').toLowerCase()).toMatch(/archivad/);

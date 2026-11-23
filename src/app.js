@@ -1,11 +1,11 @@
 ﻿import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
 import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency, evaluateOpportunityTransition, normalizeOpportunityLifecycle } from './domain.js';
 import {
-  addCustomer, addDocument, addEmployee, addEntity, addInteraction,
+  addCustomer, archiveCustomer, addDocument, addEmployee, addEntity, addInteraction,
   archiveEmployee, deleteDocument, deleteEntity, deleteInteraction,
-  getCRMOverview, getCRMStorageErrors, getCustomer360,
+  getCRMOverview, getCRMStorageErrors, getCustomer360, getReferentialIntegrityReport, getUpcomingClosures,
   loadCustomers, loadDocuments, loadEmployees, loadEntities, loadInteractions,
-  resetCorruptedCRMStorage, restoreEmployee,
+  resetCorruptedCRMStorage, restoreCustomer, restoreEmployee,
   searchCRM, updateCustomer, updateDocument, updateEmployee, updateEntity, updateInteraction,
   validateDocument, validateEmployee, validateEntity, validateInteraction
 } from './storage.js';
@@ -627,7 +627,7 @@ function clearFormErrors(scope) {
 
 function showView(name) {
   const safe = isValidView(name) ? name : 'dashboard';
-  if (safe === 'entities') updateEntitySelect();
+  if (safe === 'entities') { updateEntitySelect(); }
   if (safe === 'documents') {
     populateEntityDropdown();
     updateDocumentSelect();
@@ -662,6 +662,53 @@ function renderWelcomeBanner() {
   node.textContent = `Bienvenido, ${user}`;
 }
 
+function renderUpcomingClosures() {
+  const list = qs('upcoming-closures-list');
+  const empty = qs('upcoming-closures-empty');
+  if (!list) return;
+  const items = getUpcomingClosures({ windowDays: 30 });
+  list.replaceChildren();
+  if (empty) empty.hidden = items.length > 0;
+  const customersById = new Map(loadCustomers().map((c) => [String(c.id), c]));
+  const entitiesById = new Map(loadEntities().map((e) => [String(e.id), e]));
+  for (const item of items) {
+    const tr = document.createElement('tr');
+    const customer = customersById.get(String(item.customerId || item.clientId || ''));
+    const entity = entitiesById.get(String(item.customerId || item.clientId || ''));
+    const clientName = customer?.companyName || customer?.name || entity?.name || item.customerId || '-';
+    const folio = [item.series, item.folio].filter(Boolean).join('-') || item.id || '-';
+    tr.innerHTML = `<td>${escapeHTML(clientName)}</td><td>${escapeHTML(folio)}</td><td>${escapeHTML(item.closeDate || '-')}</td><td>${escapeHTML(item.stage || '-')}</td><td>${escapeHTML(formatMoney(item.amount, item.currency || MVP_BASE_CURRENCY))}</td><td><button type="button" class="row-action" data-action="open-upcoming-opportunity" data-document-id="${escapeHTML(item.id)}">Abrir</button></td>`;
+    tr.querySelector('[data-action="open-upcoming-opportunity"]').addEventListener('click', () => {
+      showView('documents');
+      updateDocumentSelect();
+      renderDocumentList();
+      const doc = loadDocuments().find((d) => String(d.id) === String(item.id));
+      if (doc) fillDocumentForm(doc);
+    });
+    list.appendChild(tr);
+  }
+}
+
+function renderIntegrityReport() {
+  const report = qs('integrity-report');
+  const list = qs('integrity-report-list');
+  const empty = qs('integrity-report-empty');
+  if (!report || !list) return;
+  const reportData = getReferentialIntegrityReport();
+  const findings = Array.isArray(reportData) ? reportData : (Array.isArray(reportData?.items) ? reportData.items : []);
+  list.replaceChildren();
+  const has = findings.length > 0;
+  report.hidden = false;
+  if (empty) empty.hidden = has;
+  for (const f of findings) {
+    const tr = document.createElement('tr');
+    const ref = f.missingRef || f.refType || '-';
+    const missing = f.missingId || f.missingRefId || f.missingRef || '';
+    tr.innerHTML = `<td>${escapeHTML(f.type || '-')}</td><td>${escapeHTML(f.recordId || f.id || '-')}</td><td>${escapeHTML(ref)}${missing && missing !== ref ? ': ' + escapeHTML(missing) : ''}</td><td>${escapeHTML(f.message || '')}</td>`;
+    list.appendChild(tr);
+  }
+}
+
 function updateDashboardStats() {
   const overview = getCRMOverview();
   const values = {
@@ -684,6 +731,8 @@ function updateDashboardStats() {
       ? `Se detectaron ${count} oportunidad(es) con etapa ausente, nula o inválida. Fueron excluidas de la tasa de conversión.`
       : '';
   }
+  renderUpcomingClosures();
+  renderIntegrityReport();
 }
 
 function renderBranding() {
@@ -764,30 +813,59 @@ function renderModuleLabels() {
   if (qs('search-empty')) qs('search-empty').textContent = `No hay coincidencias para su búsqueda.`;
 }
 
+function getEntityArchivedState(entity, customersById = null) {
+  const id = String(entity?.id || entity?.entity_id || '');
+  if (!id) return false;
+  const customers = loadCustomers();
+  const map = customersById || new Map(customers.map((c) => [String(c.id), c]));
+  const customer = map.get(id) || map.get(String(entity?.entity_id || '')) || customers.find((c) => String(c.entityId || '') === id);
+  return Boolean(customer?.archived || entity?.archived);
+}
+
 function renderEntityList() {
   const tbody = qs('entity-list');
   const empty = qs('entity-list-empty');
   if (!tbody) return;
+  const showArchived = Boolean(qs('entity-show-archived')?.checked);
   const filter = sanitizeText(qs('entity-list-filter')?.value || '').toLowerCase();
-  const entities = loadEntities().filter((entity) => !filter || [entity.name, entity.code, entity.email, entity.phone, entity.taxId]
-    .some((v) => String(v || '').toLowerCase().includes(filter)));
+  const customers = loadCustomers();
+  const custById = new Map();
+  const custByEntityId = new Map();
+  for (const c of customers) { custById.set(String(c.id), c); if (c.entityId) custByEntityId.set(String(c.entityId), c); }
+  const allEntities = loadEntities();
+  const rows = [];
+  let baseCount = 0;
+  for (const entity of allEntities) {
+    const id = String(entity?.id || entity?.entity_id || '');
+    const archived = Boolean(custById.get(id)?.archived || custByEntityId.get(id)?.archived || entity?.archived);
+    if (showArchived || !archived) baseCount += 1;
+    if (!showArchived && archived) continue;
+    if (filter && ![entity.name, entity.code, entity.email, entity.phone, entity.taxId].some((v) => String(v || '').toLowerCase().includes(filter))) continue;
+    rows.push({ entity, archived });
+  }
   tbody.replaceChildren();
   if (empty) {
-    empty.hidden = entities.length > 0;
-    empty.textContent = loadEntities().length === 0 ? 'No hay clientes registrados.' : 'No hay clientes que coincidan con el filtro.';
+    empty.hidden = rows.length > 0;
+    empty.textContent = baseCount === 0 ? 'No hay clientes registrados.' : 'No hay clientes que coincidan con el filtro.';
   }
   const selectedId = getSelectedEntityId();
-  for (const entity of entities) {
+  const frag = document.createDocumentFragment();
+  for (const { entity, archived } of rows) {
     const tr = document.createElement('tr');
     tr.dataset.entityId = entity.id;
+    if (archived) tr.classList.add('is-archived');
     if (selectedId && selectedId === entity.id) {
       tr.classList.add('selected');
       tr.setAttribute('data-selected', 'true');
     }
-    tr.innerHTML = `<td>${escapeHTML(entity.name || '')}</td><td>${escapeHTML(entity.code || '')}</td><td>${escapeHTML(entity.email || '')}</td><td>${escapeHTML(entity.phone || '')}</td>`
+    const archiveAction = archived
+      ? `<button type="button" class="row-action" data-action="restore-entity" data-entity-id="${escapeHTML(entity.id)}">Restaurar</button>`
+      : `<button type="button" class="row-action danger" data-action="archive-entity" data-entity-id="${escapeHTML(entity.id)}">Archivar</button>`;
+    tr.innerHTML = `<td>${escapeHTML(entity.name || '')}${archived ? ' <span class="badge-archived">Archivado</span>' : ''}</td><td>${escapeHTML(entity.code || '')}</td><td>${escapeHTML(entity.email || '')}</td><td>${escapeHTML(entity.phone || '')}</td>`
       + `<td class="row-actions"><button type="button" class="row-action" data-action="view-client-360" data-entity-id="${escapeHTML(entity.id)}">Ver ficha</button>`
       + `<button type="button" class="row-action" data-action="edit" data-entity-id="${escapeHTML(entity.id)}">Editar</button>`
-      + `<button type="button" class="row-action danger" data-action="delete" data-entity-id="${escapeHTML(entity.id)}">Eliminar</button></td>`;
+      + archiveAction
+      + `</td>`;
     tr.addEventListener('click', (ev) => {
       if (ev.target.closest('button')) return;
       selectEntityRow(entity.id);
@@ -800,23 +878,40 @@ function renderEntityList() {
       if (select) select.value = entity.id;
       qs('entity-form')?.scrollIntoView?.({ block: 'nearest' });
     });
-    tr.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+    const archiveBtn = tr.querySelector('[data-action="archive-entity"]');
+    if (archiveBtn) archiveBtn.addEventListener('click', (e) => {
       openDeleteConfirmDialog({
-        title: 'Confirmar eliminaci\u00f3n',
-        message: '\u00bfDeseas eliminar el cliente seleccionado? Esta acci\u00f3n no se puede deshacer.',
-        confirmLabel: 'Eliminar',
+        title: 'Confirmar archivado',
+        message: '\u00bfDeseas archivar el cliente seleccionado? Podr\u00e1s restaurarlo desde la vista de archivados.',
+        confirmLabel: 'Archivar',
         opener: e.currentTarget,
         onConfirm: () => {
-          deleteEntity(entity.id);
+          const customer = custById.get(String(entity.id)) || custByEntityId.get(String(entity.id)) || loadCustomers().find((c) => String(c.entityId || '') === String(entity.id));
+          const custId = customer?.id || entity.id;
+          archiveCustomer(custId);
+          try {
+            const raw = JSON.parse(localStorage.getItem('erp_base_module:entities') || '[]');
+            localStorage.setItem('erp_base_module:entities', JSON.stringify(raw.map((e) => String(e?.id) === String(entity.id) ? { ...e, archived: true } : e)));
+          } catch { /* ignore */ }
           if (qs('entity-id')?.value === entity.id) resetEntityForm();
-          updateEntitySelect();
-          updateDashboardStats();
-          renderSearchResults();
+          updateEntitySelect(); updateDashboardStats(); renderSearchResults(); populateInteractionSelectors();
         }
       });
     });
-    tbody.appendChild(tr);
+    const restoreBtn = tr.querySelector('[data-action="restore-entity"]');
+    if (restoreBtn) restoreBtn.addEventListener('click', () => {
+      const customer = custById.get(String(entity.id)) || custByEntityId.get(String(entity.id)) || loadCustomers().find((c) => String(c.entityId || '') === String(entity.id));
+      const custId = customer?.id || entity.id;
+      restoreCustomer(custId);
+      try {
+        const raw = JSON.parse(localStorage.getItem('erp_base_module:entities') || '[]');
+        localStorage.setItem('erp_base_module:entities', JSON.stringify(raw.map((e) => String(e?.id) === String(entity.id) ? { ...e, archived: false } : e)));
+      } catch { /* ignore */ }
+      updateEntitySelect(); updateDashboardStats(); renderSearchResults(); populateInteractionSelectors();
+    });
+    frag.appendChild(tr);
   }
+  tbody.appendChild(frag);
 }
 
 function renderDocumentList() {
@@ -867,7 +962,7 @@ function renderDocumentList() {
 function updateEntitySelect() {
   const select = qs('edit-entity');
   if (select) {
-    const entities = loadEntities();
+    const entities = loadEntities().filter((entity) => !getEntityArchivedState(entity));
     const selected = select.value;
     select.replaceChildren(new Option('Seleccionar...', ''));
     for (const entity of entities) {
@@ -1003,7 +1098,7 @@ function updateDocumentFieldOptions() {
 function populateEntityDropdown() {
   const select = qs('document-entity');
   if (!select) return;
-  const entities = loadEntities();
+  const entities = loadEntities().filter((entity) => !getEntityArchivedState(entity));
   select.replaceChildren(new Option('Seleccionar...', ''));
   for (const entity of entities) {
     const option = document.createElement('option');
@@ -1503,12 +1598,10 @@ function fillEmployeeForm(record) {
   markFormClean(qs('employee-form'));
 }
 
-let _employeeRenderSeq = 0;
 function renderEmployeeList() {
   const list = qs('employee-list');
   const empty = qs('employee-list-empty');
   if (!list) return;
-  const seq = ++_employeeRenderSeq;
   const state = getEmployeesViewState();
   const filterInput = qs('employee-list-filter');
   const showArchivedToggle = qs('employee-show-archived');
@@ -1735,10 +1828,6 @@ function handleInteractionSubmit(event) {
 }
 
 
-function getEntityIdFromRow(row) {
-  return row?.dataset?.entityId || row?.querySelector?.('[data-entity-id]')?.dataset?.entityId || '';
-}
-
 function getSelectedEntityId() {
   return sanitizeText(qs('entity_id')?.value || qs('edit-entity')?.value || qs('entity-id')?.value || '')
     || sanitizeText(qs('#entity-list tr[data-selected="true"]')?.dataset?.entityId || '');
@@ -1771,7 +1860,7 @@ function captureClients360Context(openClientId) {
   return { filter, selectedEntityId };
 }
 
-function openClient360(entityId, opener) {
+function openClient360(entityId) {
   const id = String(entityId || '').trim();
   if (!id) return;
   captureClients360Context(id);
@@ -1820,7 +1909,7 @@ function renderClient360(customerId) {
 
   oppBody.replaceChildren();
   const opps = Array.isArray(opportunities) ? opportunities : [];
-  if (oppEmpty) oppEmpty.hidden = opps.length > 0;
+  if (oppEmpty) oppEmpty.hidden = !emptyStates.opportunities && opps.length > 0;
   for (const opp of opps) {
     const tr = document.createElement('tr');
     const folio = [opp.series, opp.folio].filter(Boolean).join('-') || opp.id || '-';
@@ -1830,7 +1919,7 @@ function renderClient360(customerId) {
 
   intBody.replaceChildren();
   const ints = Array.isArray(interactions) ? interactions : [];
-  if (intEmpty) intEmpty.hidden = ints.length > 0;
+  if (intEmpty) intEmpty.hidden = !emptyStates.interactions && ints.length > 0;
   const employeesById = new Map(loadEmployees({ includeArchived: true }).map((e) => [String(e.id), e]));
   for (const interaction of ints) {
     const employee = employeesById.get(String(interaction.employeeId || ''));
@@ -1912,6 +2001,12 @@ function bindOperationalHandlers() {
   if (interactionFilter && !interactionFilter.dataset.bound) {
     interactionFilter.addEventListener('input', renderInteractionList);
     interactionFilter.dataset.bound = 'true';
+  }
+
+  const entityShowArchived = qs('entity-show-archived');
+  if (entityShowArchived && !entityShowArchived.dataset.bound) {
+    entityShowArchived.addEventListener('change', () => { updateEntitySelect(); populateInteractionSelectors(); });
+    entityShowArchived.dataset.bound = 'true';
   }
 
   const client360Back = qs('client-360-back');

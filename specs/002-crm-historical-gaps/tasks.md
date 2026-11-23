@@ -164,15 +164,15 @@
 
 ### Pruebas para User Story 5 (escribir primero, FALLAR antes de implementar) ⚠️
 
-- [ ] T037 [P] [US5] Crear prueba de integración DOM real en `tests/integration/dashboard-upcoming-integrity.test.js` para renderizar `#upcoming-closures-section`, `#upcoming-closures-list`, `#upcoming-closures-empty` y navegación `[data-action="open-upcoming-opportunity"]` (FR-010, SC-004, T046)
-- [ ] T038 [P] [US5] Extender `tests/integration/dashboard-upcoming-integrity.test.js` para reporte `#integrity-report`, `#integrity-report-list`, `#integrity-report-empty` con hallazgos de referencia inexistente y sin falsos positivos (FR-011, SC-004, T057)
+- [x] T037 [P] [US5] Crear prueba de integración DOM real en `tests/integration/dashboard-upcoming-integrity.test.js` para renderizar `#upcoming-closures-section`, `#upcoming-closures-list`, `#upcoming-closures-empty` y navegación `[data-action="open-upcoming-opportunity"]` (FR-010, SC-004, T046)
+- [x] T038 [P] [US5] Extender `tests/integration/dashboard-upcoming-integrity.test.js` para reporte `#integrity-report`, `#integrity-report-list`, `#integrity-report-empty` con hallazgos de referencia inexistente y sin falsos positivos (FR-011, SC-004, T057)
 
 ### Implementación para User Story 5
 
-- [ ] T039 [US5] Añadir markup de dashboard en `index.html` para próximos cierres e integridad referencial según `contracts/ui-dom.md`, sin alterar tarjetas KPI canónicas 001
-- [ ] T040 [US5] Implementar render derivado read-only en `src/app.js` usando `getUpcomingClosures()` y `getReferentialIntegrityReport()`; no recalcular ni duplicar `getCRMOverview()` (FR-010, FR-011, T046, T057)
-- [ ] T041 [US5] Conectar navegación desde cierre próximo a oportunidad en `src/app.js` (`#view-documents` + selección/carga) preservando comportamiento existente (FR-010)
-- [ ] T042 [US5] Añadir estilos de secciones dashboard/próximos cierres/integridad en `src/styles.css` (tablas/listas, estados vacíos, severidad warning)
+- [x] T039 [US5] Añadir markup de dashboard en `index.html` para próximos cierres e integridad referencial según `contracts/ui-dom.md`, sin alterar tarjetas KPI canónicas 001
+- [x] T040 [US5] Implementar render derivado read-only en `src/app.js` usando `getUpcomingClosures()` y `getReferentialIntegrityReport()`; no recalcular ni duplicar `getCRMOverview()` (FR-010, FR-011, T046, T057)
+- [x] T041 [US5] Conectar navegación desde cierre próximo a oportunidad en `src/app.js` (`#view-documents` + selección/carga) preservando comportamiento existente (FR-010)
+- [x] T042 [US5] Añadir estilos de secciones dashboard/próximos cierres/integridad en `src/styles.css` (tablas/listas, estados vacíos, severidad warning)
 
 **Checkpoint**: US5 funcional; dashboard 001 conserva fuente canónica.
 
@@ -186,15 +186,15 @@
 
 ### Pruebas para User Story 6 (escribir primero, FALLAR antes de implementar) ⚠️
 
-- [ ] T043 [P] [US6] Extender `tests/integration/archive-restore-ui.test.js` para archivar/restaurar cliente con `#entity-show-archived`, `[data-action="restore-entity"]`/`restore-customer`, exclusión en `#entity_id` y `#interaction-client-id` (FR-012, FR-003, SC-001, T055, T056)
-- [ ] T044 [P] [US6] Crear prueba de rendimiento DOM real en `tests/integration/performance-dom.test.js` que siembra 500 clientes con registros asociados y verifica SC-005: filtro/búsqueda completa <= 10 s y renderizado inicial de listado <= 2 s (`contracts/performance.md`, FR-014, T052)
+- [x] T043 [P] [US6] Extender `tests/integration/archive-restore-ui.test.js` para archivar/restaurar cliente con `#entity-show-archived`, `[data-action="restore-entity"]`/`restore-customer`, exclusión en `#entity_id` y `#interaction-client-id` (FR-012, FR-003, SC-001, T055, T056)
+- [x] T044 [P] [US6] Crear prueba de rendimiento DOM real en `tests/integration/performance-dom.test.js` que siembra 500 clientes con registros asociados y verifica SC-005: filtro/búsqueda completa <= 10 s y renderizado inicial de listado <= 2 s (`contracts/performance.md`, FR-014, T052)
 
 ### Implementación para User Story 6
 
-- [ ] T045 [US6] Implementar/ajustar `archiveCustomer`/`restoreCustomer` y filtros `includeArchived` en `src/storage.js` manteniendo compatibilidad con `deleteCustomer` soft-archive (FR-012, T055)
-- [ ] T046 [US6] Añadir controles y acciones de archivado/restauración de clientes en `index.html` y `src/app.js` (`#entity-show-archived`, acciones por fila, badges) según `contracts/ui-dom.md` (FR-012)
-- [ ] T047 [US6] Aplicar exclusión consistente de archivados en listas/selectores operativos de clientes/empleados/oportunidades/interacciones en `src/app.js` (FR-003, FR-012, T056)
-- [ ] T048 [US6] Optimizar render/filtro DOM real en `src/app.js` para dataset 500 (DocumentFragment, evitar recomputación innecesaria) sin cambiar comportamiento funcional; validar con T044 (FR-014, SC-005, T052)
+- [x] T045 [US6] Implementar/ajustar `archiveCustomer`/`restoreCustomer` y filtros `includeArchived` en `src/storage.js` manteniendo compatibilidad con `deleteCustomer` soft-archive (FR-012, T055)
+- [x] T046 [US6] Añadir controles y acciones de archivado/restauración de clientes en `index.html` y `src/app.js` (`#entity-show-archived`, acciones por fila, badges) según `contracts/ui-dom.md` (FR-012)
+- [x] T047 [US6] Aplicar exclusión consistente de archivados en listas/selectores operativos de clientes/empleados/oportunidades/interacciones en `src/app.js` (FR-003, FR-012, T056)
+- [x] T048 [US6] Optimizar render/filtro DOM real en `src/app.js` para dataset 500 (DocumentFragment, evitar recomputación innecesaria) sin cambiar comportamiento funcional; validar con T044 (FR-014, SC-005, T052)
 
 **Checkpoint**: US6 funcional; rendimiento SC-005 verificado.
 
@@ -204,10 +204,10 @@
 
 **Propósito**: Consolidación transversal, regresión y evidencia de quickstart.
 
-- [ ] T049 [P] Actualizar `specs/002-crm-historical-gaps/quickstart.md` con resultados/ajustes reales de ejecución si cambian IDs o pasos, manteniendo trazabilidad FR/SC/T históricas
-- [ ] T050 Ejecutar regresión completa `npm run test:run`, `npm run lint`, `npm run build` en raíz del repo y corregir fallos en ruta activa (`index.html`, `src/*`, `tests/*`) sin tocar `src/components/*` ni `specs/001-crm-module/`
-- [ ] T051 [P] Revisar cobertura final FR-001..FR-014 y SC-001..SC-005 contra pruebas en `tests/unit/*` y `tests/integration/*`; añadir ajuste menor solo si falta evidencia automatizada
-- [ ] T052 Verificar manualmente escenarios de `specs/002-crm-historical-gaps/quickstart.md` para US1-US6 y registrar cualquier brecha como tarea nueva en futura fase (no reescribir tareas existentes)
+- [x] T049 [P] Actualizar `specs/002-crm-historical-gaps/quickstart.md` con resultados/ajustes reales de ejecución si cambian IDs o pasos, manteniendo trazabilidad FR/SC/T históricas
+- [x] T050 Ejecutar regresión completa `npm run test:run`, `npm run lint`, `npm run build` en raíz del repo y corregir fallos en ruta activa (`index.html`, `src/*`, `tests/*`) sin tocar `src/components/*` ni `specs/001-crm-module/`
+- [x] T051 [P] Revisar cobertura final FR-001..FR-014 y SC-001..SC-005 contra pruebas en `tests/unit/*` y `tests/integration/*`; añadir ajuste menor solo si falta evidencia automatizada
+- [x] T052 Verificar manualmente escenarios de `specs/002-crm-historical-gaps/quickstart.md` para US1-US6 y registrar cualquier brecha como tarea nueva en futura fase (no reescribir tareas existentes)
 
 ---
 

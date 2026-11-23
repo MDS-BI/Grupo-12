@@ -38,3 +38,45 @@ describe('US1/US6 archive-restore UI (FR-002, FR-003, SC-001)', () => {
     expect(optionsAfter.join(' ')).toContain('Luis Archivado');
   });
 });
+
+
+describe('US6 - archive/restore cliente UI (FR-012, FR-003, SC-001, T055/T056)', () => {
+  beforeEach(() => { clearStorages(); seedAuth(); });
+
+  it('archives/restores customer from UI and excludes from selectors (#entity_id, #interaction-client-id)', async () => {
+    await bootApp();
+    // create client
+    document.querySelector('#nav-entities').click();
+    document.querySelector('#name').value = 'Cliente Archivable';
+    document.querySelector('#code').value = 'CA1';
+    document.querySelector('#email').value = 'ca@acme.cl';
+    document.querySelector('#phone').value = '912345678';
+    document.querySelector('#entity-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+
+    // archive
+    const archiveBtn = document.querySelector('[data-action="archive-entity"]');
+    expect(archiveBtn).toBeTruthy();
+    archiveBtn.click();
+    const confirm = document.querySelector('#delete-confirm-accept, #confirm-dialog-confirm');
+    if (confirm) confirm.click();
+    expect(document.querySelector('#entity-list').textContent).not.toContain('Cliente Archivable');
+
+    // excluded from selectors
+    document.querySelector('#nav-interactions').click();
+    const opts = [...document.querySelectorAll('#interaction-client-id option')].map((o) => o.textContent).join(' ');
+    expect(opts).not.toContain('Cliente Archivable');
+
+    // show archived and restore
+    document.querySelector('#nav-entities').click();
+    document.querySelector('#entity-show-archived').checked = true;
+    document.querySelector('#entity-show-archived').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(document.querySelector('#entity-list').textContent).toContain('Cliente Archivable');
+    const restoreBtn = document.querySelector('[data-action="restore-entity"], [data-action="restore-customer"]');
+    expect(restoreBtn).toBeTruthy();
+    restoreBtn.click();
+
+    document.querySelector('#nav-interactions').click();
+    const opts2 = [...document.querySelectorAll('#interaction-client-id option')].map((o) => o.textContent).join(' ');
+    expect(opts2).toContain('Cliente Archivable');
+  });
+});

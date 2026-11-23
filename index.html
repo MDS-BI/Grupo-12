@@ -276,6 +276,28 @@
               </span>
             </div>
           </div>
+
+          <section id="upcoming-closures-section" class="dashboard-section" aria-labelledby="upcoming-closures-heading">
+            <h3 id="upcoming-closures-heading" class="section-heading">Próximos cierres</h3>
+            <div id="upcoming-closures-empty" class="empty-state" hidden>No hay cierres próximos.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Cliente</th><th>Oportunidad</th><th>Fecha cierre</th><th>Etapa</th><th>Monto</th><th>Acción</th></tr></thead>
+                <tbody id="upcoming-closures-list"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="integrity-report" class="dashboard-section" aria-labelledby="integrity-report-heading">
+            <h3 id="integrity-report-heading" class="section-heading">Integridad referencial</h3>
+            <div id="integrity-report-empty" class="empty-state" hidden>No se detectaron problemas de integridad referencial.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Tipo</th><th>Registro</th><th>Referencia faltante</th><th>Detalle</th></tr></thead>
+                <tbody id="integrity-report-list"></tbody>
+              </table>
+            </div>
+          </section>
         </section>
 
         <section id="view-entities" class="view" hidden>
@@ -375,7 +397,13 @@
           </div>
 
           <section class="list-panel" aria-labelledby="entity-list-heading">
-            <h3 id="entity-list-heading">Listado de clientes</h3>
+            <div class="list-panel-header">
+              <h3 id="entity-list-heading">Listado de clientes</h3>
+              <label class="archive-toggle" for="entity-show-archived">
+                <input id="entity-show-archived" type="checkbox" />
+                <span>Mostrar archivados</span>
+              </label>
+            </div>
             <div class="field list-filter-field">
               <label for="entity-list-filter">Filtrar clientes</label>
               <input id="entity-list-filter" type="search" placeholder="Buscar por nombre, código, correo o teléfono" aria-label="Filtrar clientes" />

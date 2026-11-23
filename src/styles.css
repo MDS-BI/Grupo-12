@@ -1644,3 +1644,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .client-360-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.75rem 1rem; }
 .client-360-summary-grid strong { display:block; font-size:.8rem; color:var(--muted, #64748b); margin-bottom:.15rem; }
 #entity-list tr.selected { outline: 2px solid color-mix(in srgb, var(--accent, #2563eb) 55%, transparent); outline-offset: -2px; }
+
+
+/* 002 US5/US6 additions */
+.list-panel-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.75rem; }
+.list-panel-header h3 { margin:0; }
+.archive-toggle { display:inline-flex; align-items:center; gap:.5rem; font-size:.9rem; color:var(--text-muted,#475569); }
+#upcoming-closures-section .table-wrap, #integrity-report .table-wrap { margin-top:.5rem; }
+#integrity-report { border-left:4px solid var(--warning,#d97706); }
+.badge-archived { display:inline-block; margin-left:.35rem; padding:.1rem .45rem; border-radius:999px; background:#e2e8f0; color:#334155; font-size:.72rem; font-weight:600; vertical-align:middle; }
+tr.is-archived { opacity:.8; }

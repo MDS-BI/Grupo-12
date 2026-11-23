@@ -1,4 +1,4 @@
-﻿import { beforeEach, describe, expect, it, vi } from 'vitest';
+﻿import { beforeEach, describe, expect, it } from 'vitest';
 import { bootApp, clearStorages, seedAuth } from './live-dom.js';
 import { addEntity, addDocument } from '../../src/storage.js';
 
@@ -30,7 +30,6 @@ describe('US3 - Opportunities lifecycle (FR-006, FR-007, SC-002, T030/T062)', ()
     expect(options).toContain('Propuesta');
 
     status.value = 'Propuesta';
-    const errBefore = document.querySelector('#error-status')?.textContent;
     submitDocumentForm();
     const fb = document.querySelector('#lifecycle-feedback')?.textContent || '';
     const err = document.querySelector('#error-status')?.textContent || '';

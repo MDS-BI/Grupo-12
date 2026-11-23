@@ -22,10 +22,15 @@ describe('US21 - Listado de clientes', () => {
     expect(document.querySelector('#name').value).toBe('Acme');
     expect(document.querySelector('#edit-entity').value).toBe(e1.id);
 
-    const delBtn = document.querySelector(`#entity-list [data-action="delete"][data-entity-id="${e1.id}"]`);
+    const delBtn = document.querySelector(`#entity-list [data-action="archive-entity"][data-entity-id="${e1.id}"], #entity-list [data-action="delete"][data-entity-id="${e1.id}"]`);
     delBtn.click();
-    document.querySelector('#delete-confirm-accept').click();
+    const confirm = document.querySelector('#delete-confirm-accept, #confirm-dialog-confirm');
+    if (confirm) confirm.click();
     expect(document.querySelector(`#entity-list [data-entity-id="${e1.id}"]`)).toBeNull();
+    // 002: archive/restore replaces hard-delete; archived excluded by default
+    document.querySelector('#entity-show-archived').checked = true;
+    document.querySelector('#entity-show-archived').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(document.querySelector(`#entity-list [data-entity-id="${e1.id}"]`)).toBeTruthy();
     expect(document.querySelector('#entity-id').value).toBe('');
   });
 });
