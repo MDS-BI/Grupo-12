@@ -1,4 +1,4 @@
-# Tareas: Cierre de brechas históricas del CRM
+﻿# Tareas: Cierre de brechas históricas del CRM
 
 **Entrada**: Documentos de diseño desde `/specs/002-crm-historical-gaps/`  
 **Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/ui-dom.md, contracts/storage.md, contracts/performance.md, quickstart.md
@@ -44,9 +44,9 @@
 
 **Propósito**: Preparar fixtures/helpers de pruebas DOM real para las nuevas vistas, sin tocar `src/components/*`.
 
-- [ ] T001 Revisar y alinear helpers de montaje DOM real en `tests/integration/live-dom.js` para soportar nuevas vistas `#view-employees`, `#view-interactions`, `#view-client-360` según `specs/002-crm-historical-gaps/contracts/ui-dom.md`
-- [ ] T002 [P] Crear helper de seed determinista de 500 clientes/registros asociados para rendimiento en `tests/integration/helpers/seed-performance.js` (o archivo equivalente bajo `tests/integration/`), citando `specs/002-crm-historical-gaps/contracts/performance.md`
-- [ ] T003 [P] Documentar en comentarios de prueba la convención de claves UI `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.*` según `specs/002-crm-historical-gaps/contracts/storage.md`
+- [x] T001 Revisar y alinear helpers de montaje DOM real en `tests/integration/live-dom.js` para soportar nuevas vistas `#view-employees`, `#view-interactions`, `#view-client-360` según `specs/002-crm-historical-gaps/contracts/ui-dom.md`
+- [x] T002 [P] Crear helper de seed determinista de 500 clientes/registros asociados para rendimiento en `tests/integration/helpers/seed-performance.js` (o archivo equivalente bajo `tests/integration/`), citando `specs/002-crm-historical-gaps/contracts/performance.md`
+- [x] T003 [P] Documentar en comentarios de prueba la convención de claves UI `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.*` según `specs/002-crm-historical-gaps/contracts/storage.md`
 
 ---
 
@@ -54,13 +54,13 @@
 
 **Propósito**: Base compartida de dominio/storage/UI que bloquea US1-US6. **CRÍTICO**: completar antes de historias.
 
-- [ ] T004 Crear pruebas unitarias de transición `opportunityLifecycle` (permitida, inválida, fallback) en `tests/unit/lifecycle-transitions.test.js` cubriendo FR-006, FR-007, FR-013, SC-002; incluir nota de que `opportunityLifecycle` proviene de `module-config.statusLifecycle` normalizado
-- [ ] T005 [P] Crear pruebas unitarias de reporte de integridad referencial en `tests/unit/referential-integrity.test.js` cubriendo FR-011, SC-004
-- [ ] T006 Implementar funciones puras de lifecycle en `src/domain.js`: validación de transición con `opportunityLifecycle` canónico (normalizado desde `module-config.statusLifecycle`), fallback seguro y mensajes; hacer pasar T004 (FR-006, FR-007, FR-013)
-- [ ] T007 [P] Implementar utilidades derivadas read-only en `src/storage.js`/`src/domain.js` para `getReferentialIntegrityReport()` y `getUpcomingClosures({windowDays:30})`, sin modificar `getCRMOverview()` canónico 001; hacer pasar T005 (FR-010, FR-011)
-- [ ] T008 Añadir contratos de estado UI con defaults seguros en `src/app.js` o módulo pequeño dedicado bajo `src/` para claves `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees` según `specs/002-crm-historical-gaps/contracts/storage.md`
-- [ ] T009 Añadir en `src/main.js` exposición/propagación del resultado de `loadModuleConfig()` (config, errors/usedFallback) para que `src/app.js` pueda renderizar `#config-error-banner`; contrato `specs/002-crm-historical-gaps/contracts/ui-dom.md` (FR-013, T064)
-- [ ] T010 [P] Añadir estilos base compartidos para nuevas vistas/banners/badges/estados vacíos en `src/styles.css` reutilizando tokens existentes (sin repetir tema T051/US16); cubrir `#config-error-banner`, `.badge-archived`, secciones 360/próximos cierres/integridad
+- [x] T004 Crear pruebas unitarias de transición `opportunityLifecycle` (permitida, inválida, fallback) en `tests/unit/lifecycle-transitions.test.js` cubriendo FR-006, FR-007, FR-013, SC-002; incluir nota de que `opportunityLifecycle` proviene de `module-config.statusLifecycle` normalizado
+- [x] T005 [P] Crear pruebas unitarias de reporte de integridad referencial en `tests/unit/referential-integrity.test.js` cubriendo FR-011, SC-004
+- [x] T006 Implementar funciones puras de lifecycle en `src/domain.js`: validación de transición con `opportunityLifecycle` canónico (normalizado desde `module-config.statusLifecycle`), fallback seguro y mensajes; hacer pasar T004 (FR-006, FR-007, FR-013)
+- [x] T007 [P] Implementar utilidades derivadas read-only en `src/storage.js`/`src/domain.js` para `getReferentialIntegrityReport()` y `getUpcomingClosures({windowDays:30})`, sin modificar `getCRMOverview()` canónico 001; hacer pasar T005 (FR-010, FR-011)
+- [x] T008 Añadir contratos de estado UI con defaults seguros en `src/app.js` o módulo pequeño dedicado bajo `src/` para claves `crm.gaps002.ui.employeesView`, `crm.gaps002.ui.clients360`, `crm.gaps002.ui.archivedFilter.entities`, `crm.gaps002.ui.archivedFilter.employees` según `specs/002-crm-historical-gaps/contracts/storage.md`
+- [x] T009 Añadir en `src/main.js` exposición/propagación del resultado de `loadModuleConfig()` (config, errors/usedFallback) para que `src/app.js` pueda renderizar `#config-error-banner`; contrato `specs/002-crm-historical-gaps/contracts/ui-dom.md` (FR-013, T064)
+- [x] T010 [P] Añadir estilos base compartidos para nuevas vistas/banners/badges/estados vacíos en `src/styles.css` reutilizando tokens existentes (sin repetir tema T051/US16); cubrir `#config-error-banner`, `.badge-archived`, secciones 360/próximos cierres/integridad
 
 **Checkpoint**: fundación lista; US1-US6 pueden iniciar.
 
@@ -74,16 +74,16 @@
 
 ### Pruebas para User Story 1 (escribir primero, FALLAR antes de implementar) ⚠️
 
-- [ ] T011 [P] [US1] Crear prueba de integración DOM real en `tests/integration/employees-ui.test.js` para alta/edición/listado/filtro de empleados usando `#nav-employees`, `#view-employees`, `#employee-form`, `#employee-name`, `#employee-role`, `#employee-list`, `#employee-list-filter`, `#employee-list-empty` (contrato `contracts/ui-dom.md`, FR-001, SC-001, T025)
-- [ ] T012 [P] [US1] Añadir prueba de integración DOM real en `tests/integration/archive-restore-ui.test.js` para archivar/restaurar empleado con `#employee-show-archived`, `[data-action="archive-employee"]`, `[data-action="restore-employee"]`, `.badge-archived`, y exclusión en selectores operativos (FR-002, FR-003, SC-001, T055, T056)
+- [x] T011 [P] [US1] Crear prueba de integración DOM real en `tests/integration/employees-ui.test.js` para alta/edición/listado/filtro de empleados usando `#nav-employees`, `#view-employees`, `#employee-form`, `#employee-name`, `#employee-role`, `#employee-list`, `#employee-list-filter`, `#employee-list-empty` (contrato `contracts/ui-dom.md`, FR-001, SC-001, T025)
+- [x] T012 [P] [US1] Añadir prueba de integración DOM real en `tests/integration/archive-restore-ui.test.js` para archivar/restaurar empleado con `#employee-show-archived`, `[data-action="archive-employee"]`, `[data-action="restore-employee"]`, `.badge-archived`, y exclusión en selectores operativos (FR-002, FR-003, SC-001, T055, T056)
 
 ### Implementación para User Story 1
 
-- [ ] T013 [US1] Añadir markup de vista Empleados en `index.html`: `#nav-employees`, `#view-employees`, `#employee-form`, `#employee-id`, `#employee-name`, `#employee-role`, `#employee-submit`, `#employee-reset`, `#employee-list-filter`, `#employee-show-archived`, `#employee-list`, `#employee-list-empty` según `specs/002-crm-historical-gaps/contracts/ui-dom.md`
-- [ ] T014 [US1] Implementar API aditiva/compatible de empleados en `src/storage.js`: `loadEmployees({includeArchived})`/filtro equivalente, `archiveEmployee(id)`, `restoreEmployee(id)`, preservando historial y compatibilidad con claves canónicas (FR-002, FR-003, T025, T055)
-- [ ] T015 [US1] Implementar render/handlers de empleados en `src/app.js`: `renderEmployeeList()`, `fillEmployeeForm()`, `resetEmployeeForm()`, create/update, filtro, toggle archivados usando `crm.gaps002.ui.employeesView` (FR-001, FR-002, FR-003)
-- [ ] T016 [US1] Integrar acciones archivar/restaurar por fila y refrescar selectores de responsable en `src/app.js` para excluir empleados archivados por defecto (FR-003, FR-012, T056)
-- [ ] T017 [US1] Añadir estilos específicos de vista empleados en `src/styles.css` (tabla responsive, acciones fila, badge archivado) manteniendo consistencia visual existente
+- [x] T013 [US1] Añadir markup de vista Empleados en `index.html`: `#nav-employees`, `#view-employees`, `#employee-form`, `#employee-id`, `#employee-name`, `#employee-role`, `#employee-submit`, `#employee-reset`, `#employee-list-filter`, `#employee-show-archived`, `#employee-list`, `#employee-list-empty` según `specs/002-crm-historical-gaps/contracts/ui-dom.md`
+- [x] T014 [US1] Implementar API aditiva/compatible de empleados en `src/storage.js`: `loadEmployees({includeArchived})`/filtro equivalente, `archiveEmployee(id)`, `restoreEmployee(id)`, preservando historial y compatibilidad con claves canónicas (FR-002, FR-003, T025, T055)
+- [x] T015 [US1] Implementar render/handlers de empleados en `src/app.js`: `renderEmployeeList()`, `fillEmployeeForm()`, `resetEmployeeForm()`, create/update, filtro, toggle archivados usando `crm.gaps002.ui.employeesView` (FR-001, FR-002, FR-003)
+- [x] T016 [US1] Integrar acciones archivar/restaurar por fila y refrescar selectores de responsable en `src/app.js` para excluir empleados archivados por defecto (FR-003, FR-012, T056)
+- [x] T017 [US1] Añadir estilos específicos de vista empleados en `src/styles.css` (tabla responsive, acciones fila, badge archivado) manteniendo consistencia visual existente
 
 **Checkpoint**: US1 funcional e independientemente testeable.
 
@@ -97,16 +97,16 @@
 
 ### Pruebas para User Story 2 (escribir primero, FALLAR antes de implementar) ⚠️
 
-- [ ] T018 [P] [US2] Crear prueba de integración DOM real en `tests/integration/interactions-ui.test.js` para crear interacción válida con `#interaction-form`, `#interaction-client-id`, `#interaction-employee-id`, `#interaction-date`, `#interaction-type`, `#interaction-notes`, y verla en `#interaction-list` (FR-004, FR-005, SC-001, T036)
-- [ ] T019 [P] [US2] Extender `tests/integration/interactions-ui.test.js` para editar sin duplicar, eliminar con confirmación accesible existente, y estado vacío `#interaction-list-empty` (FR-004, FR-005, SC-001)
+- [x] T018 [P] [US2] Crear prueba de integración DOM real en `tests/integration/interactions-ui.test.js` para crear interacción válida con `#interaction-form`, `#interaction-client-id`, `#interaction-employee-id`, `#interaction-date`, `#interaction-type`, `#interaction-notes`, y verla en `#interaction-list` (FR-004, FR-005, SC-001, T036)
+- [x] T019 [P] [US2] Extender `tests/integration/interactions-ui.test.js` para editar sin duplicar, eliminar con confirmación accesible existente, y estado vacío `#interaction-list-empty` (FR-004, FR-005, SC-001)
 
 ### Implementación para User Story 2
 
-- [ ] T020 [US2] Añadir markup de vista Interacciones en `index.html`: `#nav-interactions`, `#view-interactions`, `#interaction-form`, `#interaction-id`, `#interaction-client-id`, `#interaction-employee-id`, `#interaction-date`, `#interaction-type`, `#interaction-notes`, `#interaction-list-filter`, `#interaction-list`, `#interaction-list-empty` según `contracts/ui-dom.md`
-- [ ] T021 [US2] Implementar/ajustar API de interacciones en `src/storage.js` para CRUD visible, `loadInteractionsByCustomer(customerId)`, validación de refs activas y orden determinista (FR-004, FR-005, T036)
-- [ ] T022 [US2] Implementar render/handlers de interacciones en `src/app.js`: listado, filtro, fill/reset, create/update, delete con diálogo accesible existente, y refresco de historial relacionado (FR-004, FR-005)
-- [ ] T023 [US2] Poblar selectores de interacción con clientes/empleados activos no archivados en `src/app.js` y mantener exclusión tras archive/restore (FR-003, FR-004, T056)
-- [ ] T024 [US2] Añadir estilos de vista/historial de interacciones en `src/styles.css` (lista/tabla, campos, empty state)
+- [x] T020 [US2] Añadir markup de vista Interacciones en `index.html`: `#nav-interactions`, `#view-interactions`, `#interaction-form`, `#interaction-id`, `#interaction-client-id`, `#interaction-employee-id`, `#interaction-date`, `#interaction-type`, `#interaction-notes`, `#interaction-list-filter`, `#interaction-list`, `#interaction-list-empty` según `contracts/ui-dom.md`
+- [x] T021 [US2] Implementar/ajustar API de interacciones en `src/storage.js` para CRUD visible, `loadInteractionsByCustomer(customerId)`, validación de refs activas y orden determinista (FR-004, FR-005, T036)
+- [x] T022 [US2] Implementar render/handlers de interacciones en `src/app.js`: listado, filtro, fill/reset, create/update, delete con diálogo accesible existente, y refresco de historial relacionado (FR-004, FR-005)
+- [x] T023 [US2] Poblar selectores de interacción con clientes/empleados activos no archivados en `src/app.js` y mantener exclusión tras archive/restore (FR-003, FR-004, T056)
+- [x] T024 [US2] Añadir estilos de vista/historial de interacciones en `src/styles.css` (lista/tabla, campos, empty state)
 
 **Checkpoint**: US2 funcional e independientemente testeable.
 

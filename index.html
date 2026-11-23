@@ -157,6 +157,18 @@
           </span>
           <span id="nav-documents-label" class="nav-label">Oportunidades</span>
         </button>
+        <button id="nav-employees" class="nav-module" data-module="employees">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <span id="nav-employees-label" class="nav-label">Empleados</span>
+        </button>
+        <button id="nav-interactions" class="nav-module" data-module="interactions">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+          </span>
+          <span id="nav-interactions-label" class="nav-label">Interacciones</span>
+        </button>
         <button id="nav-search" class="nav-module" data-module="search">
           <span class="nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -167,6 +179,11 @@
       <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
       <main class="content-area">
+        <section id="config-error-banner" class="storage-error config-error-banner" role="status" aria-live="polite" hidden>
+          <div class="storage-error-title">Configuración con advertencias</div>
+          <p id="config-error-detail" class="storage-error-message"></p>
+          <div class="storage-error-actions"><button id="config-error-dismiss" type="button">Ocultar</button></div>
+        </section>
         <div id="storage-error" class="storage-error" role="alert" aria-live="assertive" hidden>
           <strong>Error de datos del CRM</strong>
           <p id="storage-error-message"></p>
@@ -514,6 +531,117 @@
               <table class="data-table">
                 <thead><tr><th>Entidad</th><th>Serie/Folio</th><th>Estado</th><th>Monto</th><th>Acciones</th></tr></thead>
                 <tbody id="document-list"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-employees" class="view" hidden>
+          <h2 id="employees-view-heading">Empleados</h2>
+          <p class="view-subtitle">Gestiona responsables comerciales y su disponibilidad operativa.</p>
+          <form id="employee-form" class="crm-form" novalidate>
+            <h3 id="employee-form-heading">Agregar / Editar Empleado</h3>
+            <input id="employee-id" type="hidden" />
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="form-section-title-text">DATOS DEL EMPLEADO</span>
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="employee-name">Nombre</label>
+                  <input id="employee-name" name="name" type="text" placeholder="Ej. Ana Pérez" />
+                  <div id="error-employee-name" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="employee-role">Cargo</label>
+                  <input id="employee-role" name="role" type="text" placeholder="Ej. Ejecutivo comercial" />
+                  <div id="error-employee-role" class="validation-error"></div>
+                </div>
+              </div>
+            </div>
+            <div class="actions-row">
+              <button id="employee-submit" type="submit">Guardar</button>
+              <button id="employee-reset" type="button">Limpiar</button>
+            </div>
+          </form>
+
+          <section class="list-panel" aria-labelledby="employee-list-heading">
+            <h3 id="employee-list-heading">Listado de empleados</h3>
+            <div class="field list-filter-field">
+              <label for="employee-list-filter">Filtrar empleados</label>
+              <input id="employee-list-filter" type="search" placeholder="Buscar por nombre o cargo" aria-label="Filtrar empleados" />
+            </div>
+            <label class="archive-toggle" for="employee-show-archived">
+              <input id="employee-show-archived" type="checkbox" />
+              <span>Mostrar archivados</span>
+            </label>
+            <div id="employee-list-empty" class="empty-state" hidden>No hay empleados registrados.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Nombre</th><th>Cargo</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="employee-list"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-interactions" class="view" hidden>
+          <h2 id="interactions-view-heading">Interacciones</h2>
+          <p class="view-subtitle">Registra y consulta el historial de contacto con clientes.</p>
+          <form id="interaction-form" class="crm-form" novalidate>
+            <h3 id="interaction-form-heading">Agregar / Editar Interacción</h3>
+            <input id="interaction-id" type="hidden" />
+            <div class="form-section">
+              <h4 class="form-section-title">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+                <span class="form-section-title-text">DATOS DE LA INTERACCIÓN</span>
+              </h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="interaction-client-id">Cliente</label>
+                  <select id="interaction-client-id" name="clientId"></select>
+                  <div id="error-interaction-client-id" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="interaction-employee-id">Responsable</label>
+                  <select id="interaction-employee-id" name="employeeId"></select>
+                  <div id="error-interaction-employee-id" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="interaction-date">Fecha</label>
+                  <input id="interaction-date" name="date" type="date" />
+                  <div id="error-interaction-date" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="interaction-type">Tipo</label>
+                  <select id="interaction-type" name="type"></select>
+                  <div id="error-interaction-type" class="validation-error"></div>
+                </div>
+                <div class="field field-full">
+                  <label for="interaction-notes">Notas</label>
+                  <textarea id="interaction-notes" name="notes" placeholder="Resumen de la interacción..."></textarea>
+                  <div id="error-interaction-notes" class="validation-error"></div>
+                </div>
+              </div>
+            </div>
+            <div class="actions-row">
+              <button id="interaction-submit" type="submit">Guardar</button>
+              <button id="interaction-reset" type="button">Limpiar</button>
+            </div>
+          </form>
+
+          <section class="list-panel" aria-labelledby="interaction-list-heading">
+            <h3 id="interaction-list-heading">Historial de interacciones</h3>
+            <div class="field list-filter-field">
+              <label for="interaction-list-filter">Filtrar interacciones</label>
+              <input id="interaction-list-filter" type="search" placeholder="Buscar por cliente, responsable, tipo o nota" aria-label="Filtrar interacciones" />
+            </div>
+            <div id="interaction-list-empty" class="empty-state" hidden>No hay interacciones registradas.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Responsable</th><th>Notas</th><th>Acciones</th></tr></thead>
+                <tbody id="interaction-list"></tbody>
               </table>
             </div>
           </section>

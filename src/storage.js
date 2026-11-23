@@ -1,5 +1,5 @@
 import { BASE_FIELDS, getConfig, getVisibleCustomFields } from './module-config.js';
-import { getInvalidOpportunityStageCount, VALID_OPPORTUNITY_STAGES } from './domain.js';
+import { getInvalidOpportunityStageCount, VALID_OPPORTUNITY_STAGES, getUpcomingClosureWindow } from './domain.js';
 
 const STORE_KEYS = {
   entities: 'erp_base_module:entities',
@@ -648,16 +648,26 @@ export function loadCustomers() {
   return readCRMStorage(CRM_KEYS.customers, []).filter((record) => record && typeof record === 'object');
 }
 
-export function loadEmployees() {
-  return readCRMStorage(CRM_KEYS.employees, []).filter((record) => record && typeof record === 'object');
+export function loadEmployees(options = {}) {
+  const includeArchived = options === true || options?.includeArchived === true;
+  const all = readCRMStorage(CRM_KEYS.employees, []).filter((record) => record && typeof record === 'object');
+  return includeArchived ? all : all.filter((record) => !record.archived);
 }
 
 export function loadOpportunities() {
   return readCRMStorage(CRM_KEYS.opportunities, []).filter((record) => record && typeof record === 'object');
 }
 
-export function loadInteractions() {
-  return readCRMStorage(CRM_KEYS.interactions, []).filter((record) => record && typeof record === 'object');
+export function loadInteractions(options = {}) {
+  const includeArchived = options === true || options?.includeArchived === true;
+  const all = readCRMStorage(CRM_KEYS.interactions, []).filter((record) => record && typeof record === 'object');
+  return includeArchived ? all : all.filter((record) => !record.archived);
+}
+
+export function loadInteractionsByCustomer(customerId, options = {}) {
+  const id = String(customerId ?? '').trim();
+  if (!id) return [];
+  return loadInteractions(options).filter((record) => String(record.clientId ?? record.customerId ?? '') === id);
 }
 
 // FR-069: la unicidad se aplica también a los clientes archivados.
@@ -744,10 +754,21 @@ export function updateCustomer(id, patch = {}) {
 }
 
 export function deleteCustomer(id) {
-  const all = loadCustomers();
+  const all = readCRMStorage(CRM_KEYS.customers, []).filter((record) => record && typeof record === 'object');
   const next = all.map((record) => (record.id === id ? { ...record, archived: true } : record));
   writeCRMStorage(CRM_KEYS.customers, next);
   return next;
+}
+
+export function archiveCustomer(id) {
+  return deleteCustomer(id);
+}
+
+export function restoreCustomer(id) {
+  const all = readCRMStorage(CRM_KEYS.customers, []).filter((record) => record && typeof record === 'object');
+  const next = all.map((record) => (record.id === id ? { ...record, archived: false } : record));
+  writeCRMStorage(CRM_KEYS.customers, next);
+  return next.find((record) => record.id === id) || null;
 }
 
 export function searchCustomers(term = '') {
@@ -815,10 +836,21 @@ export function updateEmployee(id, patch = {}) {
 }
 
 export function deleteEmployee(id) {
-  const all = loadEmployees();
+  const all = readCRMStorage(CRM_KEYS.employees, []).filter((record) => record && typeof record === 'object');
   const next = all.map((record) => (record.id === id ? { ...record, archived: true } : record));
   writeCRMStorage(CRM_KEYS.employees, next);
   return next;
+}
+
+export function archiveEmployee(id) {
+  return deleteEmployee(id);
+}
+
+export function restoreEmployee(id) {
+  const all = readCRMStorage(CRM_KEYS.employees, []).filter((record) => record && typeof record === 'object');
+  const next = all.map((record) => (record.id === id ? { ...record, archived: false } : record));
+  writeCRMStorage(CRM_KEYS.employees, next);
+  return next.find((record) => record.id === id) || null;
 }
 
 export function searchEmployees(term = '') {
@@ -1112,13 +1144,73 @@ export function getCrmDashboardMetrics() {
 }
 
 export function getCustomerActivity(customerId) {
-  const customer = loadCustomers().find((record) => record.id === customerId);
+  const id = String(customerId ?? '');
+  const customer = loadCustomers().find((record) => String(record.id) === id) || null;
   if (!customer) return { customer: null, opportunities: [], interactions: [] };
   return {
     customer,
-    opportunities: loadOpportunities().filter((record) => (record.clientId ?? record.customerId) === customerId && !record.archived),
-    interactions: loadInteractions().filter((record) => (record.clientId ?? record.customerId) === customerId && !record.archived)
+    opportunities: loadOpportunities().filter((record) => String(record.clientId ?? record.customerId ?? '') === id && !record.archived),
+    interactions: loadInteractions({ includeArchived: false }).filter((record) => String(record.clientId ?? record.customerId ?? '') === id)
   };
+}
+
+export function getCustomer360(customerId) {
+  return getCustomerActivity(customerId);
+}
+
+export function getUpcomingClosures({ windowDays = 30, now = new Date() } = {}) {
+  const { startMs, endMs } = getUpcomingClosureWindow({ now, days: windowDays });
+  const customersById = new Map(loadCustomers().map((c) => [String(c.id), c]));
+  return loadOpportunities()
+    .filter((opportunity) => {
+      if (opportunity.archived) return false;
+      const stage = String(opportunity.stage || '').trim();
+      if (['Ganado', 'Perdido'].includes(stage)) return false;
+      if (!opportunity.closeDate || !isValidDate(opportunity.closeDate)) return false;
+      const closeTime = new Date(`${opportunity.closeDate}T00:00:00Z`).getTime();
+      return closeTime >= startMs && closeTime <= endMs;
+    })
+    .map((opportunity) => {
+      const customer = customersById.get(String(opportunity.clientId ?? opportunity.customerId ?? ''));
+      return {
+        ...opportunity,
+        customerName: customer?.companyName || customer?.name || 'Cliente desconocido',
+        customerArchived: Boolean(customer?.archived)
+      };
+    })
+    .filter((item) => !item.customerArchived)
+    .sort((a, b) => String(a.closeDate).localeCompare(String(b.closeDate)));
+}
+
+export function getReferentialIntegrityReport() {
+  const customers = readCRMStorage(CRM_KEYS.customers, []).filter((r) => r && typeof r === 'object');
+  const employees = readCRMStorage(CRM_KEYS.employees, []).filter((r) => r && typeof r === 'object');
+  const opportunities = readCRMStorage(CRM_KEYS.opportunities, []).filter((r) => r && typeof r === 'object');
+  const interactions = readCRMStorage(CRM_KEYS.interactions, []).filter((r) => r && typeof r === 'object');
+  const customerIds = new Set(customers.map((c) => String(c.id)));
+  const employeeIds = new Set(employees.map((e) => String(e.id)));
+  const items = [];
+  for (const opportunity of opportunities) {
+    const clientId = String(opportunity.clientId ?? opportunity.customerId ?? '');
+    const employeeId = String(opportunity.employeeId ?? '');
+    if (clientId && !customerIds.has(clientId)) {
+      items.push({ type: 'opportunity', recordId: String(opportunity.id), missingRef: 'clientId', missingId: clientId, message: `Oportunidad ${opportunity.id} referencia cliente inexistente ${clientId}` });
+    }
+    if (employeeId && !employeeIds.has(employeeId)) {
+      items.push({ type: 'opportunity', recordId: String(opportunity.id), missingRef: 'employeeId', missingId: employeeId, message: `Oportunidad ${opportunity.id} referencia empleado inexistente ${employeeId}` });
+    }
+  }
+  for (const interaction of interactions) {
+    const clientId = String(interaction.clientId ?? interaction.customerId ?? '');
+    const employeeId = String(interaction.employeeId ?? '');
+    if (clientId && !customerIds.has(clientId)) {
+      items.push({ type: 'interaction', recordId: String(interaction.id), missingRef: 'clientId', missingId: clientId, message: `Interacción ${interaction.id} referencia cliente inexistente ${clientId}` });
+    }
+    if (employeeId && !employeeIds.has(employeeId)) {
+      items.push({ type: 'interaction', recordId: String(interaction.id), missingRef: 'employeeId', missingId: employeeId, message: `Interacción ${interaction.id} referencia empleado inexistente ${employeeId}` });
+    }
+  }
+  return { items, generatedAt: new Date().toISOString() };
 }
 
 export function getCustomerById(customerId) {

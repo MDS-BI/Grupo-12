@@ -6,7 +6,9 @@ export const THEME_STORAGE_KEY = 'crm.theme';
 const VALID_USER = 'Cliente1';
 const VALID_PASSWORD = '1234';
 
-const { config } = loadModuleConfig();
+const moduleConfigResult = loadModuleConfig();
+const { config } = moduleConfigResult;
+globalThis.__crmModuleConfigResult = moduleConfigResult;
 
 function isAuthenticated() {
   return localStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER

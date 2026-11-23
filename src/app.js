@@ -1,13 +1,52 @@
-import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
+﻿import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
 import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency } from './domain.js';
-import { addCustomer, addDocument, addEntity, deleteDocument, deleteEntity, getCRMOverview, getCRMStorageErrors, loadCustomers, loadDocuments, loadEntities, resetCorruptedCRMStorage,
-  searchCRM, updateCustomer, updateDocument, updateEntity, validateDocument, validateEntity } from './storage.js';
+import {
+  addCustomer, addDocument, addEmployee, addEntity, addInteraction,
+  archiveEmployee, deleteDocument, deleteEntity, deleteInteraction,
+  getCRMOverview, getCRMStorageErrors,
+  loadCustomers, loadDocuments, loadEmployees, loadEntities, loadInteractions,
+  resetCorruptedCRMStorage, restoreEmployee,
+  searchCRM, updateCustomer, updateDocument, updateEmployee, updateEntity, updateInteraction,
+  validateDocument, validateEmployee, validateEntity, validateInteraction
+} from './storage.js';
 
 export const AUTH_STORAGE_KEY = 'erp.authenticatedUser';
 export const SIDEBAR_STORAGE_KEY = 'erp.sidebarCollapsed';
 export const ACTIVE_VIEW_STORAGE_KEY = 'erp.activeView';
 
-const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'search'];
+const GAPS002_UI_KEYS = {
+  employeesView: 'crm.gaps002.ui.employeesView',
+  clients360: 'crm.gaps002.ui.clients360',
+  archivedFilterEntities: 'crm.gaps002.ui.archivedFilter.entities',
+  archivedFilterEmployees: 'crm.gaps002.ui.archivedFilter.employees'
+};
+
+function readUIState(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? { ...fallback, ...parsed } : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeUIState(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore */ }
+}
+
+function getEmployeesViewState() {
+  return readUIState(GAPS002_UI_KEYS.employeesView, { filter: '', showArchived: false });
+}
+
+function setEmployeesViewState(patch) {
+  const next = { ...getEmployeesViewState(), ...patch };
+  writeUIState(GAPS002_UI_KEYS.employeesView, next);
+  return next;
+}
+
+const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'employees', 'interactions', 'search'];
 function isValidView(name) {
   return VIEW_KEYS.includes(name);
 }
@@ -261,6 +300,21 @@ function setOperationalBlocked(blocked) {
   });
 }
 
+function getModuleConfigResult() {
+  return globalThis.__crmModuleConfigResult || { config: getConfig(), errors: [], usedFallback: false };
+}
+
+function renderConfigBanner() {
+  const banner = qs('config-error-banner');
+  if (!banner) return;
+  const result = getModuleConfigResult();
+  const errors = Array.isArray(result?.errors) ? result.errors : [];
+  const hasErrors = errors.length > 0 || Boolean(result?.usedFallback);
+  banner.hidden = !hasErrors;
+  const detail = qs('config-error-detail');
+  if (detail) detail.textContent = hasErrors ? (errors.join(' ') || 'Se usó configuración por defecto segura.') : '';
+}
+
 function renderStorageErrors() {
   const panel = qs('storage-error');
   if (!panel) return;
@@ -323,6 +377,14 @@ async function attemptStorageRecovery() {
   } catch (error) {
     lastStorageRecoveryError = error?.message || 'error desconocido';
     renderStorageErrors();
+  }
+}
+
+function bindConfigBanner() {
+  const btn = qs('config-error-dismiss');
+  if (btn && !btn.dataset.bound) {
+    btn.addEventListener('click', () => { const b = qs('config-error-banner'); if (b) b.hidden = true; });
+    btn.dataset.bound = 'true';
   }
 }
 
@@ -535,6 +597,12 @@ function clearFormErrors(scope) {
       'error-subtotal', 'error-discount', 'error-taxAmount', 'error-totalAmount', 'error-currency', 'error-docPaymentTerms', 'error-status'
     );
   }
+  if (scope === 'employee') {
+    ids.push('error-employee-name', 'error-employee-role');
+  }
+  if (scope === 'interaction') {
+    ids.push('error-interaction-client-id', 'error-interaction-employee-id', 'error-interaction-date', 'error-interaction-type', 'error-interaction-notes');
+  }
 
   for (const id of ids) {
     setErrorText(id, '');
@@ -555,6 +623,8 @@ function showView(name) {
     updateDocumentSelect();
   }
   if (safe === 'dashboard') updateDashboardStats();
+  if (safe === 'employees') renderEmployeeList();
+  if (safe === 'interactions') { populateInteractionSelectors(); renderInteractionList(); }
   if (safe === 'search') renderSearchResults();
 
   for (const key of VIEW_KEYS) {
@@ -646,6 +716,8 @@ function renderModuleLabels() {
     ['nav-dashboard', 'dashboard'],
     ['nav-entities', 'entities'],
     ['nav-documents', 'documents'],
+    ['nav-employees', 'employees'],
+    ['nav-interactions', 'interactions'],
     ['nav-search', 'search']
   ];
 
@@ -1359,6 +1431,262 @@ function bindSidebarControls() {
   menuToggle.dataset.bound = 'true';
 }
 
+
+function clearEmployeeErrors() {
+  setErrorText('error-employee-name', '');
+  setErrorText('error-employee-role', '');
+  ['employee-name','employee-role'].forEach((id) => qs(id)?.removeAttribute('aria-invalid'));
+}
+
+function resetEmployeeForm() {
+  const form = qs('employee-form');
+  if (form) form.reset();
+  const id = qs('employee-id');
+  if (id) id.value = '';
+  clearEmployeeErrors();
+  markFormClean(form);
+}
+
+function fillEmployeeForm(record) {
+  if (!record) return;
+  if (qs('employee-id')) qs('employee-id').value = record.id || '';
+  if (qs('employee-name')) qs('employee-name').value = record.name || '';
+  if (qs('employee-role')) qs('employee-role').value = record.role || record.cargo || '';
+  clearEmployeeErrors();
+  markFormClean(qs('employee-form'));
+}
+
+let _employeeRenderSeq = 0;
+function renderEmployeeList() {
+  const list = qs('employee-list');
+  const empty = qs('employee-list-empty');
+  if (!list) return;
+  const seq = ++_employeeRenderSeq;
+  const state = getEmployeesViewState();
+  const filterInput = qs('employee-list-filter');
+  const showArchivedToggle = qs('employee-show-archived');
+  if (filterInput && filterInput.value !== state.filter) filterInput.value = state.filter || '';
+  if (showArchivedToggle) showArchivedToggle.checked = Boolean(state.showArchived);
+  const term = sanitizeText(state.filter).toLowerCase();
+  const employees = loadEmployees({ includeArchived: Boolean(state.showArchived) })
+    .filter((employee) => !term || [employee.name, employee.role].some((v) => String(v || '').toLowerCase().includes(term)));
+
+  list.replaceChildren();
+  if (empty) {
+    empty.hidden = employees.length > 0;
+    empty.textContent = loadEmployees({ includeArchived: true }).length === 0
+      ? 'No hay empleados registrados.'
+      : 'No hay empleados que coincidan con el filtro.';
+  }
+
+  const seenEmp = new Set();
+  for (const employee of employees) {
+    if (seenEmp.has(employee.id)) continue;
+    seenEmp.add(employee.id);
+    const tr = document.createElement('tr');
+    tr.dataset.employeeId = employee.id;
+    if (employee.archived) tr.dataset.archived = 'true';
+    const status = employee.archived ? '<span class="badge-archived" data-archived="true">Archivado</span>' : 'Activo';
+    const actions = employee.archived
+      ? `<button type="button" class="link-action" data-action="restore-employee" data-employee-id="${escapeHTML(employee.id)}">Restaurar</button>`
+      : `<button type="button" class="link-action" data-action="edit-employee" data-employee-id="${escapeHTML(employee.id)}">Editar</button>
+         <button type="button" class="link-action danger" data-action="archive-employee" data-employee-id="${escapeHTML(employee.id)}">Archivar</button>`;
+    tr.innerHTML = `
+      <td>${escapeHTML(employee.name || '')}</td>
+      <td>${escapeHTML(employee.role || '')}</td>
+      <td>${status}</td>
+      <td class="row-actions">${actions}</td>`;
+    tr.querySelectorAll('[data-action="edit-employee"]').forEach((btn) => {
+      btn.addEventListener('click', () => fillEmployeeForm(employee));
+    });
+    tr.querySelectorAll('[data-action="archive-employee"]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        archiveEmployee(employee.id);
+        if (qs('employee-id')?.value === employee.id) resetEmployeeForm();
+        renderEmployeeList();
+        populateInteractionSelectors();
+      });
+    });
+    tr.querySelectorAll('[data-action="restore-employee"]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        restoreEmployee(employee.id);
+        renderEmployeeList();
+        populateInteractionSelectors();
+      });
+    });
+    list.appendChild(tr);
+  }
+}
+
+function handleEmployeeSubmit(event) {
+  event.preventDefault();
+  clearEmployeeErrors();
+  const id = sanitizeText(qs('employee-id')?.value);
+  const name = sanitizeText(qs('employee-name')?.value);
+  const role = sanitizeText(qs('employee-role')?.value);
+  const payload = { name, role };
+  const validation = validateEmployee(payload);
+  if (!validation.valid) {
+    if (validation.errors.name) { setErrorText('error-employee-name', validation.errors.name); qs('employee-name')?.setAttribute('aria-invalid', 'true'); }
+    if (validation.errors.role) { setErrorText('error-employee-role', validation.errors.role); qs('employee-role')?.setAttribute('aria-invalid', 'true'); }
+    qs('[aria-invalid="true"]')?.focus();
+    return;
+  }
+  if (id) updateEmployee(id, payload);
+  else addEmployee(payload);
+  resetEmployeeForm();
+  renderEmployeeList();
+  populateInteractionSelectors();
+}
+
+function populateInteractionSelectors() {
+  const clientSelect = qs('interaction-client-id');
+  const employeeSelect = qs('interaction-employee-id');
+  const typeSelect = qs('interaction-type');
+  if (clientSelect) {
+    const selected = clientSelect.value;
+    clientSelect.replaceChildren(new Option('Seleccionar cliente...', ''));
+    loadCustomers().filter((c) => !c.archived).forEach((customer) => {
+      const opt = new Option(customer.companyName || customer.name || customer.id, customer.id);
+      clientSelect.appendChild(opt);
+    });
+    clientSelect.value = selected;
+  }
+  if (employeeSelect) {
+    const selected = employeeSelect.value;
+    employeeSelect.replaceChildren(new Option('Seleccionar responsable...', ''));
+    loadEmployees({ includeArchived: false }).forEach((employee) => {
+      const opt = new Option(employee.name || employee.id, employee.id);
+      employeeSelect.appendChild(opt);
+    });
+    employeeSelect.value = selected;
+  }
+  if (typeSelect) {
+    const selected = typeSelect.value;
+    typeSelect.replaceChildren(new Option('Seleccionar tipo...', ''));
+    (['Llamada', 'Correo', 'Reunión']).forEach((type) => {
+      typeSelect.appendChild(new Option(type, type));
+    });
+    typeSelect.value = selected;
+  }
+}
+
+function clearInteractionErrors() {
+  ['error-interaction-client-id','error-interaction-employee-id','error-interaction-date','error-interaction-type','error-interaction-notes'].forEach((id) => setErrorText(id, ''));
+  ['interaction-client-id','interaction-employee-id','interaction-date','interaction-type','interaction-notes'].forEach((id) => qs(id)?.removeAttribute('aria-invalid'));
+}
+
+function resetInteractionForm() {
+  const form = qs('interaction-form');
+  if (form) form.reset();
+  if (qs('interaction-id')) qs('interaction-id').value = '';
+  clearInteractionErrors();
+  populateInteractionSelectors();
+  markFormClean(form);
+}
+
+function fillInteractionForm(record) {
+  if (!record) return;
+  populateInteractionSelectors();
+  if (qs('interaction-id')) qs('interaction-id').value = record.id || '';
+  if (qs('interaction-client-id')) qs('interaction-client-id').value = record.clientId || record.customerId || '';
+  if (qs('interaction-employee-id')) qs('interaction-employee-id').value = record.employeeId || '';
+  if (qs('interaction-date')) qs('interaction-date').value = record.date || '';
+  if (qs('interaction-type')) qs('interaction-type').value = record.type || '';
+  if (qs('interaction-notes')) qs('interaction-notes').value = record.description || record.notes || '';
+  clearInteractionErrors();
+  markFormClean(qs('interaction-form'));
+}
+
+function renderInteractionList() {
+  const list = qs('interaction-list');
+  const empty = qs('interaction-list-empty');
+  if (!list) return;
+  list.replaceChildren();
+  const filter = sanitizeText(qs('interaction-list-filter')?.value).toLowerCase();
+  const customers = new Map(loadCustomers().map((c) => [c.id, c]));
+  const employees = new Map(loadEmployees({ includeArchived: true }).map((e) => [e.id, e]));
+  const interactions = loadInteractions({ includeArchived: false }).filter((interaction) => {
+    const customer = customers.get(interaction.clientId || interaction.customerId);
+    const employee = employees.get(interaction.employeeId);
+    const haystack = [interaction.date, interaction.type, interaction.description, interaction.notes, customer?.companyName, customer?.name, employee?.name].join(' ').toLowerCase();
+    return !filter || haystack.includes(filter);
+  }).sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+
+  if (empty) {
+    empty.hidden = interactions.length > 0;
+    empty.textContent = loadInteractions({ includeArchived: false }).length === 0 ? 'No hay interacciones registradas.' : 'No hay interacciones que coincidan con el filtro.';
+  }
+  const seenInt = new Set();
+  for (const interaction of interactions) {
+    if (seenInt.has(interaction.id)) continue;
+    seenInt.add(interaction.id);
+    const customer = customers.get(interaction.clientId || interaction.customerId);
+    const employee = employees.get(interaction.employeeId);
+    const tr = document.createElement('tr');
+    tr.dataset.interactionId = interaction.id;
+    tr.innerHTML = `
+      <td>${escapeHTML(interaction.date || '')}</td>
+      <td>${escapeHTML(interaction.type || '')}</td>
+      <td>${escapeHTML(customer?.companyName || customer?.name || interaction.clientId || '')}</td>
+      <td>${escapeHTML(employee?.name || interaction.employeeId || '')}</td>
+      <td>${escapeHTML(interaction.description || interaction.notes || '')}</td>
+      <td class="row-actions">
+        <button type="button" class="link-action" data-action="edit-interaction" data-interaction-id="${escapeHTML(interaction.id)}">Editar</button>
+        <button type="button" class="link-action danger" data-action="delete-interaction" data-interaction-id="${escapeHTML(interaction.id)}">Eliminar</button>
+      </td>`;
+    tr.querySelector('[data-action="edit-interaction"]')?.addEventListener('click', () => fillInteractionForm(interaction));
+    tr.querySelector('[data-action="delete-interaction"]')?.addEventListener('click', () => {
+      openDeleteConfirmDialog({
+        title: 'Eliminar interacción',
+        message: '¿Deseas eliminar esta interacción? Esta acción no se puede deshacer.',
+        confirmLabel: 'Eliminar',
+        onConfirm: () => {
+          deleteInteraction(interaction.id);
+          if (qs('interaction-id')?.value === interaction.id) resetInteractionForm();
+          renderInteractionList();
+        }
+      });
+    });
+    list.appendChild(tr);
+  }
+}
+
+function handleInteractionSubmit(event) {
+  event.preventDefault();
+  clearInteractionErrors();
+  const id = sanitizeText(qs('interaction-id')?.value);
+  const payload = {
+    clientId: sanitizeText(qs('interaction-client-id')?.value),
+    employeeId: sanitizeText(qs('interaction-employee-id')?.value),
+    date: sanitizeText(qs('interaction-date')?.value),
+    type: sanitizeText(qs('interaction-type')?.value),
+    description: sanitizeText(qs('interaction-notes')?.value)
+  };
+  const validation = validateInteraction(payload);
+  if (!validation.valid) {
+    const map = {
+      clientId: ['error-interaction-client-id', 'interaction-client-id'],
+      employeeId: ['error-interaction-employee-id', 'interaction-employee-id'],
+      date: ['error-interaction-date', 'interaction-date'],
+      type: ['error-interaction-type', 'interaction-type'],
+      description: ['error-interaction-notes', 'interaction-notes']
+    };
+    for (const [key, [errId, fieldId]] of Object.entries(map)) {
+      if (validation.errors[key]) {
+        setErrorText(errId, validation.errors[key]);
+        qs(fieldId)?.setAttribute('aria-invalid', 'true');
+      }
+    }
+    qs('[aria-invalid="true"]')?.focus();
+    return;
+  }
+  if (id) updateInteraction(id, payload);
+  else addInteraction(payload);
+  resetInteractionForm();
+  renderInteractionList();
+}
+
 function bindOperationalHandlers() {
   const entityForm = qs('entity-form');
   if (entityForm && !entityForm.dataset.bound) {
@@ -1374,6 +1702,43 @@ function bindOperationalHandlers() {
   if (documentForm && !documentForm.dataset.bound) {
     documentForm.addEventListener('submit', (event) => handleDocumentSubmit(event));
     documentForm.dataset.bound = 'true';
+  }
+
+  const employeeForm = qs('employee-form');
+  if (employeeForm && !employeeForm.dataset.bound) {
+    employeeForm.addEventListener('submit', handleEmployeeSubmit);
+    employeeForm.dataset.bound = 'true';
+  }
+  const employeeReset = qs('employee-reset');
+  if (employeeReset && !employeeReset.dataset.bound) {
+    employeeReset.addEventListener('click', resetEmployeeForm);
+    employeeReset.dataset.bound = 'true';
+  }
+  const employeeFilter = qs('employee-list-filter');
+  if (employeeFilter && !employeeFilter.dataset.bound) {
+    employeeFilter.addEventListener('input', () => { setEmployeesViewState({ filter: employeeFilter.value }); renderEmployeeList(); });
+    employeeFilter.dataset.bound = 'true';
+  }
+  const employeeArchived = qs('employee-show-archived');
+  if (employeeArchived && !employeeArchived.dataset.bound) {
+    employeeArchived.addEventListener('change', () => { setEmployeesViewState({ showArchived: employeeArchived.checked }); renderEmployeeList(); populateInteractionSelectors(); });
+    employeeArchived.dataset.bound = 'true';
+  }
+
+  const interactionForm = qs('interaction-form');
+  if (interactionForm && !interactionForm.dataset.bound) {
+    interactionForm.addEventListener('submit', handleInteractionSubmit);
+    interactionForm.dataset.bound = 'true';
+  }
+  const interactionReset = qs('interaction-reset');
+  if (interactionReset && !interactionReset.dataset.bound) {
+    interactionReset.addEventListener('click', resetInteractionForm);
+    interactionReset.dataset.bound = 'true';
+  }
+  const interactionFilter = qs('interaction-list-filter');
+  if (interactionFilter && !interactionFilter.dataset.bound) {
+    interactionFilter.addEventListener('input', renderInteractionList);
+    interactionFilter.dataset.bound = 'true';
   }
 
   const navButtons = document.querySelectorAll('.nav-module');
@@ -1458,8 +1823,10 @@ async function boot() {
   renderBranding();
   renderWelcomeBanner();
   renderModuleLabels();
+  renderConfigBanner();
   bindSidebarControls();
   bindUnsavedDialog();
+  bindConfigBanner();
   bindStorageReset();
   bindOperationalHandlers();
 
@@ -1468,6 +1835,7 @@ async function boot() {
     return;
   }
 
+  renderConfigBanner();
   renderStorageErrors();
   initializeOperationalState();
   showView(readPersistedView());

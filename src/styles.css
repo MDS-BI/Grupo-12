@@ -1619,3 +1619,18 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .row-action.danger { color: var(--danger); }
 .row-action.danger:hover, .row-action.danger:focus-visible { border-color: var(--danger); background: var(--danger-soft); }
 @media (max-width: 720px) { .data-table th, .data-table td { padding: .5rem .35rem; } .row-actions { flex-direction: column; } }
+
+
+/* 002-crm-historical-gaps shared */
+.config-error-banner[hidden] { display: none !important; }
+.config-error-banner { margin-bottom: 1rem; }
+.badge-archived {
+  display: inline-flex; align-items: center; padding: .15rem .5rem; border-radius: 999px;
+  font-size: .75rem; font-weight: 600; background: color-mix(in srgb, var(--warning, #b45309) 16%, transparent);
+  color: var(--warning, #92400e); border: 1px solid color-mix(in srgb, var(--warning, #b45309) 35%, transparent);
+}
+.archive-toggle { display: inline-flex; gap: .5rem; align-items: center; margin: .5rem 0 1rem; color: var(--text); }
+.row-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.link-action.danger { color: var(--danger); }
+#view-employees .table-wrap, #view-interactions .table-wrap { overflow-x: auto; }
+#employee-list tr[data-archived="true"] td, #entity-list tr[data-archived="true"] td { opacity: .8; }
