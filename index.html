@@ -500,6 +500,7 @@
                     <option value="">Sin estado</option>
                   </select>
                   <div id="error-status" class="validation-error"></div>
+                  <div id="lifecycle-feedback" class="validation-error" role="status" aria-live="polite"></div>
                 </div>
               </div>
             </div>
@@ -642,6 +643,37 @@
               <table class="data-table">
                 <thead><tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Responsable</th><th>Notas</th><th>Acciones</th></tr></thead>
                 <tbody id="interaction-list"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="view-client-360" class="view" hidden>
+          <div class="client-360-header">
+            <div>
+              <h2 id="client-360-heading">Ficha cliente 360°</h2>
+              <p class="view-subtitle">Resumen del cliente, oportunidades e interacciones relacionadas.</p>
+            </div>
+            <button id="client-360-back" type="button" class="secondary">Volver a clientes</button>
+          </div>
+          <section id="client-360-summary" class="client-360-section" aria-live="polite"></section>
+          <section class="client-360-section" aria-labelledby="client-360-opportunities-heading">
+            <h3 id="client-360-opportunities-heading">Oportunidades</h3>
+            <div id="client-360-opportunities-empty" class="empty-state" hidden>No hay oportunidades relacionadas.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Serie/Folio</th><th>Etapa</th><th>Monto</th><th>Cierre</th></tr></thead>
+                <tbody id="client-360-opportunities"></tbody>
+              </table>
+            </div>
+          </section>
+          <section class="client-360-section" aria-labelledby="client-360-interactions-heading">
+            <h3 id="client-360-interactions-heading">Interacciones</h3>
+            <div id="client-360-interactions-empty" class="empty-state" hidden>No hay interacciones relacionadas.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Responsable</th><th>Notas</th></tr></thead>
+                <tbody id="client-360-interactions"></tbody>
               </table>
             </div>
           </section>

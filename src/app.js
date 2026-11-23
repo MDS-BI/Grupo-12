@@ -1,9 +1,9 @@
 ﻿import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
-import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency } from './domain.js';
+import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency, evaluateOpportunityTransition, normalizeOpportunityLifecycle } from './domain.js';
 import {
   addCustomer, addDocument, addEmployee, addEntity, addInteraction,
   archiveEmployee, deleteDocument, deleteEntity, deleteInteraction,
-  getCRMOverview, getCRMStorageErrors,
+  getCRMOverview, getCRMStorageErrors, getCustomer360,
   loadCustomers, loadDocuments, loadEmployees, loadEntities, loadInteractions,
   resetCorruptedCRMStorage, restoreEmployee,
   searchCRM, updateCustomer, updateDocument, updateEmployee, updateEntity, updateInteraction,
@@ -46,7 +46,17 @@ function setEmployeesViewState(patch) {
   return next;
 }
 
-const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'employees', 'interactions', 'search'];
+function getClients360ViewState() {
+  return readUIState(GAPS002_UI_KEYS.clients360, { openClientId: null, returnFilter: '', selectedEntityId: '' });
+}
+
+function setClients360ViewState(patch) {
+  const next = { ...getClients360ViewState(), ...patch };
+  writeUIState(GAPS002_UI_KEYS.clients360, next);
+  return next;
+}
+
+const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'employees', 'interactions', 'search', 'client-360'];
 function isValidView(name) {
   return VIEW_KEYS.includes(name);
 }
@@ -625,6 +635,7 @@ function showView(name) {
   if (safe === 'dashboard') updateDashboardStats();
   if (safe === 'employees') renderEmployeeList();
   if (safe === 'interactions') { populateInteractionSelectors(); renderInteractionList(); }
+  if (safe === 'client-360') { renderClient360(getClients360ViewState().openClientId); }
   if (safe === 'search') renderSearchResults();
 
   for (const key of VIEW_KEYS) {
@@ -765,13 +776,25 @@ function renderEntityList() {
     empty.hidden = entities.length > 0;
     empty.textContent = loadEntities().length === 0 ? 'No hay clientes registrados.' : 'No hay clientes que coincidan con el filtro.';
   }
+  const selectedId = getSelectedEntityId();
   for (const entity of entities) {
     const tr = document.createElement('tr');
     tr.dataset.entityId = entity.id;
+    if (selectedId && selectedId === entity.id) {
+      tr.classList.add('selected');
+      tr.setAttribute('data-selected', 'true');
+    }
     tr.innerHTML = `<td>${escapeHTML(entity.name || '')}</td><td>${escapeHTML(entity.code || '')}</td><td>${escapeHTML(entity.email || '')}</td><td>${escapeHTML(entity.phone || '')}</td>`
-      + `<td class="row-actions"><button type="button" class="row-action" data-action="edit" data-entity-id="${escapeHTML(entity.id)}">Editar</button>`
+      + `<td class="row-actions"><button type="button" class="row-action" data-action="view-client-360" data-entity-id="${escapeHTML(entity.id)}">Ver ficha</button>`
+      + `<button type="button" class="row-action" data-action="edit" data-entity-id="${escapeHTML(entity.id)}">Editar</button>`
       + `<button type="button" class="row-action danger" data-action="delete" data-entity-id="${escapeHTML(entity.id)}">Eliminar</button></td>`;
+    tr.addEventListener('click', (ev) => {
+      if (ev.target.closest('button')) return;
+      selectEntityRow(entity.id);
+    });
+    tr.querySelector('[data-action="view-client-360"]').addEventListener('click', () => openClient360(entity.id));
     tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+      selectEntityRow(entity.id);
       fillEntityForm(entity);
       const select = qs('edit-entity');
       if (select) select.value = entity.id;
@@ -779,8 +802,8 @@ function renderEntityList() {
     });
     tr.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
       openDeleteConfirmDialog({
-        title: 'Confirmar eliminación',
-        message: '¿Deseas eliminar el cliente seleccionado? Esta acción no se puede deshacer.',
+        title: 'Confirmar eliminaci\u00f3n',
+        message: '\u00bfDeseas eliminar el cliente seleccionado? Esta acci\u00f3n no se puede deshacer.',
         confirmLabel: 'Eliminar',
         opener: e.currentTarget,
         onConfirm: () => {
@@ -984,8 +1007,9 @@ function populateEntityDropdown() {
   select.replaceChildren(new Option('Seleccionar...', ''));
   for (const entity of entities) {
     const option = document.createElement('option');
-    option.value = entity.entity_id;
-    option.textContent = `${entity.name || 'Sin nombre'} — ${entity.code || 'Sin código'}`;
+    const eid = entity.id || entity.entity_id || '';
+    option.value = eid;
+    option.textContent = `${entity.name || 'Sin nombre'} - ${entity.code || 'Sin código'}`;
     select.appendChild(option);
   }
 }
@@ -1048,9 +1072,17 @@ function fillEntityForm(entity) {
 
 function fillDocumentForm(record) {
   if (!record) return;
+  populateEntityDropdown();
   qs('document-id').value = record.id;
   const select = qs('document-entity');
-  if (select) select.value = record.entity_id;
+  if (select) {
+    const wanted = String(record.entity_id || record.entityId || record.id_entity || '');
+    select.value = wanted;
+    if (select.value !== wanted) {
+      const match = [...select.options].find((o) => o.value === wanted || o.dataset.entityId === wanted);
+      if (match) select.value = match.value;
+    }
+  }
   qs('series').value = record.series || '';
   qs('folio').value = record.folio ?? '';
   qs('startDate').value = record.startDate || '';
@@ -1141,28 +1173,28 @@ function navigateToSearchResult(result) {
   navigateTo(view, go);
 }
 
+function getActiveOpportunityLifecycle() {
+  const config = getActiveConfig();
+  return normalizeOpportunityLifecycle(config?.statusLifecycle);
+}
+
+function setLifecycleFeedback(message = '', { invalid = false } = {}) {
+  const feedback = qs('lifecycle-feedback');
+  if (feedback) feedback.textContent = message;
+  setErrorText('error-status', message || '');
+  const statusField = qs('status');
+  if (statusField) {
+    if (invalid) statusField.setAttribute('aria-invalid', 'true');
+    else if (!message) statusField.removeAttribute('aria-invalid');
+  }
+}
+
 function attachStatusOptions(currentStatus = '') {
   const statusField = qs('status');
   if (!statusField) return;
 
-  const config = getActiveConfig();
-  const lifecycle = config.statusLifecycle;
-  const allStatuses = Array.isArray(lifecycle?.statuses) ? lifecycle.statuses : [];
-
-  if (!lifecycle || !allStatuses.length) {
-    if (statusField.tagName !== 'INPUT') {
-      const replacement = document.createElement('input');
-      replacement.type = 'text';
-      replacement.id = 'status';
-      replacement.name = 'status';
-      replacement.value = statusField.value || '';
-      replacement.className = statusField.className;
-      statusField.replaceWith(replacement);
-    }
-    const nextField = qs('status');
-    if (nextField) nextField.value = currentStatus || nextField.value || '';
-    return;
-  }
+  const lifecycle = getActiveOpportunityLifecycle();
+  const allStatuses = lifecycle.statuses;
 
   if (statusField.tagName !== 'SELECT') {
     const replacement = document.createElement('select');
@@ -1175,32 +1207,33 @@ function attachStatusOptions(currentStatus = '') {
   const select = qs('status');
   if (!select) return;
 
-  const transitions = lifecycle.transitions && typeof lifecycle.transitions === 'object' ? lifecycle.transitions : {};
-  const baseOptions = currentStatus ? (transitions[currentStatus] || []) : allStatuses;
-  const allowed = currentStatus ? [currentStatus, ...baseOptions.filter((option) => option !== currentStatus)] : ['', ...allStatuses];
-  const options = currentStatus ? allowed : ['', ...allStatuses];
-  select.replaceChildren();
+  const normalizedCurrent = String(currentStatus || '').trim();
+  const transitions = lifecycle.transitions || {};
+  const allowedNext = normalizedCurrent ? (Array.isArray(transitions[normalizedCurrent]) ? transitions[normalizedCurrent] : []) : allStatuses;
+  const ordered = normalizedCurrent
+    ? [normalizedCurrent, ...allowedNext.filter((s) => s !== normalizedCurrent), ...allStatuses.filter((s) => s !== normalizedCurrent && !allowedNext.includes(s))]
+    : [...allStatuses];
 
-  if (!currentStatus) {
+  select.replaceChildren();
+  if (!normalizedCurrent) {
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = 'Sin estado';
+    placeholder.textContent = '-- Sin estado --';
     select.appendChild(placeholder);
   }
-
-  for (const status of options) {
-    if (status === '') {
-      if (currentStatus) continue;
-      continue;
-    }
+  const seen = new Set();
+  for (const status of ordered) {
+    if (!status || seen.has(status)) continue;
+    seen.add(status);
     const option = document.createElement('option');
     option.value = status;
     option.textContent = status;
+    if (normalizedCurrent && status !== normalizedCurrent && !allowedNext.includes(status)) {
+      option.disabled = true;
+    }
     select.appendChild(option);
   }
-
-  const nextValue = currentStatus ? currentStatus : '';
-  select.value = nextValue;
+  if (normalizedCurrent) select.value = normalizedCurrent;
 }
 
 
@@ -1355,14 +1388,28 @@ function handleDocumentSubmit(event) {
 
   const currentDocument = id ? loadDocuments().find((document) => document.id === id) : null;
   const toValidate = currentDocument ? { ...currentDocument, ...values } : values;
+  setLifecycleFeedback('', { invalid: false });
   const validation = validateDocument(toValidate);
+
+  const fromStage = sanitizeText(currentDocument?.status || '');
+  const toStage = sanitizeText(values.status || '');
+  const lifecycle = getActiveOpportunityLifecycle();
+  const transition = (fromStage && toStage && fromStage !== toStage)
+    ? evaluateOpportunityTransition({ from: fromStage, to: toStage, lifecycle })
+    : { allowed: true, reason: '' };
+  if (!transition.allowed) {
+    validation.valid = false;
+    validation.errors = { ...(validation.errors || {}), status: transition.reason };
+  }
 
   if (!validation.valid) {
     exposeValidationErrors('document', validation.errors, form);
+    if (validation.errors.status) setLifecycleFeedback(validation.errors.status, { invalid: true });
     return;
   }
 
   clearValidationStates('document');
+  setLifecycleFeedback('', { invalid: false });
   const savedDocument = id ? updateDocument(id, values) : addDocument(values);
 
   updateDocumentSelect();
@@ -1687,6 +1734,132 @@ function handleInteractionSubmit(event) {
   renderInteractionList();
 }
 
+
+function getEntityIdFromRow(row) {
+  return row?.dataset?.entityId || row?.querySelector?.('[data-entity-id]')?.dataset?.entityId || '';
+}
+
+function getSelectedEntityId() {
+  return sanitizeText(qs('entity_id')?.value || qs('edit-entity')?.value || qs('entity-id')?.value || '')
+    || sanitizeText(qs('#entity-list tr[data-selected="true"]')?.dataset?.entityId || '');
+}
+
+function selectEntityRow(entityId) {
+  const list = qs('entity-list');
+  if (!list) return;
+  const id = String(entityId || '');
+  list.querySelectorAll('tr').forEach((tr) => {
+    const selected = tr.dataset.entityId === id;
+    tr.classList.toggle('selected', selected);
+    if (selected) tr.setAttribute('data-selected', 'true');
+    else tr.removeAttribute('data-selected');
+  });
+  if (id) {
+    if (qs('entity_id')) qs('entity_id').value = id;
+    if (qs('edit-entity')) qs('edit-entity').value = id;
+  }
+}
+
+function captureClients360Context(openClientId) {
+  const filter = sanitizeText(qs('entity-list-filter')?.value || '');
+  const selectedEntityId = getSelectedEntityId();
+  setClients360ViewState({
+    openClientId: openClientId || null,
+    returnFilter: filter,
+    selectedEntityId
+  });
+  return { filter, selectedEntityId };
+}
+
+function openClient360(entityId, opener) {
+  const id = String(entityId || '').trim();
+  if (!id) return;
+  captureClients360Context(id);
+  renderClient360(id);
+  navigateTo('client-360', () => {
+    renderClient360(id);
+    qs('client-360-back')?.focus?.();
+  });
+}
+
+function renderClient360(customerId) {
+  const id = String(customerId || getClients360ViewState().openClientId || '').trim();
+  if (!id) return;
+  const { customer, opportunities, interactions, isArchived, emptyStates } = getCustomer360(id);
+  const summary = qs('client-360-summary');
+  const oppBody = qs('client-360-opportunities');
+  const intBody = qs('client-360-interactions');
+  const oppEmpty = qs('client-360-opportunities-empty');
+  const intEmpty = qs('client-360-interactions-empty');
+  if (!summary || !oppBody || !intBody) return;
+
+  if (!customer) {
+    summary.innerHTML = '<p>No se encontró el cliente solicitado.</p>';
+    oppBody.replaceChildren();
+    intBody.replaceChildren();
+    if (oppEmpty) oppEmpty.hidden = false;
+    if (intEmpty) intEmpty.hidden = false;
+    return;
+  }
+
+  const name = escapeHTML(customer.companyName || customer.name || customer.id || 'Cliente');
+  const contact = escapeHTML(customer.contactName || customer.contact || '-');
+  const email = escapeHTML(customer.email || '-');
+  const phone = escapeHTML(customer.phone || '-');
+  const status = escapeHTML(customer.status || '-');
+  const archivedBadge = isArchived ? '<span class="badge-archived" data-archived="true">Archivado</span>' : '<span class="status-active">Activo</span>';
+  summary.innerHTML = `
+    <div class="client-360-summary-grid">
+      <div><strong>Cliente</strong><div>${name}</div></div>
+      <div><strong>Contacto</strong><div>${contact}</div></div>
+      <div><strong>Correo</strong><div>${email}</div></div>
+      <div><strong>Teléfono</strong><div>${phone}</div></div>
+      <div><strong>Estado</strong><div>${status} ${archivedBadge}</div></div>
+    </div>
+    ${isArchived ? '<p class="client-360-archived-note" role="status">Este cliente está archivado. No se permiten nuevas interacciones ni oportunidades.</p>' : ''}`;
+
+  oppBody.replaceChildren();
+  const opps = Array.isArray(opportunities) ? opportunities : [];
+  if (oppEmpty) oppEmpty.hidden = opps.length > 0;
+  for (const opp of opps) {
+    const tr = document.createElement('tr');
+    const folio = [opp.series, opp.folio].filter(Boolean).join('-') || opp.id || '-';
+    tr.innerHTML = `<td>${escapeHTML(folio)}</td><td>${escapeHTML(opp.stage || opp.status || '-')}</td><td>${escapeHTML(formatMoney(opp.amount ?? opp.totalAmount, opp.currency || MVP_BASE_CURRENCY))}</td><td>${escapeHTML(opp.closeDate || opp.endDate || '-')}</td>`;
+    oppBody.appendChild(tr);
+  }
+
+  intBody.replaceChildren();
+  const ints = Array.isArray(interactions) ? interactions : [];
+  if (intEmpty) intEmpty.hidden = ints.length > 0;
+  const employeesById = new Map(loadEmployees({ includeArchived: true }).map((e) => [String(e.id), e]));
+  for (const interaction of ints) {
+    const employee = employeesById.get(String(interaction.employeeId || ''));
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHTML(interaction.date || '-')}</td><td>${escapeHTML(interaction.type || '-')}</td><td>${escapeHTML(employee?.name || interaction.employeeId || '-')}</td><td>${escapeHTML(interaction.description || interaction.notes || '-')}</td>`;
+    intBody.appendChild(tr);
+  }
+
+  setClients360ViewState({ openClientId: id });
+}
+
+function restoreClients360Context() {
+  const state = getClients360ViewState();
+  const filter = sanitizeText(state.returnFilter || '');
+  const selectedId = sanitizeText(state.selectedEntityId || '');
+  navigateTo('entities', () => {
+    const filterInput = qs('entity-list-filter');
+    if (filterInput) {
+      filterInput.value = filter;
+      filterInput.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      renderEntityList();
+    }
+    if (selectedId) selectEntityRow(selectedId);
+    const selectedRow = qs(`#entity-list [data-entity-id="${CSS.escape(selectedId)}"]`);
+    (selectedRow || qs('entity-list-filter') || qs('nav-entities'))?.focus?.();
+  });
+}
+
 function bindOperationalHandlers() {
   const entityForm = qs('entity-form');
   if (entityForm && !entityForm.dataset.bound) {
@@ -1739,6 +1912,12 @@ function bindOperationalHandlers() {
   if (interactionFilter && !interactionFilter.dataset.bound) {
     interactionFilter.addEventListener('input', renderInteractionList);
     interactionFilter.dataset.bound = 'true';
+  }
+
+  const client360Back = qs('client-360-back');
+  if (client360Back && !client360Back.dataset.bound) {
+    client360Back.addEventListener('click', restoreClients360Context);
+    client360Back.dataset.bound = 'true';
   }
 
   const navButtons = document.querySelectorAll('.nav-module');
@@ -1815,11 +1994,17 @@ function bindOperationalHandlers() {
 }
 
 async function boot() {
-  const current = getConfig();
-  const normalized = current && typeof current === 'object' && !Array.isArray(current)
-    ? current
-    : normalizeConfig(null).config;
-  setActiveConfig(normalized);
+  const moduleResult = (globalThis.__crmModuleConfigResult && typeof globalThis.__crmModuleConfigResult === 'object')
+    ? globalThis.__crmModuleConfigResult
+    : (typeof globalThis.userConfig !== 'undefined' ? normalizeConfig(globalThis.userConfig) : normalizeConfig(null));
+  if (moduleResult?.config) setActiveConfig(moduleResult.config);
+  else setActiveConfig(normalizeConfig(null).config);
+  globalThis.__crmModuleConfigResult = {
+    config: getActiveConfig(),
+    errors: Array.isArray(moduleResult?.errors) ? moduleResult.errors : [],
+    usedFallback: Boolean(moduleResult?.usedFallback)
+  };
+
   renderBranding();
   renderWelcomeBanner();
   renderModuleLabels();

@@ -120,15 +120,15 @@
 
 ### Pruebas para User Story 3 (escribir primero, FALLAR antes de implementar) ⚠️
 
-- [ ] T025 [P] [US3] Crear prueba de integración DOM real en `tests/integration/opportunities-lifecycle.test.js` para transición permitida persistida y transición inválida bloqueada con feedback en `#status`/`#error-status` o `#lifecycle-feedback` (FR-006, FR-007, SC-002, T030, T062)
-- [ ] T026 [P] [US3] Añadir prueba de integración DOM real en `tests/integration/opportunities-lifecycle.test.js` para banner `#config-error-banner`/`#config-error-detail` cuando `loadModuleConfig()` devuelve error/fallback, manteniendo app utilizable (FR-013, SC-002, T064)
+- [x] T025 [P] [US3] Crear prueba de integración DOM real en `tests/integration/opportunities-lifecycle.test.js` para transición permitida persistida y transición inválida bloqueada con feedback en `#status`/`#error-status` o `#lifecycle-feedback` (FR-006, FR-007, SC-002, T030, T062)
+- [x] T026 [P] [US3] Añadir prueba de integración DOM real en `tests/integration/opportunities-lifecycle.test.js` para banner `#config-error-banner`/`#config-error-detail` cuando `loadModuleConfig()` devuelve error/fallback, manteniendo app utilizable (FR-013, SC-002, T064)
 
 ### Implementación para User Story 3
 
-- [ ] T027 [US3] Actualizar `src/main.js` y/o `src/app.js` para recibir resultado de `loadModuleConfig()` y renderizar `#config-error-banner`/`#config-error-detail`/`#config-error-dismiss` según `contracts/ui-dom.md` sin bloquear CRUD básico (FR-013, T064)
-- [ ] T028 [US3] Integrar validación de transición en `src/storage.js` y `src/app.js` usando `opportunityLifecycle` canónico normalizado desde `module-config.statusLifecycle`; rechazar transición inválida sin persistir (FR-006, FR-007, T030, T062)
-- [ ] T029 [US3] Actualizar UI de oportunidad en `index.html`/`src/app.js` para poblar `#status` desde lifecycle vigente y mostrar feedback accesible de transición inválida (FR-006, FR-007)
-- [ ] T030 [US3] Añadir estilos/estados de banner de configuración y feedback lifecycle en `src/styles.css` respetando tokens y accesibilidad
+- [x] T027 [US3] Actualizar `src/main.js` y/o `src/app.js` para recibir resultado de `loadModuleConfig()` y renderizar `#config-error-banner`/`#config-error-detail`/`#config-error-dismiss` según `contracts/ui-dom.md` sin bloquear CRUD básico (FR-013, T064)
+- [x] T028 [US3] Integrar validación de transición en `src/storage.js` y `src/app.js` usando `opportunityLifecycle` canónico normalizado desde `module-config.statusLifecycle`; rechazar transición inválida sin persistir (FR-006, FR-007, T030, T062)
+- [x] T029 [US3] Actualizar UI de oportunidad en `index.html`/`src/app.js` para poblar `#status` desde lifecycle vigente y mostrar feedback accesible de transición inválida (FR-006, FR-007)
+- [x] T030 [US3] Añadir estilos/estados de banner de configuración y feedback lifecycle en `src/styles.css` respetando tokens y accesibilidad
 
 **Checkpoint**: US3 funcional; transiciones y config visible cumplen SC-002.
 
@@ -142,15 +142,15 @@
 
 ### Pruebas para User Story 4 (escribir primero, FALLAR antes de implementar) ⚠️
 
-- [ ] T031 [P] [US4] Crear prueba de integración DOM real en `tests/integration/client-360.test.js` para abrir `[data-action="view-client-360"]`, renderizar `#client-360-summary`, `#client-360-opportunities`, `#client-360-interactions` y estados vacíos (FR-008, SC-003, T041)
-- [ ] T032 [P] [US4] Extender `tests/integration/client-360.test.js` para verificar que `#client-360-back` restaura contexto visible observable: `#entity-list-filter`, cliente/fila seleccionada (`#entity_id` o `data-selected`) y vista `#view-entities` activa; los datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío (FR-009, SC-003)
+- [x] T031 [P] [US4] Crear prueba de integración DOM real en `tests/integration/client-360.test.js` para abrir `[data-action="view-client-360"]`, renderizar `#client-360-summary`, `#client-360-opportunities`, `#client-360-interactions` y estados vacíos (FR-008, SC-003, T041)
+- [x] T032 [P] [US4] Extender `tests/integration/client-360.test.js` para verificar que `#client-360-back` restaura contexto visible observable: `#entity-list-filter`, cliente/fila seleccionada (`#entity_id` o `data-selected`) y vista `#view-entities` activa; los datos se guardan en `crm.gaps002.ui.clients360` y, sin estado previo, se usa vacío (FR-009, SC-003)
 
 ### Implementación para User Story 4
 
-- [ ] T033 [US4] Añadir markup de ficha 360 en `index.html`: `#view-client-360` (selector público canónico único), `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-opportunities-empty`, `#client-360-interactions`, `#client-360-interactions-empty` según `contracts/ui-dom.md`
-- [ ] T034 [US4] Implementar consultas de composición en `src/storage.js`/`src/domain.js` (`getCustomer360` o reutilización de `getCustomerActivity`) con oportunidades/interacciones relacionadas y flags de vacío (FR-008)
-- [ ] T035 [US4] Implementar navegación lista→ficha→lista en `src/app.js`, preservando filtro/selección visible y estado `crm.gaps002.ui.clients360` (FR-009)
-- [ ] T036 [US4] Añadir estilos de ficha 360 en `src/styles.css` (layout, secciones, empty states, responsive)
+- [x] T033 [US4] Añadir markup de ficha 360 en `index.html`: `#view-client-360` (selector público canónico único), `#client-360-back`, `#client-360-summary`, `#client-360-opportunities`, `#client-360-opportunities-empty`, `#client-360-interactions`, `#client-360-interactions-empty` según `contracts/ui-dom.md`
+- [x] T034 [US4] Implementar consultas de composición en `src/storage.js`/`src/domain.js` (`getCustomer360` o reutilización de `getCustomerActivity`) con oportunidades/interacciones relacionadas y flags de vacío (FR-008)
+- [x] T035 [US4] Implementar navegación lista→ficha→lista en `src/app.js`, preservando filtro/selección visible y estado `crm.gaps002.ui.clients360` (FR-009)
+- [x] T036 [US4] Añadir estilos de ficha 360 en `src/styles.css` (layout, secciones, empty states, responsive)
 
 **Checkpoint**: US4 funcional e independientemente testeable.
 

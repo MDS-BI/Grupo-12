@@ -1634,3 +1634,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .link-action.danger { color: var(--danger); }
 #view-employees .table-wrap, #view-interactions .table-wrap { overflow-x: auto; }
 #employee-list tr[data-archived="true"] td, #entity-list tr[data-archived="true"] td { opacity: .8; }
+
+
+/* 002 US3/US4 additions */
+#lifecycle-feedback { min-height: 1.2em; color: var(--danger, #b91c1c); font-size: .85rem; margin-top: .25rem; }
+#lifecycle-feedback:empty { display: none; }
+.client-360-header { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; margin-bottom:1rem; }
+.client-360-section { margin-top:1rem; padding:1rem; border:1px solid var(--border, #dbe4ea); border-radius:12px; background:var(--surface, #fff); }
+.client-360-summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.75rem 1rem; }
+.client-360-summary-grid strong { display:block; font-size:.8rem; color:var(--muted, #64748b); margin-bottom:.15rem; }
+#entity-list tr.selected { outline: 2px solid color-mix(in srgb, var(--accent, #2563eb) 55%, transparent); outline-offset: -2px; }

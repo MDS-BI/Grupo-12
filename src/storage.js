@@ -1154,8 +1154,29 @@ export function getCustomerActivity(customerId) {
   };
 }
 
+export function loadOpportunitiesByCustomer(customerId) {
+  const id = String(customerId ?? '');
+  if (!id) return [];
+  return loadOpportunities().filter((record) => String(record.clientId ?? record.customerId ?? '') === id && !record.archived);
+}
+
 export function getCustomer360(customerId) {
-  return getCustomerActivity(customerId);
+  const id = String(customerId ?? '');
+  const allCustomers = readCRMStorage(CRM_KEYS.customers, []).filter((r) => r && typeof r === 'object');
+  const customer = allCustomers.find((record) =>
+    String(record.id) === id || String(record.entityId || '') === id || String(record.customerId || '') === id
+  ) || null;
+  if (!customer) return { customer: null, opportunities: [], interactions: [], isArchived: false, emptyStates: { opportunities: true, interactions: true } };
+  const cid = String(customer.id);
+  const opportunities = loadOpportunities().filter((record) => !record.archived && String(record.clientId ?? record.customerId ?? '') === cid);
+  const interactions = loadInteractions({ includeArchived: false }).filter((record) => String(record.clientId ?? record.customerId ?? '') === cid);
+  return {
+    customer,
+    opportunities,
+    interactions,
+    isArchived: Boolean(customer.archived),
+    emptyStates: { opportunities: opportunities.length === 0, interactions: interactions.length === 0 }
+  };
 }
 
 export function getUpcomingClosures({ windowDays = 30, now = new Date() } = {}) {
