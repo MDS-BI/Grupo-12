@@ -1,6 +1,7 @@
 import './styles.css';
 import { loadModuleConfig } from './module-config.js';
 import { AUTH_STORAGE_KEY, SIDEBAR_STORAGE_KEY, initApp } from './app.js';
+import { fillContactInfo } from './contact-info.js';
 
 export const THEME_STORAGE_KEY = 'crm.theme';
 const VALID_USER = 'Cliente1';
@@ -49,6 +50,7 @@ function showLogin(errorMessage = '') {
   const password = document.getElementById('login-password');
   if (appShell) appShell.hidden = true;
   if (loginView) loginView.hidden = false;
+  fillContactInfo(document.getElementById('login-contact-info'));
   if (errorNode) errorNode.textContent = errorMessage;
   if (password) {
     password.value = '';

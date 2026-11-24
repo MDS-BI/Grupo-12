@@ -2,13 +2,13 @@
 
 **Rama de la funcionalidad**: 001-crm-module (incluye el cierre de brechas históricas, documentado originalmente como `002-crm-historical-gaps`)  
 **Creada**: 2026-07-08  
-**Actualizada**: 2026-11-23
+**Actualizada**: 2026-11-24
 
 **Estado**: Borrador  
 **Entrada**: Descripción del usuario: "Construir un módulo CRM integrado a un ERP que permita administrar clientes, registrar interacciones comerciales y realizar seguimiento de oportunidades de venta, con datos ficticios y un alcance inicial acotado." Además: "Agrega una nueva Historia de Usuario para la interfaz SaaS profesional del CRM ya implementada: inicio de sesión con diseño dividido (split screen) y mostrar/ocultar contraseña, menú lateral colapsable con botón hamburguesa SVG, banner de bienvenida en el Dashboard, tarjetas KPI, estandarización de formularios ('DATOS DEL CLIENTE' y 'CONDICIONES COMERCIALES') y codificación UTF-8 limpia"  
 **Entrada adicional (cierre de brechas históricas, 2026-11-22)**: "Cierre de brechas históricas del CRM - auditar 13 tareas históricas de 001-crm-module y especificar solo brechas reales".
 
-> **Nota de fusión (2026-11-23)**: esta especificación integra el contenido íntegro de la spec 002 (`002-spec.md`) en el documento base. Las historias, requisitos y criterios de éxito incorporados usan identificadores continuos: US25–US30, FR-089–FR-102 y SC-031–SC-035. Las referencias a FR/SC/US del módulo base (FR-001…FR-088, SC-001…SC-030, US1…US24) conservan su numeración original.
+> **Nota de fusión (2026-11-23)**: esta especificación integra el contenido íntegro de la spec 002 (`002-spec.md`) en el documento base. Las historias, requisitos y criterios de éxito incorporados usan identificadores continuos: US25–US30, FR-089–FR-102 y SC-031–SC-035. Las referencias a FR/SC/US del módulo base (FR-001…FR-088, SC-001…SC-030, US1…US24) conservan su numeración original. US31 usa `FR-103` y `SC-036`.
 
 ## Propósito
 
@@ -622,15 +622,15 @@ Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen re
 3. **Dado** 500 clientes con registros asociados, **cuando** uso búsqueda/filtros/listados en DOM real, **entonces** la interacción cumple presupuesto definido y la UI sigue utilizable.
 
 ---
-### Historia de usuario 31 - Recuadro de información "Contáctanos" en la vista de inicio
+### Historia de usuario 31 - Recuadro de información "Contáctanos" en la vista de inicio (FR-103, SC-036)
 **Como** usuario o visitante del sistema CRM,  
 **Quiero** visualizar un recuadro "Contáctanos" en la pantalla de inicio con los canales de atención y soporte,  
 **Para** comunicarme fácilmente con el equipo comercial o soporte técnico sin salir de la plataforma.
 
 **Criterios de aceptación:**
-- El recuadro "Contáctanos" debe ubicarse en la zona de inicio (pantalla principal / login o dashboard inicial según corresponda) manteniendo coherencia visual (colores, tipografía, bordes y espaciados) con el diseño SaaS actual del CRM.
+- El recuadro "Contáctanos" debe ubicarse en la pantalla de acceso cuando no haya sesión iniciada y en el dashboard inicial cuando el usuario esté autenticado, manteniendo coherencia visual (colores, tipografía, bordes y espaciados) con el diseño SaaS actual del CRM.
 - Debe mostrar información de contacto clara y estructurada: correo electrónico de soporte/ventas, teléfono de contacto, dirección física o ciudad, y horario de atención.
-- Debe incluir íconos limpios (SVG) junto a cada dato y ser completamente responsivo en escritorio y móvil.
+- Debe incluir íconos SVG decorativos junto a cada dato y ser responsivo: en escritorio muestra el contenido de forma compacta y en móvil se apila sin desplazamiento horizontal a anchos de ≤900 px y ≤640 px, según `contracts/ui-contracts.md`.
 
 ### Casos Límite
 
@@ -796,6 +796,7 @@ Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen re
 - **FR-100** *(antes 002-FR-012)*: El sistema DEBE permitir archivar y restaurar clientes desde la UI real, excluyendo archivados de listas/selectores operativos por defecto.
 - **FR-101** *(antes 002-FR-013)*: El sistema DEBE cargar configuración al arrancar con fallback seguro y mostrar banner visible cuando existan errores de configuración.
 - **FR-102** *(antes 002-FR-014)*: El sistema DEBE mantener rendimiento utilizable en la ruta DOM real con 500 clientes y registros asociados en búsqueda/filtros/listados (ver SC-035).
+- **FR-103**: El sistema DEBE mostrar un recuadro informativo de solo lectura «Contáctanos» en la pantalla de acceso para visitantes y en el dashboard para usuarios autenticados, con correo electrónico, teléfono, dirección/ciudad y horario de atención, iconos SVG decorativos y estilos coherentes con el tema y el diseño responsivo vigente, sin configuración, almacenamiento ni interacción nueva.
 
 ### Requisitos de Extensibilidad
 
@@ -873,6 +874,7 @@ Las entidades incorporadas del cierre de brechas históricas (spec 002) completa
 - **SC-033** *(antes 002-SC-003)*: Un usuario puede abrir ficha 360° de un cliente y volver al listado en <= 3 interacciones, preservando contexto visible.
 - **SC-034** *(antes 002-SC-004)*: Dashboard muestra "Próximos cierres" y el reporte de integridad referencial es visible cuando hay datos correspondientes; en estado vacío no hay falsos positivos.
 - **SC-035** *(antes 002-SC-005)*: Con 500 clientes y registros asociados en la ruta DOM real, la búsqueda/filtro completa tarda <= 10 s y el renderizado inicial del listado <= 2 s, medido por prueba automatizada (umbrales heredados de FR-042/SC-004 de este módulo base).
+- **SC-036**: El 100 % de las pantallas de acceso y dashboard verificadas muestran el recuadro «Contáctanos» con los cuatro datos estructurados, iconos SVG y sin desplazamiento horizontal en viewport ≤900 px y ≤640 px, en ambos temas.
 
 ## Trazabilidad del cierre de brechas históricas
 
@@ -885,6 +887,12 @@ Las entidades incorporadas del cierre de brechas históricas (spec 002) completa
 | FR-098, FR-099 | T046, T057 | US29 | SC-034 |
 | FR-100 | T055, T056 | US30 | SC-031, SC-034 |
 | FR-102 | T052 | US30 | SC-035 |
+
+## Trazabilidad de US31
+
+| Requisito | Criterios de aceptación | Historia | Criterio de éxito |
+|---|---|---|---|
+| FR-103 | CA-31.1, CA-31.2, CA-31.3 | US31 | SC-036 |
 
 ## Suposiciones
 

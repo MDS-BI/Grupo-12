@@ -10,7 +10,7 @@ Define contratos observables para las correcciones priorizadas US16–US24. Comp
 
 - `#theme-select` conserva valores `Claro` y `Oscuro`.
 - `document.documentElement.dataset.theme` es `dark` u `light` antes del primer render visible.
-- En `dark`, las superficies críticas usan tokens/variables; no debe haber fondos claros fijos en: `.topbar`, `.sidebar`, `.view`, `.form-section`, `.action-button`, `.stat-card`, `.search-field`/resultados, `.empty-state`, `.confirm-dialog-card`, `.login-form-panel`, `.selector-panel`, `.storage-error`, badges y mensajes de validación.
+- En `dark`, las superficies críticas usan tokens/variables; no debe haber fondos claros fijos en: `.topbar`, `.sidebar`, `.view`, `.form-section`, `.action-button`, `.stat-card`, `.search-field`/resultados, `.empty-state`, `.confirm-dialog-card`, `.login-form-panel`, `.selector-panel`, `.storage-error`, `.contact-info` (US31), badges y mensajes de validación.
 - Texto/iconos/bordes mantienen legibilidad en ambos temas.
 - `crm.theme` persiste en `localStorage`.
 

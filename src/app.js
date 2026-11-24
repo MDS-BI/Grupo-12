@@ -1,5 +1,6 @@
 ﻿import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
 import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency, evaluateOpportunityTransition, normalizeOpportunityLifecycle } from './domain.js';
+import { fillContactInfo } from './contact-info.js';
 import {
   addCustomer, archiveCustomer, addDocument, addEmployee, addEntity, addInteraction,
   archiveEmployee, deleteDocument, deleteEntity, deleteInteraction,
@@ -335,6 +336,8 @@ function renderStorageErrors() {
   const detail = qs('storage-error-detail');
   const resetButton = qs('storage-reset');
   const retryButton = qs('storage-retry');
+  const dashboardContact = qs('dashboard-contact-info');
+  if (dashboardContact) dashboardContact.hidden = hasErrors;
   if (!hasErrors) {
     if (detail) { detail.hidden = true; detail.textContent = ''; }
     if (retryButton) retryButton.hidden = true;
@@ -632,7 +635,10 @@ function showView(name) {
     populateEntityDropdown();
     updateDocumentSelect();
   }
-  if (safe === 'dashboard') updateDashboardStats();
+  if (safe === 'dashboard') {
+    fillContactInfo(qs('dashboard-contact-info'));
+    updateDashboardStats();
+  }
   if (safe === 'employees') renderEmployeeList();
   if (safe === 'interactions') { populateInteractionSelectors(); renderInteractionList(); }
   if (safe === 'client-360') { renderClient360(getClients360ViewState().openClientId); }
@@ -2109,6 +2115,7 @@ async function boot() {
 
   renderBranding();
   renderWelcomeBanner();
+  fillContactInfo(qs('dashboard-contact-info'));
   renderModuleLabels();
   renderConfigBanner();
   bindSidebarControls();

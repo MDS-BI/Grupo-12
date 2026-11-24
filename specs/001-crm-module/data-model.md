@@ -5,9 +5,11 @@
 
 > **Nota de fusión (2026-11-23)**: este modelo integra el contenido íntegro de `002-data-model.md`. No se modifica el significado de las entidades base: se añaden los atributos/relaciones observables de la ruta real, las entidades derivadas de solo lectura y las claves de estado UI `crm.gaps002.ui.*`.
 
+> **Actualización (2026-11-24)**: se incorpora `ContactInfoContent` como contenido UI estático de US31. No es una entidad de dominio, no tiene identidad persistida ni ciclo de vida.
+
 ## Visión General
 
-El modelo se compone de entidades de dominio CRM —**Cliente**, **Empleado**, **Oportunidad** e **Interacción**— más objetos de apoyo: **ModuleConfig**, **Preferencia de Tema**, **Preferencia de Sesión**, **Vista Activa** y **Diálogo de Confirmación** (estado UI). Las correcciones US16–US24 no añaden backend; extienden reglas de persistencia, navegación y accesibilidad sobre el frontend existente.
+El modelo se compone de entidades de dominio CRM —**Cliente**, **Empleado**, **Oportunidad** e **Interacción**— más objetos de apoyo: **ModuleConfig**, **Preferencia de Tema**, **Preferencia de Sesión**, **Vista Activa** y **Diálogo de Confirmación** (estado UI). Las correcciones US16–US24 no añaden backend; extienden reglas de persistencia, navegación y accesibilidad sobre el frontend existente. US31 añade **ContactInfoContent**, un objeto estático de solo lectura que se muestra en login y dashboard sin crear datos nuevos.
 
 ## Principios incorporados del cierre de brechas
 
@@ -109,6 +111,21 @@ El modelo se compone de entidades de dominio CRM —**Cliente**, **Empleado**, *
 | `onCancel` | function | Cierra sin efectos |
 
 **Accesibilidad**: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, foco inicial, focus trap Tab/Shift+Tab, Escape cierra/cancela según caso, restaura foco.
+
+### ContactInfoContent (US31, contenido UI estático)
+
+| Campo | Tipo | Obligatorio | Regla |
+|---|---|---:|---|
+| `title` | string | Sí | Texto exacto «Contáctanos»; coincide con el título de cada instancia renderizada |
+| `email` | string | Sí | Correo de soporte/ventas; dato ficticio de demostración `contacto@crm.demo` |
+| `phone` | string | Sí | Teléfono de contacto; dato ficticio `+56 2 1234 5678` |
+| `address` | string | Sí | Dirección o ciudad; dato ficticio `Av. Providencia 1234, Santiago, Chile` |
+| `businessHours` | string | Sí | Horario de atención; `Lunes a viernes, 09:00–18:00` |
+| `icons` | array de SVG inline | Sí | Un icono por campo; decorativo (`aria-hidden="true"`, `focusable="false"`) |
+| `targets` | enum[] | Sí | `login`, `dashboard`; dos instancias renderizadas desde la misma fuente |
+| `readOnly` | boolean | Sí | `true`; sin edición, CRUD, configuración ni persistencia |
+
+**Reglas US31**: no tiene `id`, no se almacena en `localStorage`/`sessionStorage`, no usa claves `crm_module:*` ni `crm.gaps002.ui.*`, no participa en KPIs ni en validación FR-072. Se define en `src/contact-info.js` y se inserta con `textContent` para conservar UTF-8. La instancia de dashboard vive dentro de `#view-dashboard` y hereda el bloqueo por corrupción; la de login atiende a visitantes.
 
 ### Entidades derivadas del cierre de brechas (read-only)
 

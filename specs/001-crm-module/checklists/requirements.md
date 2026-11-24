@@ -2,7 +2,7 @@
 
 **Propósito**: Validar la completitud y calidad de la especificación antes de proceder a la planificación
 **Creada**: 2026-07-08
-**Actualizada**: 2026-11-23 (integración del checklist 002 original, creado el 2026-11-22)
+**Actualizada**: 2026-11-24 (integración del checklist 002 original y comprobaciones US31)
 **Funcionalidad**: [Enlace a spec.md](../spec.md)
 
 > **Nota de fusión**: se conservan íntegramente las comprobaciones del checklist base y del checklist de cierre de brechas históricas (antes `002-requirements.md`). El enlace original a `../002-spec.md` apunta ahora a `../spec.md`.
@@ -68,3 +68,12 @@ Las mismas comprobaciones de contenido, completitud y preparación se aplicaron 
 - Auditoría Paso 0 incluida con las 13 tareas T025/T030/T036/T041/T046/T051/T052/T055/T056/T057/T058/T062/T064.
 - T051 y T058 marcadas como cubiertas y excluidas de nuevas brechas.
 - La declaración original "No se modificó `specs/001-crm-module`" corresponde al momento de la auditoría; el 2026-11-23 el contenido se fusionó en esta carpeta.
+
+## Comprobaciones de US31 (recuadro «Contáctanos»)
+
+- [x] La spec asigna `FR-103`/`SC-036` a US31 y registra la fila de trazabilidad en `../spec.md`, conservando `US31/CA-31.1–CA-31.3` como criteria originales.
+- [x] La ubicación de inicio está definida sin ambigüedad operativa: login para visitantes y dashboard para usuarios autenticados, con una sola fuente de contenido.
+- [x] Los cuatro datos requeridos (correo, teléfono, dirección/ciudad y horario) están identificados y son verificables.
+- [x] Los iconos SVG y el comportamiento responsivo en escritorio/móvil están especificados como criterios observables.
+- [x] US31 no introduce almacenamiento, configuración, entidades ni reglas de negocio nuevas.
+- [ ] La spec registra casos límite específicos de US31 (por ejemplo, textos extensos o vista estrecha extrema) además de los casos límite generales de interfaz ya documentados.

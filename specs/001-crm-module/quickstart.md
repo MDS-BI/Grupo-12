@@ -2,6 +2,8 @@
 
 > **Nota de fusión (2026-11-23)**: este documento integra el contenido íntegro de `002-quickstart.md`. Sus historias se renombraron a US25–US30 y sus requisitos a FR-089–FR-102 / SC-031–SC-035 para mantener una numeración única con el módulo base.
 
+> **Actualización (2026-11-24)**: se añade verificación para US31 (recuadro «Contáctanos»). La spec asigna `FR-103`/`SC-036` a esta historia; se conserva `US31/CA-31.1–CA-31.3` como criterio original.
+
 ## Configuración
 
 1. Instale dependencias con `npm install`.
@@ -83,6 +85,36 @@ npm run build
 1. Registre oportunidades con moneda soportada por MVP.
 2. **Esperado**: montos individuales muestran moneda clara; KPI agregados usan regla base CLP sin símbolos contradictorios.
 3. Revise Dashboard, listados y formularios. **Esperado**: regla consistente en todas las vistas.
+
+## Escenario US31 - Recuadro «Contáctanos» (CA-31.1–CA-31.3)
+
+**Prerrequisito**: ejecutar `npm run dev` con `index.html` de la ruta activa; no usar `src/components/*` ni `dist/`.
+
+### Visitante (login)
+
+1. Sin sesión, abra la aplicación.
+2. **Esperado**: `#login-view` visible y `#login-contact-info` visible dentro de `.login-form-panel`, con título exacto «Contáctanos».
+3. **Esperado**: `[data-contact-field="email"]`, `[data-contact-field="phone"]`, `[data-contact-field="address"]` y `[data-contact-field="hours"]` muestran los cuatro datos definidos en [data-model.md](data-model.md), con acentos y símbolos correctos.
+4. **Esperado**: cada dato tiene un `.contact-icon svg` decorativo (`aria-hidden="true"`, `focusable="false"`) y el recuadro no añade controles al orden de foco.
+
+### Usuario autenticado (dashboard)
+
+1. Inicie sesión con credenciales válidas y abra Dashboard.
+2. **Esperado**: `#dashboard-contact-info` visible entre `.welcome-banner` y `.quick-actions`, con los mismos cuatro valores que en login.
+3. Navegue a Clientes y vuelva a Dashboard. **Esperado**: el recuadro sigue visible y no modifica KPIs, filtros ni datos.
+4. Inyecte corrupción en una clave `crm_module:*` y recargue. **Esperado**: el bloqueo FR-072 oculta también el recuadro del dashboard; tras reiniciar los datos afectados, vuelve a mostrarse.
+
+### Responsive y tema
+
+1. Reduzca el viewport a ≤900 px y luego a ≤640 px. **Esperado**: el recuadro se apila, permanece legible y no genera desplazamiento horizontal en login ni dashboard.
+2. Seleccione `Oscuro` en `#theme-select`, cierre sesión y revise login. **Esperado**: `.contact-info` mantiene contraste, sin fondos claros fijos; al volver a `Claro` no quedan residuos.
+3. Compruebe `localStorage`/`sessionStorage`. **Esperado**: no aparece ninguna clave nueva asociada a US31.
+
+### Trazabilidad US31
+
+| US | Criterios | Pruebas principales |
+|---|---|---|
+| US31 | CA-31.1, CA-31.2, CA-31.3 (FR-103, SC-036) | `tests/unit/contact-box-contract.test.js`, `tests/integration/contact-box.test.js`, `tests/unit/svg-icon-contract.test.js` |
 
 ## Notas
 
@@ -178,7 +210,7 @@ npm run lint
 npm run build
 ```
 
-Nuevas pruebas esperadas (plan): `tests/unit/lifecycle-transitions.test.js`, `tests/unit/referential-integrity.test.js`, `tests/integration/employees-ui.test.js`, `tests/integration/interactions-ui.test.js`, `tests/integration/opportunities-lifecycle.test.js`, `tests/integration/client-360.test.js`, `tests/integration/dashboard-upcoming-integrity.test.js`, `tests/integration/archive-restore-ui.test.js`, `tests/integration/performance-dom.test.js`.
+Nuevas pruebas esperadas (plan): `tests/unit/lifecycle-transitions.test.js`, `tests/unit/referential-integrity.test.js`, `tests/integration/employees-ui.test.js`, `tests/integration/interactions-ui.test.js`, `tests/integration/opportunities-lifecycle.test.js`, `tests/integration/client-360.test.js`, `tests/integration/dashboard-upcoming-integrity.test.js`, `tests/integration/archive-restore-ui.test.js`, `tests/integration/performance-dom.test.js`, `tests/unit/contact-box-contract.test.js`, `tests/integration/contact-box.test.js`.
 
 ### Trazabilidad US25–US30
 

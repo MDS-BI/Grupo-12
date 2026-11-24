@@ -2,6 +2,8 @@
 
 > **Nota de fusión (2026-11-23)**: este documento integra el contenido íntegro de `002-research.md` (decisiones D-001 a D-009) en la sección final. Las referencias FR/SC de esa feature se renombraron a FR-089–FR-102 / SC-031–SC-035; las decisiones base se conservan sin cambios.
 
+> **Actualización (2026-11-24)**: se añaden decisiones para US31 (recuadro «Contáctanos», [spec.md](spec.md)). La spec asigna `FR-103`/`SC-036` a US31; se conserva `US31/CA-31.1–CA-31.3` como referencia original.
+
 ## Decisión: Usar Vite con HTML, CSS y JavaScript vanilla
 
 **Justificación**: El alcance del MVP es un módulo CRM de frontend con datos ficticios. Vite proporciona un flujo de desarrollo rápido y una compilación simple sin añadir un framework pesado. JavaScript vanilla mantiene el módulo fácil de entender, probar y extender por otros módulos ERP.
@@ -38,6 +40,32 @@
 - **Fuente de métricas del Dashboard**: `getCRMOverview()` (base canónica) y `computeConversionRate()` para tasa de conversión. Las vistas no deben crear una fuente paralela.
 - **Adaptador del formulario estático**: el alta/edición de `#entity-form` se sincroniza con la fuente canónica que alimenta los KPI.
 - **Codificación y mojibake**: `<meta charset="UTF-8" />`, revisión de literales en español, inserción de texto con `textContent` y prueba contra U+FFFD/secuencias mojibake.
+
+## Decisiones US31 (recuadro «Contáctanos»)
+
+### US31.1 Ubicación en la vista de inicio
+
+- **Decisión**: renderizar dos instancias del mismo recuadro desde una única fuente: `#login-contact-info` en `.login-form-panel` tras `.login-footer` para visitantes, y `#dashboard-contact-info` dentro de `#view-dashboard` tras `.welcome-banner` para usuarios autenticados.
+- **Rationale**: la spec dice «usuario o visitante» y «pantalla principal / login o dashboard inicial según corresponda». El login y el shell autenticado son mutuamente excluyentes, y `erp.activeView` puede restaurar una vista distinta del dashboard; una sola ubicación dejaría el recuadro invisible para parte de los usuarios. Poner la instancia del dashboard dentro de `#view-dashboard` preserva el bloqueo de corrupción de FR-072.
+- **Alternativas consideradas**: solo login (invisible tras autenticarse); solo dashboard (invisible para visitantes); barra lateral/shell global (fuera del alcance «inicio» y visible en cada pantalla). Se descartan por cobertura incompleta o alcance excesivo.
+
+### US31.2 Fuente de los datos de contacto
+
+- **Decisión**: contenido estático e inmutable en un módulo local `src/contact-info.js`, con datos ficticios de demostración: correo `contacto@crm.demo`, teléfono `+56 2 1234 5678`, dirección `Av. Providencia 1234, Santiago, Chile` y horario `Lunes a viernes, 09:00–18:00`. El helper escribe los valores con `textContent`; no hay `localStorage`, `sessionStorage`, `crm.gaps002.ui.*`, configuración ni bandera de descarte.
+- **Rationale**: son datos de soporte fijos, no entidades con identidad/CRUD ni preferencias de usuario. La ruta activa tiene un defecto conocido donde `loadModuleConfig()` es async pero se consume como síncrono, por lo que depender de config haría que el contenido desapareciera silenciosamente. Una clave de storage añadiría categorías fuera de la validación FR-072.
+- **Alternativas consideradas**: literal HTML duplicado en `index.html` (riesgo de divergencia entre las dos instancias); configuración `ModuleConfig` (no fiable en la ruta actual y fuera de XR-001–XR-005); almacenamiento con dismiss (sin requisito en la spec y más estado que mantener). Se elige el módulo estático único.
+
+### US31.3 Iconografía, tema y responsive
+
+- **Decisión**: cuatro SVG inline por instancia con `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `aria-hidden="true"`, `focusable="false"` y clase `.contact-icon`; estilos con tokens (`--panel`, `--border`, `--text`, `--muted`, `--accent-soft`, `--shadow-card`, `--radius-*`) y grid compacto que se apila a ≤900 px y ≤640 px.
+- **Rationale**: reutiliza la convención SVG existente y evita fondos claros fijos en dark mode (US16); el box es decorativo/no interactivo y no debe añadir foco ni depender del color para comunicar.
+- **Alternativas consideradas**: librería de iconos (dependencia nueva); imágenes raster (no escalables y rompen convención); estados hover/click (no pedidos por la spec). Se descartan.
+
+### US31.4 Verificación
+
+- **Decisión**: `tests/unit/contact-box-contract.test.js` comprueba literales UTF-8, atributos SVG y reglas CSS responsive; `tests/integration/contact-box.test.js` comprueba visibilidad por auth, coincidencia de los cuatro campos entre login y dashboard, `aria-labelledby` resuelto y ausencia de claves nuevas de storage; `tests/unit/svg-icon-contract.test.js` incorpora `.contact-icon svg`.
+- **Rationale**: jsdom no evalúa media queries, por lo que el responsive se valida por contrato de código CSS igual que `layout-contract.test.js`, mientras que la visibilidad y accesibilidad se validan sobre el DOM real mediante `live-dom.js`.
+- **Alternativas consideradas**: solo revisión manual (no repetible); snapshot visual (incompatible con la toolchain actual). Se prefiere contrato + integración.
 
 ## Decisiones US16–US24 (correcciones incrementales)
 
@@ -101,6 +129,8 @@
 - Existe dualidad `erp_base_module:*` y `crm_module:*`; US17 debe reducirla sin romper tests heredados.
 - `app.js` concentra mucha lógica; los cambios deben ser quirúrgicos y cubrirse con pruebas.
 - La accesibilidad de diálogos custom requiere cuidado con foco y listeners para no filtrar eventos globales.
+- US31 depende de que el contenido se renderice desde una sola fuente; duplicar literales en las dos vistas rompería el contrato de igualdad.
+- La spec asigna `FR-103`/`SC-036` a US31: conservar `US31/CA-31.1–CA-31.3` en plan/contratos como criterios originales y verificar la trazabilidad en `spec.md`.
 
 ## Decisiones del cierre de brechas históricas (integradas de `002-research.md`)
 

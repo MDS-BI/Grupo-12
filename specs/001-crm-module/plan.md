@@ -1,9 +1,11 @@
 # Plan de Implementación: Módulo CRM (Customer Relationship Management)
 
-**Rama**: `001-crm-module` | **Fecha**: 2026-07-08 | **Actualizada**: 2026-11-23 | **Especificación**: [spec.md](spec.md)
-**Entrada**: Especificaciones de la funcionalidad desde `/specs/001-crm-module/spec.md` (módulo CRM + interfaz SaaS profesional + correcciones US16–US24 + cierre de brechas históricas US25–US30/FR-089–FR-102)
+**Rama**: `001-crm-module` | **Fecha**: 2026-07-08 | **Actualizada**: 2026-11-24 | **Especificación**: [spec.md](spec.md)
+**Entrada**: Especificaciones de la funcionalidad desde `/specs/001-crm-module/spec.md` (módulo CRM + interfaz SaaS profesional + correcciones US16–US24 + cierre de brechas históricas US25–US30/FR-089–FR-102 + recuadro «Contáctanos» US31)
 
 > **Nota de fusión (2026-11-23)**: este plan integra el contenido íntegro del `002-plan.md` (cierre de brechas históricas) en la sección final "Cierre de brechas históricas". Los identificadores incorporados se renombraron a US25–US30, FR-089–FR-102 y SC-031–SC-035 para no colisionar con el módulo base; las tareas correspondientes son T198–T249 en `tasks.md`.
+
+> **Actualización (2026-11-24)**: se incorpora US31 (recuadro informativo «Contáctanos» en la vista de inicio) desde [spec.md](spec.md). La spec asigna `FR-103` y `SC-036` a US31; este plan conserva `US31/CA-31.1–CA-31.3` como referencia de los criterios de aceptación originales.
 
 ## Resumen
 
@@ -13,32 +15,34 @@ El alcance funcional se organiza en las historias de la especificación: gestió
 
 La extensión del backlog (US16–US24, FR-074–FR-088) incorpora correcciones y mejoras priorizadas: tema oscuro coherente por tokens, dashboard alineado con la fuente de verdad de oportunidades, preferencia “Recordar mi sesión” efectiva, confirmaciones de eliminación accesibles, búsqueda unificada de clientes/oportunidades, listados escalables, restauración de vista activa, accesibilidad completa de formularios/diálogos y regla consistente de moneda.
 
+US31 añade un recuadro informativo «Contáctanos» en la vista de inicio: visible para visitantes en login y para usuarios autenticados en el dashboard, con correo, teléfono, dirección/ciudad y horario de atención, iconos SVG decorativos y diseño responsivo/compatible con ambos temas. Es contenido estático y de solo lectura: no crea entidades de dominio, no modifica reglas comerciales ni introduce claves de almacenamiento.
+
 El modelo de dominio y las reglas se documentan en [data-model.md](data-model.md) y en el MER de referencia [`../../Primer Avance/crm_mer.md`](../../Primer%20Avance/crm_mer.md).
 
-El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/styles.css`, `src/main.js`, `src/app.js`, `src/storage.js`, `src/domain.js`, `src/module-config.js`), no sobre `src/components/*`, que no está conectado al arranque. Las fases 3–13 se conservan como registro histórico; las correcciones nuevas se implementan sobre la ruta activa validada por tests del DOM real. No se introduce backend, framework de UI ni dependencias nuevas. Investigación: [research.md](research.md). Contratos: [ui-contracts.md](contracts/ui-contracts.md) (incluye el contrato DOM del cierre de brechas), [crm-storage.md](contracts/crm-storage.md) (incluye las claves `crm.gaps002.ui.*` y la API aditiva), [dashboard-metrics.md](contracts/dashboard-metrics.md), [corrections-us16-us24.md](contracts/corrections-us16-us24.md) y [performance.md](contracts/performance.md).
+El trabajo se realiza **sobre el DOM real que se ejecuta** (`index.html`, `src/styles.css`, `src/main.js`, `src/app.js`, `src/storage.js`, `src/domain.js`, `src/module-config.js`, más el helper estático `src/contact-info.js`), no sobre `src/components/*`, que no está conectado al arranque. Las fases 3–13 se conservan como registro histórico; las correcciones nuevas se implementan sobre la ruta activa validada por tests del DOM real. No se introduce backend, framework de UI ni dependencias nuevas. Investigación: [research.md](research.md). Contratos: [ui-contracts.md](contracts/ui-contracts.md) (incluye el contrato DOM del cierre de brechas y el recuadro US31), [crm-storage.md](contracts/crm-storage.md) (incluye las claves `crm.gaps002.ui.*`, la API aditiva y la declaración de "sin almacenamiento" para US31), [dashboard-metrics.md](contracts/dashboard-metrics.md), [corrections-us16-us24.md](contracts/corrections-us16-us24.md) y [performance.md](contracts/performance.md).
 
 ## Contexto Técnico
 
-**Lenguaje/Versión**: JavaScript ES modules, HTML5, CSS3; Node/npm toolchain en `package.json` (Vite 8, Vitest 4, ESLint 9, jsdom 30).  
-**Dependencias Principales**: Vite, Vitest, jsdom, ESLint, Prettier; sin framework de UI ni dependencias runtime nuevas.  
-**Almacenamiento**: `localStorage` (`erp.authenticatedUser`, `erp_base_module:*`, `crm_module:*`, `crm.theme`, y nueva clave de vista/sesión según diseño) y `sessionStorage` (`erp.sidebarCollapsed`, y sesión no recordada si se adopta).  
-**Pruebas**: `vitest run` con jsdom; pruebas unitarias e integración sobre DOM real (`tests/integration/live-dom.js`).  
-**Plataforma Destino**: Navegador moderno de escritorio/móvil, app Vite estática.  
-**Tipo de Proyecto**: Aplicación web frontend single-page, un solo `index.html`.  
-**Objetivos de Rendimiento**: Búsqueda ≤ 10 s y renderizado/listados usables con 500 clientes y registros asociados (SC-002/SC-004); listados editables con 50 registros identificables en < 15 s (SC-027); sin trabajo bloqueante en UI.  
-**Restricciones**: Sin backend; sin dependencias nuevas; no editar `src/components/*` ni `dist/` a mano; preservar compatibilidad con tests existentes y contratos; cambios accesibles por teclado.  
-**Escala/Alcance**: MVP de espacio único; US16–US24 son correcciones incrementales sobre CRM existente.
+**Lenguaje/Versión**: JavaScript ES modules, HTML5, CSS3; Node/npm toolchain en `package.json` (Vite 8, Vitest 4, ESLint 9, jsdom 30).
+**Dependencias Principales**: Vite, Vitest, jsdom, ESLint, Prettier; sin framework de UI ni dependencias runtime nuevas.
+**Almacenamiento**: `localStorage` (`erp.authenticatedUser`, `erp_base_module:*`, `crm_module:*`, `crm.theme`, y nueva clave de vista/sesión según diseño) y `sessionStorage` (`erp.sidebarCollapsed`, y sesión no recordada si se adopta). US31 no añade claves ni estado persistente.
+**Pruebas**: `vitest run` con jsdom; pruebas unitarias e integración sobre DOM real (`tests/integration/live-dom.js`), incluido contrato estático de SVG/responsive.
+**Plataforma Destino**: Navegador moderno de escritorio/móvil, app Vite estática.
+**Tipo de Proyecto**: Aplicación web frontend single-page, un solo `index.html`.
+**Objetivos de Rendimiento**: Búsqueda ≤ 10 s y renderizado/listados usables con 500 clientes y registros asociados (SC-002/SC-004); listados editables con 50 registros identificables en < 15 s (SC-027); sin trabajo bloqueante en UI. US31 debe renderizarse sin lecturas/escrituras de almacenamiento ni cómputo por fila.
+**Restricciones**: Sin backend; sin dependencias nuevas; no editar `src/components/*` ni `dist/` a mano; preservar compatibilidad con tests existentes y contratos; cambios accesibles por teclado; US31 usa solo tokens CSS/SVG inline y datos ficticios de demostración.
+**Escala/Alcance**: MVP de espacio único; US16–US24 son correcciones incrementales sobre CRM existente; US31 es una adición UI de solo lectura en login y dashboard.
 
 ## Comprobación de Constitución
 
 *COMPROBACIÓN: Debe pasar antes de la Fase 0. Reverificar tras la Fase 1.*
 
-- **I. Calidad y mantenibilidad**: PASA. Cambios incrementales en módulos existentes; extraer helpers pequeños (almacén de sesión, fuente canónica de oportunidades, diálogo accesible reutilizable) solo donde reduzcan duplicación. Sin refactor masivo de `app.js` en este incremento salvo extracciones puntuales necesarias para testabilidad.
-- **II. Pruebas primero y verificación**: PASA CON PLAN. Cada US16–US24 tendrá cobertura automatizada (unitaria/integración/contrato según corresponda) antes o junto a implementación. Cierre requiere `npm run test:run`, `npm run lint`, `npm run build`.
-- **III. Consistencia de experiencia de usuario**: PASA. Tokens de tema, diálogo modal compartido, estados vacíos, mensajes y patrones de foco/ARIA consistentes con contratos existentes.
-- **IV. Rendimiento y fiabilidad**: PASA CON RIESGO CONTROLADO. Búsqueda unificada y listados deben filtrar en memoria y renderizar incrementalmente/simple; fuente única para dashboard evita divergencia. Persistencia de vista/sesión debe tener fallback seguro ante datos inválidos.
+- **I. Calidad y mantenibilidad**: PASA. Cambios incrementales en módulos existentes; extraer helpers pequeños (almacén de sesión, fuente canónica de oportunidades, diálogo accesible reutilizable) solo donde reduzcan duplicación. Sin refactor masivo de `app.js` en este incremento salvo extracciones puntuales necesarias para testabilidad. US31 usa un único módulo estático (`src/contact-info.js`) para evitar duplicar los cuatro datos en dos vistas.
+- **II. Pruebas primero y verificación**: PASA CON PLAN. Cada US16–US24 tendrá cobertura automatizada (unitaria/integración/contrato según corresponda) antes o junto a implementación. US31 tendrá prueba de contrato de contenido/SVG/responsive y prueba de integración de visibilidad en login y dashboard antes o junto a implementación. Cierre requiere `npm run test:run`, `npm run lint`, `npm run build`.
+- **III. Consistencia de experiencia de usuario**: PASA. Tokens de tema, diálogo modal compartido, estados vacíos, mensajes y patrones de foco/ARIA consistentes con contratos existentes. US31 reutiliza tarjetas/espaciado tokens y SVG decorativo `aria-hidden`, sin depender solo del color.
+- **IV. Rendimiento y fiabilidad**: PASA CON RIESGO CONTROLADO. Búsqueda unificada y listados deben filtrar en memoria y renderizar incrementalmente/simple; fuente única para dashboard evita divergencia. Persistencia de vista/sesión debe tener fallback seguro ante datos inválidos. US31 es markup estático renderizado una vez por arranque/cambio de vista; no afecta presupuestos de 500 registros.
 
-**Complejidad justificada**: Ninguna violación. No se introducen nuevos proyectos, frameworks ni capas backend.
+**Complejidad justificada**: Ninguna violación. No se introducen nuevos proyectos, frameworks ni capas backend; el único archivo nuevo es un helper local de contenido estático sin dependencias.
 
 ## Estructura del Proyecto
 
@@ -56,11 +60,11 @@ specs/001-crm-module/
 │   └── data-integrity.md
 ├── contracts/
 │   ├── crm-storage.md
-│   ├── ui-contracts.md
+│   ├── ui-contracts.md          # incluye sección US31 «Contáctanos»
 │   ├── dashboard-metrics.md
 │   ├── corrections-us16-us24.md
 │   └── performance.md
-└── tasks.md
+└── tasks.md                     # incluye Fase 46–47 / T250–T261 para US31
 ```
 
 ### Código Fuente (raíz del repositorio)
@@ -68,25 +72,29 @@ specs/001-crm-module/
 ```text
 index.html
 src/
-├── main.js              # sesión/auth, tema temprano, arranque
-├── app.js               # navegación, vistas, formularios, dashboard, búsqueda/listados
+├── main.js              # sesión/auth, tema temprano, arranque, render contacto en login
+├── app.js               # navegación, vistas, formularios, dashboard, búsqueda/listados, render contacto en dashboard
+├── contact-info.js      # contenido estático US31 + helper de render sin estado
 ├── storage.js           # persistencia, validación, integridad, overview/KPI
 ├── domain.js            # reglas de dominio y métricas
 ├── module-config.js     # configuración y campos visibles
 ├── sanitize.js          # escape/sanitización
-└── styles.css           # tokens, layout, componentes, temas
+└── styles.css           # tokens, layout, componentes, temas, .contact-info responsive
 
 tests/
 ├── unit/
+│   ├── contact-box-contract.test.js   # nuevo: literales, SVG, responsive, UTF-8
+│   └── ...
 ├── integration/
 │   ├── live-dom.js
+│   ├── contact-box.test.js            # nuevo: visibilidad login/dashboard y datos
 │   ├── theme.test.js
 │   ├── unsaved-changes.test.js
 │   └── ...
 └── setup/
 ```
 
-**Decisión de Estructura**: Mantener la aplicación Vite single-page. Las correcciones se aplican sobre la ruta ejecutable real. `src/components/*` permanece histórico/no conectado. Se permite agregar contratos/docs de prueba; no se agregan dependencias.
+**Decisión de Estructura**: Mantener la aplicación Vite single-page. Las correcciones se aplican sobre la ruta ejecutable real. `src/components/*` permanece histórico/no conectado. Se permite agregar contratos/docs de prueba y el módulo local `src/contact-info.js`; no se agregan dependencias ni stores.
 
 ## Fase 0: Esquema y Investigación
 
@@ -105,17 +113,20 @@ Ver [research.md](research.md) para decisiones detalladas. No quedan NEEDS CLARI
 | Vista activa | Persistir `erp.activeView` (o clave equivalente) y restaurar con whitelist + auth guard | FR-085 |
 | Accesibilidad formularios | `aria-invalid`, `aria-describedby`, primer error enfocado/anunciado; focus trap en todos los diálogos | FR-086/087 |
 | Moneda | Definir regla MVP: montos individuales muestran moneda registrada/normalizada; KPI agregados en moneda base CLP con etiqueta clara; evitar mezcla ambigua | FR-088 |
+| US31 ubicación | Renderizar el recuadro en login (visitantes) y dashboard (autenticados) desde una sola fuente estática | US31/CA-31.1; cubre visitantes y usuarios sin depender de `erp.activeView` |
+| US31 contenido/persistencia | Datos ficticios de demostración en `src/contact-info.js`; sin config, sin `localStorage`/`sessionStorage`, sin dismiss | US31/CA-31.2–CA-31.3; evita doble verdad y claves fuera de FR-072 |
+| US31 iconografía/responsive | SVG inline `currentColor`, `aria-hidden`, `focusable=false`; grid compacto con reglas ≤900 px y ≤640 px y tokens de tema | CA-31.1/CA-31.3; reutiliza convenciones US16 sin dependencias |
 
 ## Fase 1: Diseño y Contratos
 
 ### Artefactos generados
 
-- [data-model.md](data-model.md): entidades/estado afectado por US16–US24.
-- [contracts/corrections-us16-us24.md](contracts/corrections-us16-us24.md): contratos de UI, almacenamiento, navegación, accesibilidad y moneda.
+- [data-model.md](data-model.md): entidades/estado afectado por US16–US24 y contenido estático `ContactInfoContent` de US31.
+- [contracts/corrections-us16-us24.md](contracts/corrections-us16-us24.md): contratos de UI, almacenamiento, navegación, accesibilidad y moneda; incluye `.contact-info` en cobertura de tema oscuro.
 - [contracts/dashboard-metrics.md](contracts/dashboard-metrics.md): actualizar regla de fuente canónica.
-- [contracts/crm-storage.md](contracts/crm-storage.md): actualizar claves de sesión/vista y regla de oportunidad/dashboard.
-- [contracts/ui-contracts.md](contracts/ui-contracts.md): actualizar selectores/ARIA/diálogos/listados/búsqueda.
-- [quickstart.md](quickstart.md): escenarios manuales verificables para US16–US24.
+- [contracts/crm-storage.md](contracts/crm-storage.md): actualizar claves de sesión/vista y regla de oportunidad/dashboard; declarar explícitamente que US31 no usa almacenamiento.
+- [contracts/ui-contracts.md](contracts/ui-contracts.md): actualizar selectores/ARIA/diálogos/listados/búsqueda y añadir sección US31.
+- [quickstart.md](quickstart.md): escenarios manuales verificables para US16–US24 y US31.
 
 ### Diseño por historia
 
@@ -176,12 +187,22 @@ Ver [research.md](research.md) para decisiones detalladas. No quedan NEEDS CLARI
 - Evitar hardcode visual contradictorio.
 - Pruebas: unitarias de formato y integración de UI.
 
+#### US31 - Recuadro informativo «Contáctanos» (FR-103, SC-036, CA-31.1–CA-31.3)
+
+- **Alcance**: solo UI de inicio, contenido estático y de solo lectura; no cambia reglas de negocio, entidades CRM, configuración ni almacenamiento (ver [data-model.md](data-model.md) y [crm-storage.md](contracts/crm-storage.md)).
+- **DOM**: dos contenedores dentro de la ruta activa: `#login-contact-info` en `.login-form-panel` tras `.login-footer`, y `#dashboard-contact-info` en `#view-dashboard` tras `.welcome-banner` y antes de `.quick-actions`. Ambos comparten `.contact-info`, un título `.contact-info-title` con texto exacto «Contáctanos» y ítems `[data-contact-field="email|phone|address|hours"]`.
+- **Fuente única**: `src/contact-info.js` exporta un objeto inmutable con los cuatro datos ficticios de demostración (`contacto@crm.demo`, `+56 2 1234 5678`, `Av. Providencia 1234, Santiago, Chile`, `Lunes a viernes, 09:00–18:00`) y una función de render que usa `textContent`; `src/main.js` la invoca en la vista de acceso y `src/app.js` al montar/entrar al dashboard. No se duplican literales en `index.html`.
+- **Accesibilidad**: `section[aria-labelledby]` apuntando al título de cada instancia (IDs únicos por vista), SVGs decorativos con `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `aria-hidden="true"`, `focusable="false"` y clases `.contact-icon` para no colisionar con `.icon-eye*`. El recuadro no introduce controles ni orden de foco nuevo.
+- **Estilos**: reutilizar `--panel`, `--border`, `--text`, `--muted`, `--accent-soft`, `--shadow-card` y `--radius-*`; diseño de columnas compacto que se apila a ≤900 px y ≤640 px. Sin fondos claros fijos: `.contact-info` queda incluido en la verificación de tema oscuro de [corrections-us16-us24.md](contracts/corrections-us16-us24.md).
+- **Estado/seguridad**: sin clave de storage, sin preferencia de descarte y sin interacción con `crm.gaps002.ui.*`. La instancia del dashboard queda dentro de `#view-dashboard`, por lo que respeta el bloqueo de corrupción de FR-072; la del login permanece disponible para visitantes.
+- **Pruebas**: `tests/unit/contact-box-contract.test.js` valida literales UTF-8, atributos SVG y reglas CSS responsive; `tests/integration/contact-box.test.js` valida presencia/visibilidad en login y dashboard, cuatro campos con datos coincidentes, `aria-labelledby` válido y ausencia de nuevas claves de almacenamiento. `tests/unit/svg-icon-contract.test.js` se extiende con `.contact-icon svg`.
+
 ## Comprobación de Constitución Post-Diseño
 
-- **I. Calidad**: PASA. Diseño favorece helpers pequeños y contratos claros; se evita refactor grande.
-- **II. Pruebas**: PASA. Cada FR nuevo mapeado a pruebas planificadas en quickstart/contratos.
-- **III. UX**: PASA. Contratos cubren consistencia visual, ARIA y estados vacíos/errores.
-- **IV. Rendimiento**: PASA. Búsqueda/listados en memoria con filtros simples; sin dependencias nuevas; render acotado por DOM existente.
+- **I. Calidad**: PASA. Diseño favorece helpers pequeños y contratos claros; se evita refactor grande. US31 concentra datos y render en un módulo local sin estado.
+- **II. Pruebas**: PASA. Cada FR nuevo mapeado a pruebas planificadas en quickstart/contratos; US31/CA-31.1–CA-31.3 mapeado a pruebas unitarias de contrato e integración DOM.
+- **III. UX**: PASA. Contratos cubren consistencia visual, ARIA y estados vacíos/errores; US31 usa tokens, SVG decorativo y títulos accesibles en ambos puntos de entrada.
+- **IV. Rendimiento**: PASA. Búsqueda/listados en memoria con filtros simples; sin dependencias nuevas; render acotado por DOM existente. US31 no lee almacenamiento ni participa en cálculos de 500 registros.
 
 
 ## Alineación de integridad (Fase 34, tasks.md)
@@ -198,7 +219,8 @@ Secuencia/dependencias de Fase 34 ya definidas en `tasks.md`:
 1. **Base P1**: US23 accesibilidad formularios/diálogos (habilita US19), US16 tema oscuro coherente, US17 dashboard fuente canónica.
 2. **P2**: US19 confirmación eliminación (usa patrón US23), US18 recordar sesión, US20 búsqueda unificada, US21 listados escalables.
 3. **P3**: US22 restaurar vista activa, US24 moneda consistente.
-4. **Cierre**: actualización contratos/docs, quickstart, lint/test/build, revisión manual.
+4. **US31 (independiente)**: contrato de contenido/SVG/responsive, helper `src/contact-info.js`, inserción en login/dashboard y estilos; puede ejecutarse en paralelo tras fijar el contrato DOM.
+5. **Cierre**: actualización contratos/docs, quickstart, verificación de las tareas US31 ya generadas (`/speckit.tasks` completado), lint/test/build, revisión manual.
 
 ### Riesgos y mitigaciones
 
@@ -209,6 +231,10 @@ Secuencia/dependencias de Fase 34 ya definidas en `tasks.md`:
 | `app.js` grande dificulta cambios seguros | Extraer solo helpers puntuales; mantener comportamiento y añadir pruebas antes de editar |
 | Accesibilidad incompleta en diálogos custom | Implementar util de focus trap reutilizable y probar Tab/Shift+Tab/Escape/foco retorno |
 | Moneda mixta en datos existentes | Regla explícita MVP: agregar en CLP/base; mostrar moneda individual; documentar supuestos |
+| US31 duplique datos en login y dashboard | Un solo `src/contact-info.js` y prueba de igualdad de contenido entre instancias |
+| US31 rompa login estrecho o theme oscuro | Grid compacto con breakpoints ≤900/≤640, tokens CSS y contrato de estilos/SVG en pruebas |
+| US31 quede invisible por `erp.activeView` restaurado | Instancia de dashboard dentro de `#view-dashboard` más instancia permanente en login para visitantes |
+| US31 pierda trazabilidad FR/SC tras fusiones | `spec.md` conserva `FR-103`/`SC-036` junto a `US31/CA-31.1–CA-31.3`; verificar en T259/T261 |
 
 ## Seguimiento de Complejidad
 

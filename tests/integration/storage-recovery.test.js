@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mountLiveDom } from './live-dom.js';
 import { boot } from '../../src/app.js';
 import { getCRMStorageErrors, resetCorruptedCRMStorage } from '../../src/storage.js';
@@ -88,11 +88,11 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
       expect(el?.getAttribute('disabled') === 'true' || el?.getAttribute('aria-disabled') === 'true').toBe(true);
     }
 
-    const originalSetItem = Storage.prototype.setItem;
-    Storage.prototype.setItem = function(key, value) {
+    const originalSetItem = localStorage.setItem;
+    const setItemSpy = vi.spyOn(localStorage, 'setItem').mockImplementation((key, value) => {
       if (key === 'crm_module:customers') throw new Error('quota');
-      return originalSetItem.call(this, key, value);
-    };
+      return originalSetItem.call(localStorage, key, value);
+    });
     document.querySelector('#storage-reset').click();
     await Promise.resolve();
     await Promise.resolve();
@@ -105,7 +105,7 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
     expect(localStorage.getItem('erp.activeView')).toBe('dashboard');
     expect(sessionStorage.getItem('erp.sidebarCollapsed')).toBe('true');
 
-    Storage.prototype.setItem = originalSetItem;
+    setItemSpy.mockRestore();
     document.querySelector('#storage-retry').click();
     await Promise.resolve();
     await Promise.resolve();

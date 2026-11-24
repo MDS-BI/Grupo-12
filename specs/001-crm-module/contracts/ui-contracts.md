@@ -6,6 +6,8 @@
 
 Define los selectores, estados, atributos y textos observables de la interfaz. Es la referencia para las pruebas de contrato con Vitest + jsdom; cualquier cambio de estos identificadores debe actualizar este documento y las pruebas.
 
+> **Actualización (2026-11-24)**: se añade la sección 10 para US31 (recuadro «Contáctanos»). La spec asigna `FR-103`/`SC-036` a US31; se conserva `US31/CA-31.1–CA-31.3` como criterio original.
+
 ## 1. Pantalla de acceso (FR-047 a FR-052, FR-078)
 
 | Elemento | Selector | Contrato |
@@ -109,9 +111,27 @@ Seleccionar resultado/fila navega/carga registro en formulario. Gestión princip
 | Fallo de reinicio | muestra error de recuperación con detalle comprensible y control "Reintentar"; no altera claves no afectadas; no marca recuperado |
 | Reintento exitoso | limpia error, claves afectadas en `[]`, habilita UI, estado vacío controlado; preserva sesión/tema/vista/sidebar |
 
+## 10. Recuadro «Contáctanos» (US31/CA-31.1–CA-31.3)
+
+| Elemento | Selector | Contrato |
+|---|---|---|
+| Recuadro en login | `#login-contact-info` | `section.contact-info` dentro de `.login-form-panel`, después de `.login-footer`; visible cuando `#login-view` está visible |
+| Recuadro en dashboard | `#dashboard-contact-info` | `section.contact-info` dentro de `#view-dashboard`, entre `.welcome-banner` y `.quick-actions`; visible al mostrar dashboard y oculto durante bloqueo FR-072 |
+| Título | `.contact-info-title` | texto exacto «Contáctanos» en ambas instancias; cada `section` usa `aria-labelledby` con un ID único (`#login-contact-info-title`, `#dashboard-contact-info-title`) |
+| Correo | `[data-contact-field="email"]` | texto `contacto@crm.demo` |
+| Teléfono | `[data-contact-field="phone"]` | texto `+56 2 1234 5678` |
+| Dirección/ciudad | `[data-contact-field="address"]` | texto `Av. Providencia 1234, Santiago, Chile` |
+| Horario | `[data-contact-field="hours"]` | texto `Lunes a viernes, 09:00–18:00` |
+| Icono por dato | `.contact-icon svg` | un SVG inline por ítem; `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `aria-hidden="true"`, `focusable="false"`; sin `width`/`height` fijos en el SVG |
+| Fuente única | `src/contact-info.js` | exporta el contenido inmutable y un render con `textContent`; ambas instancias muestran los mismos cuatro valores |
+| Almacenamiento | N/A | sin claves nuevas; el recuadro no depende de `localStorage`/`sessionStorage` ni de `ModuleConfig` |
+| Responsive/tema | `.contact-info` | grid compacto que se apila a ≤900 px y ≤640 px; usa tokens de tema, sin fondos claros fijos en `dark` |
+
+**Cobertura**: CA-31.1 (ubicación/coherencia visual), CA-31.2 (cuatro datos estructurados), CA-31.3 (SVG, responsive escritorio/móvil). Trazabilidad formal: `FR-103`/`SC-036`, vinculados a CA-31.1–CA-31.3 en `../spec.md`.
+
 ## Verificación
 
-Pruebas en `tests/integration/ui-contracts.test.js`, `tests/integration/sidebar-collapse.test.js`, `tests/integration/theme.test.js`, `tests/integration/unsaved-changes.test.js` y pruebas nuevas para US16–US24.
+Pruebas en `tests/integration/ui-contracts.test.js`, `tests/integration/sidebar-collapse.test.js`, `tests/integration/theme.test.js`, `tests/integration/unsaved-changes.test.js`, pruebas nuevas para US16–US24 y, para US31, `tests/unit/contact-box-contract.test.js`, `tests/integration/contact-box.test.js` y la extensión de `tests/unit/svg-icon-contract.test.js`.
 
 ---
 

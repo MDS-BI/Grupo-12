@@ -1,14 +1,16 @@
 ﻿# Tareas: Módulo CRM (Customer Relationship Management)
 
-**Entrada**: Documentos de diseño desde `/specs/001-crm-module/` (módulo CRM + interfaz SaaS profesional + correcciones US16–US24 + cierre de brechas históricas)
-**Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/crm-storage.md
+**Entrada**: Documentos de diseño desde `/specs/001-crm-module/` (módulo CRM + interfaz SaaS profesional + correcciones US16–US24 + cierre de brechas históricas + recuadro «Contáctanos» US31)
+**Prerrequisitos**: plan.md (obligatorio), spec.md (obligatorio), research.md, data-model.md, contracts/ui-contracts.md, contracts/crm-storage.md, quickstart.md
 
 > **Nota de fusión (2026-11-23)**: este archivo integra el contenido íntegro de `002-tasks.md` en las Fases 37–45. La numeración es continua: T001–T197 corresponden al plan base y T198–T249 al cierre de brechas históricas (antes T001–T052 de 002). Las historias incorporadas son US25–US30 (antes US1–US6 de 002), con FR-089–FR-102 y SC-031–SC-035.
+
+> **Actualización (2026-11-24)**: se añaden las Fases 46–47 para US31 con T250–T261. La spec asigna `FR-103`/`SC-036` a US31; las tareas conservan `US31/CA-31.1–CA-31.3` como criterios originales y T259 verifica la trazabilidad.
 
 ## Formato: `[ID] [P?] [Historia] Descripción`
 
 - **[P]**: Puede ejecutarse en paralelo (archivos distintos, sin dependencias pendientes)
-- **[USn]**: Historia de usuario de `spec.md` (US1–US30)
+- **[USn]**: Historia de usuario de `spec.md` (US1–US31)
 - Toda tarea que cambia comportamiento de negocio se acompaña de sus pruebas (Constitución, Principio II)
 
 > **Ruta ejecutable**: las Fases 3–13 conservan el registro histórico de la arquitectura basada en `src/components/*`; no son prerrequisitos bloqueantes. La implementación activa se realiza en el DOM real de Fases 14–22 y 37–45 (`index.html`, `src/`) y sus comportamientos se validan allí. Las tareas pendientes de Fases 3–13 se conservan solo como referencia histórica.
@@ -296,15 +298,15 @@
 
 > Escribir primero y confirmar que fallan antes de la implementación.
 
-- [x] T081 [P] [US11] Añadir pruebas de acceso dividido, visibilidad y errores en `tests/integration/ui-contracts.test.js` (FR-048, FR-049, FR-050, FR-051)
-- [x] T082 [P] [US11] Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en `tests/unit/layout-contract.test.js` (FR-048)
+- [x] T081 [P] [US11] Añadir pruebas de acceso dividido, visibilidad y errores en `tests/integration/ui-contracts.test.js` (FR-047, FR-048, FR-049, FR-050, FR-051, FR-052)
+- [x] T082 [P] [US11] Añadir prueba estática de la rejilla 45%/55% y el apilado a 820 px en `tests/unit/layout-contract.test.js` (FR-047)
 
 ### Implementación de la Historia de Usuario 11
 
-- [x] T083 [US11] Normalizar los SVG `.icon-eye` y `.icon-eye-off` y sus atributos ARIA en `index.html`
-- [x] T084 [US11] Ajustar `setPasswordVisibility()` y `bindPasswordToggle()` para conservar el valor y sincronizar `aria-pressed`/`aria-label` en `src/main.js`
-- [x] T085 [US11] Garantizar la visibilidad de `.login-brand-panel` y `.login-form-panel` y su apilado responsive en `index.html` y `src/styles.css`
-- [x] T086 [US11] Asegurar que `#login-error` muestra un mensaje en español sin incluir la contraseña en `src/main.js`
+- [x] T083 [US11] Normalizar los SVG `.icon-eye` y `.icon-eye-off` y sus atributos ARIA en `index.html` (FR-050)
+- [x] T084 [US11] Ajustar `setPasswordVisibility()` y `bindPasswordToggle()` para conservar el valor y sincronizar `aria-pressed`/`aria-label` en `src/main.js` (FR-049, FR-050)
+- [x] T085 [US11] Garantizar la visibilidad de `.login-brand-panel` y `.login-form-panel` y su apilado responsive en `index.html` y `src/styles.css` (FR-047)
+- [x] T086 [US11] Asegurar que `#login-error` muestra un mensaje en español sin incluir la contraseña en `src/main.js` (FR-052)
 
 **Punto de control**: US11 es funcional y verificable de forma aislada.
 
@@ -318,15 +320,15 @@
 
 ### Pruebas para la Historia de Usuario 12
 
-- [x] T087 [P] [US12] Añadir pruebas de colapso, persistencia, sección activa y accesibilidad en `tests/integration/sidebar-collapse.test.js`
-- [x] T088 [P] [US12] Añadir prueba de regresión que prohíbe `.sidebar { display: none; }` en `tests/unit/layout-contract.test.js`
+- [x] T087 [P] [US12] Añadir pruebas de colapso, persistencia, sección activa y accesibilidad en `tests/integration/sidebar-collapse.test.js` (FR-053, FR-054, FR-055, FR-056)
+- [x] T088 [P] [US12] Añadir prueba de regresión que prohíbe `.sidebar { display: none; }` en `tests/unit/layout-contract.test.js` (FR-055)
 
 ### Implementación de la Historia de Usuario 12
 
-- [x] T089 [US12] Sustituir el SVG de `#menu-toggle` por el contrato de iconos y añadir `aria-hidden`, `focusable` y etiqueta dinámica en `index.html` (FR-054, FR-055)
-- [x] T090 [US12] Implementar lectura/escritura de `sessionStorage['erp.sidebarCollapsed']`, sincronización de ARIA y cierre por Escape/clic fuera en `src/app.js`
+- [x] T089 [US12] Sustituir el SVG de `#menu-toggle` por el contrato de iconos y añadir `aria-hidden`, `focusable` y etiqueta dinámica en `index.html` (FR-053, FR-054, FR-055)
+- [x] T090 [US12] Implementar lectura/escritura de `sessionStorage['erp.sidebarCollapsed']`, sincronización de ARIA y cierre por Escape/clic fuera en `src/app.js` (FR-056)
 - [x] T091 [US12] Reemplazar `display: none` por la franja de 64 px y el overlay para ≤ 900 px en `src/styles.css` (FR-054, FR-055)
-- [x] T092 [US12] Eliminar la preferencia del menú al cerrar sesión en `src/main.js`
+- [x] T092 [US12] Eliminar la preferencia del menú al cerrar sesión en `src/main.js` (FR-056)
 
 **Punto de control**: US12 funciona de forma aislada y no altera US11.
 
@@ -341,16 +343,16 @@
 ### Pruebas para la Historia de Usuario 13
 
 - [x] T093 [P] [US13] Añadir pruebas unitarias de `computeConversionRate()` que cubran FR-058: `ganadas / (ganadas + perdidas)`, redondeo entero, `0 %` sin oportunidades cerradas, alias `etapa` y sin mutación en `tests/unit/conversion-rate.test.js` (FR-058)
-- [x] T094 [P] [US13] Añadir pruebas de banner, cuatro KPI y estado vacío en `tests/integration/ui-contracts.test.js` (FR-059)
+- [x] T094 [P] [US13] Añadir pruebas de banner, cuatro KPI y estado vacío en `tests/integration/ui-contracts.test.js` (FR-057, FR-058, FR-059)
 
 ### Implementación de la Historia de Usuario 13
 
 - [x] T095 [US13] Implementar `computeConversionRate(opportunities)` en `src/domain.js` según FR-058, con redondeo entero y `0` cuando no existan oportunidades cerradas (FR-058)
-- [x] T096 [US13] Añadir `#welcome-title` y las tarjetas `#stat-clients`, `#stat-opportunities`, `#stat-revenue` y `#stat-conversion` con sus etiquetas en `index.html`
-- [x] T097 [US13] Ampliar `updateDashboardStats()` para renderizar los cuatro KPI desde `getCRMOverview()` en `src/app.js` (FR-059)
-- [x] T098 [US13] Añadir `renderWelcomeBanner()` leyendo `AUTH_STORAGE_KEY` en `src/app.js`
+- [x] T096 [US13] Añadir `#welcome-title` y las tarjetas `#stat-clients`, `#stat-opportunities`, `#stat-revenue` y `#stat-conversion` con sus etiquetas en `index.html` (FR-057, FR-059)
+- [x] T097 [US13] Ampliar `updateDashboardStats()` para renderizar los cuatro KPI desde `getCRMOverview()` en `src/app.js` (FR-058, FR-059, FR-060)
+- [x] T098 [US13] Añadir `renderWelcomeBanner()` leyendo `AUTH_STORAGE_KEY` en `src/app.js` (FR-057)
 - [x] T099 [US13] Sincronizar el alta/edición de `#entity-form` con `addCustomer()`/`updateCustomer()` para FR-060 en `src/app.js`
-- [x] T100 [US13] Ajustar `.stats-grid` y `.welcome-banner` para 1366 × 768 sin desplazamiento vertical en `src/styles.css` (FR-059)
+- [x] T100 [US13] Ajustar `.stats-grid` y `.welcome-banner` para 1366 × 768 sin desplazamiento vertical en `src/styles.css` (FR-057, FR-059)
 
 **Punto de control**: US13 es verificable de forma aislada y refleja datos vigentes.
 
@@ -364,15 +366,15 @@
 
 ### Pruebas para la Historia de Usuario 14
 
-- [x] T101 [P] [US14] Añadir pruebas de encabezados exactos, agrupación y errores uniformes en `tests/integration/ui-contracts.test.js` (FR-062, FR-063)
-- [x] T102 [P] [US14] Añadir prueba estática de los literales `DATOS DEL CLIENTE` y `CONDICIONES COMERCIALES` en `tests/unit/form-headings.test.js`
+- [x] T101 [P] [US14] Añadir pruebas de encabezados exactos, agrupación y errores uniformes en `tests/integration/ui-contracts.test.js` (FR-061, FR-062, FR-063, FR-064)
+- [x] T102 [P] [US14] Añadir prueba estática de los literales `DATOS DEL CLIENTE` y `CONDICIONES COMERCIALES` en `tests/unit/form-headings.test.js` (FR-061, FR-062, FR-067)
 
 ### Implementación de la Historia de Usuario 14
 
-- [x] T103 [US14] Reestructurar `#entity-form` en dos `.form-section` con encabezados literales en mayúsculas en `index.html`
-- [x] T104 [US14] Migrar contacto al primer bloque y moneda/importe/plazos al segundo en `index.html` (FR-062, FR-063)
-- [x] T105 [US14] Unificar redacción y ubicación de `.validation-error` en `src/app.js`
-- [x] T106 [US14] Igualar jerarquía, alineación y espaciado de `.form-section-title`, `.form-grid` y `.field` en `src/styles.css`
+- [x] T103 [US14] Reestructurar `#entity-form` en dos `.form-section` con encabezados literales en mayúsculas en `index.html` (FR-061, FR-062)
+- [x] T104 [US14] Migrar contacto al primer bloque y moneda/importe/plazos al segundo en `index.html` (FR-061, FR-062, FR-063)
+- [x] T105 [US14] Unificar redacción y ubicación de `.validation-error` en `src/app.js` (FR-064)
+- [x] T106 [US14] Igualar jerarquía, alineación y espaciado de `.form-section-title`, `.form-grid` y `.field` en `src/styles.css` (FR-063)
 
 **Punto de control**: US14 es consistente en alta y edición sin afectar a US13.
 
@@ -386,14 +388,14 @@
 
 ### Pruebas para la Historia de Usuario 15
 
-- [x] T107 [P] [US15] Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en `tests/integration/ui-contracts.test.js` (FR-066)
-- [x] T108 [P] [US15] Añadir prueba estática de declaración UTF-8 en `tests/unit/utf8-contract.test.js` (FR-066)
+- [x] T107 [P] [US15] Añadir pruebas de round-trip y ausencia de U+FFFD/mojibake en `tests/integration/ui-contracts.test.js` (FR-065, FR-066)
+- [x] T108 [P] [US15] Añadir prueba estática de declaración UTF-8 en `tests/unit/utf8-contract.test.js` (FR-065, FR-066)
 
 ### Implementación de la Historia de Usuario 15
 
-- [x] T109 [US15] Auditar y mantener inserción exclusivamente con `textContent` en `src/app.js` y `src/main.js`
-- [x] T110 [US15] Normalizar literales acentuados y símbolos monetarios de encabezados y etiquetas en `index.html`
-- [x] T111 [US15] Regenerar el artefacto con `npm run build` y verificar la declaración UTF-8 en `dist/index.html`
+- [x] T109 [US15] Auditar y mantener inserción exclusivamente con `textContent` en `src/app.js` y `src/main.js` (FR-041, FR-065, FR-066)
+- [x] T110 [US15] Normalizar literales acentuados y símbolos monetarios de encabezados y etiquetas en `index.html` (FR-065, FR-066, FR-067)
+- [x] T111 [US15] Regenerar el artefacto con `npm run build` y verificar la declaración UTF-8 en `dist/index.html` (FR-065, FR-066)
 
 **Punto de control**: las cinco historias de la interfaz son funcionales y verificables de forma independiente.
 
@@ -809,7 +811,7 @@ Tras Fase 23: Dev A toma US23 (bloqueante para US19), Dev B toma US16, Dev C pre
 - No editar `src/components/*` ni `dist/` a mano.
 - Se preservan tareas histÃ³ricas T001â€“T129 para trazabilidad.
 - Total nuevas tareas US16–US24: T130–T188 (59 tareas). Alineación integridad: T189–T194 (6 tareas). Convergencia base: T195–T197 (3 tareas). Total base: 197 tareas.
-- Tras la fusión se añaden las Fases 37–45 con T198–T249 (52 tareas del cierre de brechas históricas). **Total general: 249 tareas (T001–T249)**.
+- Tras la fusión se añaden las Fases 37–45 con T198–T249 (52 tareas del cierre de brechas históricas). US31 añade T250–T261 (12 tareas). **Total general: 261 tareas (T001–T261)**.
 
 ---
 
@@ -1117,3 +1119,123 @@ avigateTo() (o respetar el guard de cambios sin guardar de FR-070) antes de camb
 | SC-033 | T228,T229,T232 | 360° <=3 interacciones, contexto preservado |
 | SC-034 | T234,T235,T237 | próximos cierres + integridad, vacíos claros |
 | SC-035 | T199,T241,T245 | 500 registros, filtro <=10s, render <=2s |
+
+---
+
+# Tareas US31: Recuadro informativo «Contáctanos» en la vista de inicio
+
+**Entrada**: Documentos de diseño actualizados en `/specs/001-crm-module/` (`plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/ui-contracts.md`, `contracts/crm-storage.md`, `contracts/corrections-us16-us24.md`, `quickstart.md`).
+
+**Pruebas**: OBLIGATORIAS por ConstituciónPrincipio II y por el plan de US31. Las pruebas T250–T252 DEBEN escribirse primero y fallar antes de la implementación.
+
+**Organización**: US31 es una única historia independiente, sin dependencias de US25–US30 más allá del DOM real ya existente. Los IDs T250–T261 son continuos con T001–T249.
+
+## Formato: `[ID] [P?] [Historia] Descripción`
+
+- **[P]**: Puede ejecutarse en paralelo (archivos distintos, sin dependencias pendientes).
+- **[US31]**: Historia de usuario de `spec.md`.
+- Toda tarea incluye rutas exactas y es ejecutable sin contexto adicional.
+
+## Ruta activa (obligatoria)
+
+- Implementación: `index.html`, `src/contact-info.js`, `src/main.js`, `src/app.js`, `src/styles.css`.
+- Pruebas: `tests/unit/contact-box-contract.test.js`, `tests/unit/svg-icon-contract.test.js`, `tests/integration/contact-box.test.js`.
+- `src/components/*` y `dist/` quedan fuera de alcance.
+
+---
+
+## Fase 46: User Story 31 - Recuadro «Contáctanos» en la vista de inicio (Criterios CA-31.1–CA-31.3)
+
+**Objetivo**: Mostrar un recuadro estático, accesible y responsivo con correo, teléfono, dirección/ciudad y horario en login (visitantes) y dashboard (autenticados), sin almacenamiento ni reglas de negocio nuevas.
+**Prueba independiente**: Sin sesión, `#login-contact-info` muestra el título «Contáctanos», cuatro datos y cuatro SVG; tras autenticarse, `#dashboard-contact-info` muestra exactamente los mismos datos; en viewport ≤900 px y ≤640 px no hay desplazamiento horizontal; en tema `Oscuro` no hay superficies claras fijas; no aparece ninguna clave nueva en `localStorage`/`sessionStorage`.
+**Criterios**: CA-31.1 (ubicación/coherencia), CA-31.2 (cuatro datos), CA-31.3 (SVG + responsive). Trazabilidad formal: `FR-103`/`SC-036`; ver T259.
+
+### Pruebas para User Story 31 (escribir primero, FALLAR antes de implementar) ⚠️
+
+- [x] T250 [P] [US31] Crear `tests/unit/contact-box-contract.test.js` para verificar en `index.html` los contenedores `#login-contact-info` (dentro de `.login-form-panel`, después de `.login-footer`) y `#dashboard-contact-info` (dentro de `#view-dashboard`, entre `.welcome-banner` y `.quick-actions`); títulos `.contact-info-title` con texto exacto «Contáctanos» e IDs únicos; cuatro `[data-contact-field="email|phone|address|hours"]` por contenedor; un `.contact-icon svg` por dato con `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `aria-hidden="true"`, `focusable="false"`; y en `src/styles.css` reglas `.contact-info` con breakpoints ≤900 px y ≤640 px sin fondos claros fijos en dark (FR-103, SC-036, CA-31.1–CA-31.3, `contracts/ui-contracts.md` sección 10)
+- [x] T251 [P] [US31] Extender `tests/unit/svg-icon-contract.test.js` con el selector `.contact-icon svg` para comprobar los mismos atributos SVG exigidos a los iconos existentes, sin `width`/`height` fijos en el elemento SVG (FR-103, SC-036, CA-31.3)
+- [x] T252 [P] [US31] Crear `tests/integration/contact-box.test.js` usando `tests/integration/live-dom.js` para verificar: login sin sesión muestra `#login-contact-info` con los cuatro valores definidos en `src/contact-info.js`; dashboard autenticado muestra `#dashboard-contact-info` con valores idénticos; `aria-labelledby` resuelve al título correspondiente; no se crean claves nuevas en `localStorage`/`sessionStorage`; y bajo corrupción `crm_module:*` el recuadro del dashboard queda oculto por el bloqueo FR-072 mientras el de login sigue disponible (FR-103, SC-036, CA-31.1–CA-31.3, `contracts/crm-storage.md`)
+
+### Implementación para User Story 31
+
+- [x] T253 [P] [US31] Crear `src/contact-info.js` exportando un `CONTACT_INFO` inmutable con `title: "Contáctanos"`, `email: "contacto@crm.demo"`, `phone: "+56 2 1234 5678"`, `address: "Av. Providencia 1234, Santiago, Chile"`, `hours: "Lunes a viernes, 09:00–18:00"` y una función `fillContactInfo(root)` que asigne cada valor con `textContent` a `[data-contact-field]`; sin importar `src/module-config.js` ni acceder a almacenamiento
+- [x] T254 [P] [US31] Añadir en `index.html` el markup de `#login-contact-info` dentro de `.login-form-panel` tras `.login-footer` y de `#dashboard-contact-info` dentro de `#view-dashboard` entre `.welcome-banner` y `.quick-actions`, con `section.contact-info`, `aria-labelledby`, `.contact-info-title`, los cuatro `[data-contact-field]` y sus SVG `.contact-icon` según `contracts/ui-contracts.md` sección 10
+- [x] T255 [P] [US31] Importar `fillContactInfo` en `src/main.js` y ejecutarlo sobre `#login-contact-info` al renderizar la vista de acceso y tras logout, sin introducir lecturas/escrituras de almacenamiento (depende de T253 y T254; CA-31.1/CA-31.2)
+- [x] T256 [P] [US31] Importar `fillContactInfo` en `src/app.js` y ejecutarlo sobre `#dashboard-contact-info` en el arranque y al mostrar `#view-dashboard`, manteniendo el recuadro dentro de la vista para respetar el bloqueo FR-072 (depende de T253 y T254; CA-31.1/CA-31.2)
+- [x] T257 [P] [US31] Añadir estilos de `.contact-info`, `.contact-info-title`, `.contact-info-list`, `.contact-info-item` y `.contact-icon` en `src/styles.css` usando tokens `--panel`, `--border`, `--text`, `--muted`, `--accent-soft`, `--shadow-card` y `--radius-*`; grid compacto que se apila a ≤900 px y ≤640 px, sin fondos claros fijos en `data-theme="dark"`; hacer pasar T250 y T251
+- [x] T258 [US31] Verificar en `src/contact-info.js`, `src/main.js` y `src/app.js` que US31 no introduce claves de almacenamiento, banderas de descarte ni dependencia de `ModuleConfig`; ejecutar T252 y corregir hasta que pase, confirmando que el bloqueo FR-072 sigue gobernando el dashboard (`contracts/crm-storage.md`)
+
+**Checkpoint**: US31 es funcional e independientemente verificable en login y dashboard; T250–T252 pasan sin regresiones.
+
+---
+
+## Fase 47: Pulido y Cross-Cutting Concerns de US31
+
+**Propósito**: Cerrar trazabilidad formal, evidencia documental y validación completa de la historia.
+
+- [x] T259 [P] Verificar en `spec.md` que `FR-103` y `SC-036` estén vinculados a US31 y a `CA-31.1–CA-31.3` en la sección de requisitos, criterios de éxito y trazabilidad, y actualizar `checklists/requirements.md` para desmarcar los pendientes de US31 (FR-103, SC-036)
+- [x] T260 [P] Actualizar `specs/001-crm-module/contracts/ui-contracts.md` y `specs/001-crm-module/quickstart.md` con los selectores, datos y resultados reales de US31 si difieren de lo previsto en T250–T258, manteniendo las referencias `US31/CA-31.1–CA-31.3` y la tabla de trazabilidad
+- [x] T261 Ejecutar `npm run test:run`, `npm run lint` y `npm run build`, validar manualmente los escenarios de `specs/001-crm-module/quickstart.md` para US31 y corregir fallos en `index.html`, `src/*` o `tests/*`; registrar evidencia de CA-31.1, CA-31.2 y CA-31.3 (depende de T250–T260)
+
+---
+
+## Dependencias y orden de ejecución de US31
+
+### Dependencias de fase
+
+- **Fase 46 (US31)**: no depende de US25–US30; depende solo del DOM real existente en `index.html` y del patrón de arranque en `src/main.js`/`src/app.js`.
+- **Fase 47 (Pulido)**: depende de que T250–T258 estén completos; T259 y T260 pueden ejecutarse en paralelo entre sí y con las pruebas.
+
+### Dependencias internas de la historia
+
+```text
+T250/T251/T252 (pruebas, fallan primero)
+        ↓
+T253 (fuente estática) + T254 (markup)  ← paralelos
+        ↓
+T255 (login) + T256 (dashboard) + T257 (estilos)  ← paralelos
+        ↓
+T258 (verificación sin storage / FR-072)
+        ↓
+T259/T260 (documentación) → T261 (validación final)
+```
+
+### Oportunidades paralelas de US31
+
+- T250, T251 y T252 pueden escribirse en paralelo (tres archivos de prueba distintos).
+- T253, T254 y T257 pueden ejecutarse en paralelo (`src/contact-info.js`, `index.html`, `src/styles.css`).
+- Tras T253 y T254, T255 y T256 pueden ejecutarse en paralelo (`src/main.js`, `src/app.js`).
+- T259 y T260 pueden ejecutarse en paralelo (`spec.md`/`checklists/requirements.md` y `contracts/ui-contracts.md`/`quickstart.md`).
+
+## Estrategia de implementación de US31
+
+### MVP primero (única historia)
+
+1. Escribir T250–T252 y confirmar que fallan.
+2. Completar T253–T258 para entregar US31 completa.
+3. Validar de forma independiente con T261 (o manualmente con `quickstart.md`).
+4. Demo: recuadro visible en login y dashboard con cuatro datos, iconos y responsive.
+
+### Entrega incremental
+
+1. Contrato de prueba y fuente estática.
+2. Markup + estilos.
+3. Cableado login y dashboard.
+4. Cierre de trazabilidad FR/SC y validación final.
+
+## Cobertura de criterios de US31
+
+| Criterio | Tareas principales | Prueba/evidencia |
+|---|---|---|
+| FR-103 / CA-31.1 | T250, T252, T254, T255, T256 | `tests/unit/contact-box-contract.test.js`, `tests/integration/contact-box.test.js` |
+| FR-103 / CA-31.2 | T250, T252, T253, T254, T258 | cuatro `[data-contact-field]` con valores idénticos en login y dashboard |
+| FR-103 / CA-31.3 | T250, T251, T257 | `.contact-icon svg`, reglas ≤900 px/≤640 px y contrato de tema oscuro |
+| SC-036 | T250, T252, T257, T261 | 100 % de login/dashboard verificados sin desplazamiento horizontal en ≤900 px/≤640 px y en ambos temas |
+
+### Notas US31
+
+- `[P]` = archivos distintos, sin dependencia incompleta.
+- `[US31]` mapea la tarea a la historia de usuario de `spec.md`.
+- Las pruebas deben fallar antes de T253–T258.
+- No editar `src/components/*` ni `dist/` a mano.
+- US31 no introduce almacenamiento, configuración ni reglas de negocio; cualquier desviación debe corregirse en T258.

@@ -10,7 +10,7 @@ function iconAttributes(selector) {
 describe('SVG icon contract', () => {
   it('normalizes the password and menu icons', () => {
     mountLiveDom();
-    const selectors = ['.icon-eye', '.icon-eye-off', '#menu-toggle svg'];
+    const selectors = ['.icon-eye', '.icon-eye-off', '#menu-toggle svg', '.contact-icon svg'];
 
     for (const selector of selectors) {
       const icon = iconAttributes(selector);

@@ -19,6 +19,8 @@ Define claves de almacenamiento, reglas de integridad, recuperación y nuevas cl
 - `crm_module:interactions`
 - `crm.theme` — preferencia Claro/Oscuro.
 
+**US31 (recuadro «Contáctanos»)**: no introduce claves de `localStorage` ni `sessionStorage`. El contenido es estático, de solo lectura y se renderiza desde `src/contact-info.js`; no modifica las categorías de corrupción ni el reset de FR-072. La instancia del dashboard respeta el bloqueo de almacenamiento corrupto al vivir dentro de `#view-dashboard`.
+
 ## Reglas US17/FR-076-077
 
 - Las operaciones de oportunidad desde UI deben actualizar la fuente canónica usada por `getCRMOverview()`.
