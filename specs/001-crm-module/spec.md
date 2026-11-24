@@ -622,6 +622,15 @@ Como usuario, quiero archivar/restaurar registros desde la UI y mantener buen re
 3. **Dado** 500 clientes con registros asociados, **cuando** uso búsqueda/filtros/listados en DOM real, **entonces** la interacción cumple presupuesto definido y la UI sigue utilizable.
 
 ---
+### Historia de usuario 31 - Recuadro de información "Contáctanos" en la vista de inicio
+**Como** usuario o visitante del sistema CRM,  
+**Quiero** visualizar un recuadro "Contáctanos" en la pantalla de inicio con los canales de atención y soporte,  
+**Para** comunicarme fácilmente con el equipo comercial o soporte técnico sin salir de la plataforma.
+
+**Criterios de aceptación:**
+- El recuadro "Contáctanos" debe ubicarse en la zona de inicio (pantalla principal / login o dashboard inicial según corresponda) manteniendo coherencia visual (colores, tipografía, bordes y espaciados) con el diseño SaaS actual del CRM.
+- Debe mostrar información de contacto clara y estructurada: correo electrónico de soporte/ventas, teléfono de contacto, dirección física o ciudad, y horario de atención.
+- Debe incluir íconos limpios (SVG) junto a cada dato y ser completamente responsivo en escritorio y móvil.
 
 ### Casos Límite
 
