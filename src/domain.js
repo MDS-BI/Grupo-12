@@ -210,3 +210,217 @@ export function computeDashboardMetrics({ clients = [], opportunities = [] } = {
     invalidOpportunityStageCount
   };
 }
+
+// ---- Calendario CRM (US32-US35) ----
+export const TASK_STATUSES = ['pending', 'in_progress', 'completed'];
+export const ACTIVITY_TYPES = ['meeting', 'event', 'call', 'follow_up', 'commercial_activity'];
+export const ACTIVITY_STATUSES = ['scheduled', 'completed', 'cancelled'];
+export const CALENDAR_VIEWS = ['year', 'month', 'week'];
+export const CRM_RELATION_TYPES = ['customer', 'contact', 'opportunity'];
+export const DUE_SOON_HOURS = 24;
+
+const ACTIVITY_TYPE_LABELS = {
+  meeting: 'Reunión',
+  event: 'Evento',
+  call: 'Llamada',
+  follow_up: 'Seguimiento',
+  commercial_activity: 'Actividad comercial'
+};
+
+const ACTIVITY_STATUS_LABELS = {
+  scheduled: 'Programada',
+  completed: 'Completada',
+  cancelled: 'Cancelada'
+};
+
+function toCalendarDate(value) {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  const text = String(value ?? '').trim();
+  if (!text) return null;
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function isValidDateTime(value) {
+  return toCalendarDate(value) !== null;
+}
+
+function dateOnly(value) {
+  const date = toCalendarDate(value);
+  if (!date) return null;
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+export function classifyTaskDue(task = {}, now = new Date()) {
+  const status = String(task?.status ?? 'pending').trim() || 'pending';
+  if (status === 'completed') return 'completed';
+  const dueDate = toCalendarDate(task?.dueAt);
+  if (!dueDate) return 'noDue';
+  const current = toCalendarDate(now) ?? new Date();
+  const diff = dueDate.getTime() - current.getTime();
+  if (diff < 0) return 'overdue';
+  if (diff <= DUE_SOON_HOURS * 60 * 60 * 1000) return 'dueSoon';
+  return 'pendingFuture';
+}
+
+export function sortTasksByDue(tasks = []) {
+  return (Array.isArray(tasks) ? tasks : [])
+    .filter((task) => task && String(task.status ?? 'pending').trim() !== 'completed')
+    .slice()
+    .sort((a, b) => {
+      const aDate = toCalendarDate(a?.dueAt);
+      const bDate = toCalendarDate(b?.dueAt);
+      if (aDate && bDate) return aDate.getTime() - bDate.getTime();
+      if (aDate) return -1;
+      if (bDate) return 1;
+      return String(a?.createdAt ?? '').localeCompare(String(b?.createdAt ?? ''));
+    });
+}
+
+export function getCalendarViewRange({ view = 'month', referenceDate, now = new Date() } = {}) {
+  const safeView = CALENDAR_VIEWS.includes(view) ? view : 'month';
+  const base = toCalendarDate(referenceDate) ?? toCalendarDate(now) ?? new Date();
+  const year = base.getUTCFullYear();
+  const month = base.getUTCMonth();
+  let start;
+  let end;
+  if (safeView === 'year') {
+    start = new Date(Date.UTC(year, 0, 1));
+    end = new Date(Date.UTC(year + 1, 0, 1) - 1);
+  } else if (safeView === 'month') {
+    start = new Date(Date.UTC(year, month, 1));
+    end = new Date(Date.UTC(year, month + 1, 1) - 1);
+  } else {
+    const day = base.getUTCDay();
+    const offset = day === 0 ? -6 : 1 - day;
+    start = new Date(Date.UTC(year, month, base.getUTCDate() + offset));
+    end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
+  }
+  return { view: safeView, start: start.toISOString(), end: end.toISOString(), startMs: start.getTime(), endMs: end.getTime() };
+}
+
+export function navigateCalendarPeriod({ view = 'month', referenceDate, direction = 1, now = new Date() } = {}) {
+  const safeView = CALENDAR_VIEWS.includes(view) ? view : 'month';
+  const base = toCalendarDate(referenceDate) ?? toCalendarDate(now) ?? new Date();
+  const step = Number(direction) >= 0 ? 1 : -1;
+  if (safeView === 'year') base.setUTCFullYear(base.getUTCFullYear() + step);
+  else if (safeView === 'month') base.setUTCMonth(base.getUTCMonth() + step);
+  else base.setUTCDate(base.getUTCDate() + step * 7);
+  return base.toISOString();
+}
+
+export function activityIntersectsRange(activity = {}, range = {}) {
+  const start = toCalendarDate(activity?.startAt);
+  if (!start) return false;
+  const end = toCalendarDate(activity?.endAt) ?? start;
+  const rangeStart = toCalendarDate(range?.start ?? range?.from);
+  const rangeEnd = toCalendarDate(range?.end ?? range?.to);
+  if (!rangeStart || !rangeEnd) return false;
+  return start.getTime() <= rangeEnd.getTime() && end.getTime() >= rangeStart.getTime();
+}
+
+export function filterCalendarActivities(activities = [], filters = {}) {
+  const list = Array.isArray(activities) ? activities : [];
+  const range = filters.view || filters.referenceDate
+    ? getCalendarViewRange({ view: filters.view, referenceDate: filters.referenceDate, now: filters.now })
+    : { start: filters.start ?? filters.from, end: filters.end ?? filters.to };
+  const userId = String(filters.userId ?? filters.ownerUserId ?? '').trim();
+  const team = filters.team === true;
+  return list.filter((activity) => {
+    if (!activityIntersectsRange(activity, range)) return false;
+    if (team || !userId) return true;
+    const owner = String(activity?.ownerUserId ?? '').trim();
+    if (owner === userId) return true;
+    return (Array.isArray(activity?.participantUserIds) ? activity.participantUserIds : [])
+      .some((id) => String(id).trim() === userId);
+  }).slice().sort((a, b) => String(a?.startAt ?? '').localeCompare(String(b?.startAt ?? '')));
+}
+
+export function normalizeCalendarRelations(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((relation) => relation && typeof relation === 'object')
+    .map((relation) => ({
+      type: CRM_RELATION_TYPES.includes(String(relation.type ?? '').trim()) ? String(relation.type).trim() : '',
+      id: String(relation.id ?? '').trim(),
+      customerId: String(relation.customerId ?? '').trim(),
+      label: String(relation.label ?? '').trim(),
+      available: relation.available !== false
+    }))
+    .filter((relation) => relation.type && relation.id);
+}
+
+export function validateTask(data = {}) {
+  const errors = {};
+  const title = String(data?.title ?? '').trim();
+  const status = String(data?.status ?? 'pending').trim() || 'pending';
+  if (!title) errors.title = 'El título de la tarea es obligatorio.';
+  if (!String(data?.ownerUserId ?? '').trim()) errors.ownerUserId = 'La tarea debe tener un responsable.';
+  if (!TASK_STATUSES.includes(status)) errors.status = `El estado debe ser uno de: ${TASK_STATUSES.join(', ')}.`;
+  if (data?.dueAt && !isValidDateTime(data.dueAt)) errors.dueAt = 'La fecha de vencimiento no es válida.';
+  return { valid: Object.keys(errors).length === 0, errors };
+}
+
+export function validateCalendarActivity(data = {}) {
+  const errors = {};
+  const title = String(data?.title ?? '').trim();
+  const type = String(data?.type ?? '').trim();
+  const status = String(data?.status ?? 'scheduled').trim() || 'scheduled';
+  const start = toCalendarDate(data?.startAt);
+  const end = toCalendarDate(data?.endAt);
+  if (!title) errors.title = 'El título de la actividad es obligatorio.';
+  if (!ACTIVITY_TYPES.includes(type)) errors.type = `El tipo debe ser uno de: ${ACTIVITY_TYPES.join(', ')}.`;
+  if (!start) errors.startAt = 'La fecha de inicio es obligatoria.';
+  if (!end) errors.endAt = 'La fecha de fin es obligatoria.';
+  if (start && end && end.getTime() < start.getTime()) errors.endAt = 'La fecha de fin no puede ser anterior a la de inicio.';
+  if (!ACTIVITY_STATUSES.includes(status)) errors.status = `El estado debe ser uno de: ${ACTIVITY_STATUSES.join(', ')}.`;
+  if (!String(data?.ownerUserId ?? '').trim()) errors.ownerUserId = 'La actividad debe tener un responsable.';
+  return { valid: Object.keys(errors).length === 0, errors };
+}
+
+export function getInteractionTypeForActivity(type) {
+  if (type === 'call') return 'Llamada';
+  if (type === 'meeting') return 'Reunión';
+  return null;
+}
+
+export function formatActivityDetail(activity = {}, context = {}) {
+  const customers = Array.isArray(context.customers) ? context.customers : [];
+  const opportunities = Array.isArray(context.opportunities) ? context.opportunities : [];
+  const employees = Array.isArray(context.employees) ? context.employees : [];
+  const relations = normalizeCalendarRelations(activity?.relatedRecords).map((relation) => {
+    let label = relation.label;
+    let available = relation.available;
+    if (relation.type === 'customer') {
+      const customer = customers.find((item) => item.id === relation.id || item.customerId === relation.id);
+      label = label || customer?.companyName || customer?.name || relation.id;
+      available = Boolean(customer) && !customer.archived;
+    } else if (relation.type === 'opportunity') {
+      const opportunity = opportunities.find((item) => item.id === relation.id);
+      label = label || opportunity?.title || opportunity?.description || relation.id;
+      available = Boolean(opportunity) && !opportunity.archived;
+    } else if (relation.type === 'contact') {
+      const customerId = relation.customerId || String(relation.id).split(':')[1] || '';
+      const customer = customers.find((item) => item.id === customerId);
+      label = label || (customer ? `Contacto: ${customer.contactName || customer.contact || ''} (${customer.companyName || customer.name || ''})` : relation.id);
+      available = Boolean(customer) && !customer.archived;
+    }
+    return { ...relation, label, available };
+  });
+  const owner = employees.find((employee) => employee.id === activity?.ownerUserId);
+  return {
+    id: String(activity?.id ?? ''),
+    type: String(activity?.type ?? ''),
+    typeLabel: ACTIVITY_TYPE_LABELS[activity?.type] || String(activity?.type ?? ''),
+    title: String(activity?.title ?? ''),
+    description: String(activity?.description ?? ''),
+    startAt: String(activity?.startAt ?? ''),
+    endAt: String(activity?.endAt ?? ''),
+    dateLabel: dateOnly(activity?.startAt) || '',
+    status: String(activity?.status ?? ''),
+    statusLabel: ACTIVITY_STATUS_LABELS[activity?.status] || String(activity?.status ?? ''),
+    ownerLabel: owner?.name || String(activity?.ownerUserId ?? ''),
+    relations,
+    hasRelations: relations.length > 0,
+    emptyRelationsMessage: relations.length === 0 ? 'Esta actividad no tiene relaciones comerciales asociadas.' : ''
+  };
+}

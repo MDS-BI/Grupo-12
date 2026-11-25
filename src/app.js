@@ -1,13 +1,17 @@
 ﻿import { labelFor, normalizeConfig, setActiveConfig, getConfig, getVisibleCustomFields, PHONE_PREFIXES } from './module-config.js';
-import { computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency, evaluateOpportunityTransition, normalizeOpportunityLifecycle } from './domain.js';
+import {
+  classifyTaskDue, filterCalendarActivities, formatActivityDetail, getCalendarViewRange,
+  navigateCalendarPeriod, sortTasksByDue, validateCalendarActivity, validateTask,
+  computeConversionRate, MVP_BASE_CURRENCY, formatMoney, normalizeCurrency, evaluateOpportunityTransition, normalizeOpportunityLifecycle
+} from './domain.js';
 import { fillContactInfo } from './contact-info.js';
 import {
-  addCustomer, archiveCustomer, addDocument, addEmployee, addEntity, addInteraction,
-  archiveEmployee, deleteDocument, deleteEntity, deleteInteraction,
+  addCalendarActivity, addCustomer, archiveCustomer, addDocument, addEmployee, addEntity, addInteraction, addTask,
+  archiveEmployee, deleteCalendarActivity, deleteDocument, deleteEntity, deleteInteraction,
   getCRMOverview, getCRMStorageErrors, getCustomer360, getReferentialIntegrityReport, getUpcomingClosures,
-  loadCustomers, loadDocuments, loadEmployees, loadEntities, loadInteractions,
+  loadCalendarActivities, loadCustomers, loadDocuments, loadEmployees, loadEntities, loadInteractions, loadTasks,
   resetCorruptedCRMStorage, restoreCustomer, restoreEmployee,
-  searchCRM, updateCustomer, updateDocument, updateEmployee, updateEntity, updateInteraction,
+  searchCRM, updateCalendarActivity, updateCustomer, updateDocument, updateEmployee, updateEntity, updateInteraction, updateTask,
   validateDocument, validateEmployee, validateEntity, validateInteraction
 } from './storage.js';
 
@@ -57,7 +61,7 @@ function setClients360ViewState(patch) {
   return next;
 }
 
-const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'employees', 'interactions', 'search', 'client-360'];
+const VIEW_KEYS = ['dashboard', 'entities', 'documents', 'employees', 'interactions', 'calendar', 'search', 'client-360'];
 function isValidView(name) {
   return VIEW_KEYS.includes(name);
 }
@@ -72,6 +76,25 @@ function readPersistedView() {
   } catch { return 'dashboard'; }
 }
 const CRM_FORM_SELECTOR = 'form.crm-form';
+const CALENDAR_UI_STATE_KEY = 'erp.calendarViewState';
+const CALENDAR_TASK_LABELS = {
+  overdue: 'Atrasada',
+  dueSoon: 'Próxima a vencer',
+  pendingFuture: 'Pendiente',
+  noDue: 'Sin vencimiento'
+};
+const CALENDAR_ACTIVITY_LABELS = {
+  meeting: 'Reunión',
+  event: 'Evento',
+  call: 'Llamada',
+  follow_up: 'Seguimiento',
+  commercial_activity: 'Actividad comercial'
+};
+const CALENDAR_STATUS_LABELS = {
+  scheduled: 'Programada',
+  completed: 'Completada',
+  cancelled: 'Cancelada'
+};
 
 let pendingNavigation = null;
 const formBaselines = new WeakMap();
@@ -369,6 +392,7 @@ function initializeOperationalState() {
   renderEntityList();
   renderDocumentList();
   renderSearchResults();
+  prepareCalendarState();
   markAllFormsClean();
 }
 
@@ -641,6 +665,7 @@ function showView(name) {
   }
   if (safe === 'employees') renderEmployeeList();
   if (safe === 'interactions') { populateInteractionSelectors(); renderInteractionList(); }
+  if (safe === 'calendar') renderCalendarView();
   if (safe === 'client-360') { renderClient360(getClients360ViewState().openClientId); }
   if (safe === 'search') renderSearchResults();
 
@@ -1834,6 +1859,533 @@ function handleInteractionSubmit(event) {
 }
 
 
+function getCalendarState() {
+  return readUIState(CALENDAR_UI_STATE_KEY, {
+    view: 'month',
+    referenceDate: new Date().toISOString().slice(0, 10),
+    team: false
+  });
+}
+
+function setCalendarState(patch) {
+  const next = { ...getCalendarState(), ...patch };
+  writeUIState(CALENDAR_UI_STATE_KEY, next);
+  return next;
+}
+
+function currentCalendarUser() {
+  return sanitizeText(localStorage.getItem(AUTH_STORAGE_KEY) || sessionStorage.getItem(AUTH_STORAGE_KEY) || 'Cliente1');
+}
+
+function formatCalendarDate(value, withTime = false) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return sanitizeText(value);
+  try {
+    return new Intl.DateTimeFormat('es-CL', withTime ? { dateStyle: 'short', timeStyle: 'short' } : { dateStyle: 'medium' }).format(date);
+  } catch {
+    return date.toLocaleString();
+  }
+}
+
+function calendarDayKey(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+}
+
+function calendarWeekStart(value) {
+  const date = new Date(value);
+  const base = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const day = base.getUTCDay();
+  base.setUTCDate(base.getUTCDate() + (day === 0 ? -6 : 1 - day));
+  return base;
+}
+
+function clearCalendarErrors(scope) {
+  const ids = scope === 'task'
+    ? ['error-task-title', 'error-task-due-at', 'error-task-status', 'error-task-description']
+    : ['error-activity-type', 'error-activity-title', 'error-activity-start-at', 'error-activity-end-at', 'error-activity-status', 'error-activity-client-id', 'error-activity-employee-id', 'error-activity-description'];
+  ids.forEach((id) => setErrorText(id, ''));
+}
+
+function showCalendarErrors(scope, validation) {
+  const map = scope === 'task'
+    ? {
+      title: ['error-task-title', 'task-title'],
+      dueAt: ['error-task-due-at', 'task-due-at'],
+      status: ['error-task-status', 'task-status'],
+      description: ['error-task-description', 'task-description']
+    }
+    : {
+      type: ['error-activity-type', 'activity-type'],
+      title: ['error-activity-title', 'activity-title'],
+      startAt: ['error-activity-start-at', 'activity-start-at'],
+      endAt: ['error-activity-end-at', 'activity-end-at'],
+      status: ['error-activity-status', 'activity-status'],
+      clientId: ['error-activity-client-id', 'activity-client-id'],
+      employeeId: ['error-activity-employee-id', 'activity-employee-id'],
+      ownerUserId: ['error-activity-employee-id', 'activity-employee-id'],
+      description: ['error-activity-description', 'activity-description']
+    };
+  for (const [key, [errorId, fieldId]] of Object.entries(map)) {
+    if (!validation.errors[key]) continue;
+    setErrorText(errorId, validation.errors[key]);
+    qs(fieldId)?.setAttribute('aria-invalid', 'true');
+  }
+  qs('[aria-invalid="true"]')?.focus?.();
+}
+
+function resetTaskForm() {
+  const form = qs('task-form');
+  if (form) form.reset();
+  qs('task-id').value = '';
+  qs('task-status').value = 'pending';
+  clearCalendarErrors('task');
+  markFormClean(form);
+}
+
+function fillTaskForm(task) {
+  if (!task) return;
+  qs('task-id').value = task.id || '';
+  qs('task-title').value = task.title || '';
+  qs('task-due-at').value = String(task.dueAt || '').slice(0, 16);
+  qs('task-status').value = task.status || 'pending';
+  qs('task-description').value = task.description || '';
+  clearCalendarErrors('task');
+  markFormClean(qs('task-form'));
+  qs('task-title')?.focus?.();
+}
+
+function handleTaskSubmit(event) {
+  event.preventDefault();
+  clearCalendarErrors('task');
+  const id = sanitizeText(qs('task-id')?.value);
+  const user = currentCalendarUser();
+  const payload = {
+    title: sanitizeText(qs('task-title')?.value),
+    dueAt: sanitizeText(qs('task-due-at')?.value),
+    status: sanitizeText(qs('task-status')?.value) || 'pending',
+    description: sanitizeText(qs('task-description')?.value)
+  };
+  const validation = validateTask({ ...payload, ownerUserId: user });
+  if (!validation.valid) {
+    showCalendarErrors('task', validation);
+    return;
+  }
+  if (id) updateTask(id, payload, { ownerUserId: user });
+  else addTask(payload, { ownerUserId: user });
+  resetTaskForm();
+  renderTaskSidebar();
+}
+
+function openTaskDetail(task) {
+  if (!task) return;
+  qs('task-detail-title').textContent = task.title || '';
+  qs('task-detail-body').textContent = [
+    task.description || 'Sin descripción',
+    task.dueAt ? `Vence: ${formatCalendarDate(task.dueAt, true)}` : 'Sin vencimiento',
+    `Estado: ${CALENDAR_TASK_LABELS[classifyTaskDue(task)] || task.status || ''}`
+  ].join(' · ');
+  qs('task-detail').hidden = false;
+}
+
+function renderTaskSidebar() {
+  const list = qs('task-list');
+  if (!list) return;
+  const user = currentCalendarUser();
+  const tasks = sortTasksByDue(loadTasks({ ownerUserId: user }));
+  const empty = qs('task-list-empty');
+  if (empty) empty.hidden = tasks.length > 0;
+  qs('task-detail').hidden = true;
+  list.replaceChildren();
+  for (const task of tasks) {
+    const state = classifyTaskDue(task);
+    const item = document.createElement('li');
+    item.dataset.taskId = task.id;
+    item.className = `task-item task-${state}`;
+    item.innerHTML = `
+      <div class="task-item-main">
+        <strong class="task-title">${escapeHTML(task.title)}</strong>
+        <span class="task-state badge-${escapeHTML(state)}">${escapeHTML(CALENDAR_TASK_LABELS[state] || state)}</span>
+        ${task.dueAt ? `<time datetime="${escapeHTML(task.dueAt)}">${escapeHTML(formatCalendarDate(task.dueAt, true))}</time>` : ''}
+      </div>
+      <div class="task-item-actions">
+        <button type="button" class="link-action" data-action="task-detail" data-task-id="${escapeHTML(task.id)}">Detalle</button>
+        <button type="button" class="link-action" data-action="task-edit" data-task-id="${escapeHTML(task.id)}">Editar</button>
+      </div>`;
+    item.querySelector('[data-action="task-detail"]')?.addEventListener('click', () => openTaskDetail(task));
+    item.querySelector('[data-action="task-edit"]')?.addEventListener('click', () => fillTaskForm(task));
+    list.appendChild(item);
+  }
+}
+
+function populateCalendarSelectors() {
+  const clientSelect = qs('activity-client-id');
+  if (clientSelect) {
+    const selected = clientSelect.value;
+    clientSelect.replaceChildren(new Option('Seleccionar cliente...', ''));
+    loadCustomers().filter((customer) => !customer.archived).forEach((customer) => {
+      clientSelect.appendChild(new Option(customer.companyName || customer.name || customer.id, customer.id));
+    });
+    clientSelect.value = selected;
+  }
+  const contactSelect = qs('activity-contact-id');
+  if (contactSelect) {
+    const selected = contactSelect.value;
+    contactSelect.replaceChildren(new Option('Sin contacto', ''));
+    loadCustomers().forEach((customer) => {
+      const label = customer.contactName || customer.contact;
+      if (label) contactSelect.appendChild(new Option(`Contacto: ${label} (${customer.companyName || customer.name || customer.id})`, customer.id));
+    });
+    contactSelect.value = selected;
+  }
+  const opportunitySelect = qs('activity-opportunity-id');
+  if (opportunitySelect) {
+    const selected = opportunitySelect.value;
+    opportunitySelect.replaceChildren(new Option('Sin oportunidad', ''));
+    loadDocuments().forEach((document) => {
+      const folio = [document.series, document.folio].filter(Boolean).join('-') || document.id;
+      opportunitySelect.appendChild(new Option(folio, document.id));
+    });
+    opportunitySelect.value = selected;
+  }
+  const employeeSelect = qs('activity-employee-id');
+  if (employeeSelect) {
+    const selected = employeeSelect.value;
+    employeeSelect.replaceChildren(new Option('Seleccionar responsable...', ''));
+    loadEmployees({ includeArchived: false }).forEach((employee) => {
+      employeeSelect.appendChild(new Option(employee.name || employee.id, employee.id));
+    });
+    employeeSelect.value = selected;
+  }
+}
+
+function buildActivityRelations() {
+  const relations = [];
+  const clientId = sanitizeText(qs('activity-client-id')?.value);
+  const contactId = sanitizeText(qs('activity-contact-id')?.value);
+  const opportunityId = sanitizeText(qs('activity-opportunity-id')?.value);
+  if (clientId) {
+    const customer = loadCustomers().find((item) => item.id === clientId);
+    relations.push({ type: 'customer', id: clientId, customerId: clientId, label: customer?.companyName || customer?.name || clientId });
+  }
+  if (contactId) {
+    const customer = loadCustomers().find((item) => item.id === contactId);
+    relations.push({ type: 'contact', id: `contact:${contactId}`, customerId: contactId, label: `Contacto: ${customer?.contactName || customer?.contact || contactId}` });
+  }
+  if (opportunityId) {
+    const opportunity = loadDocuments().find((item) => item.id === opportunityId);
+    const folio = [opportunity?.series, opportunity?.folio].filter(Boolean).join('-') || opportunityId;
+    relations.push({ type: 'opportunity', id: opportunityId, label: folio });
+  }
+  return relations;
+}
+
+function resetActivityForm() {
+  const form = qs('activity-form');
+  if (form) form.reset();
+  qs('activity-id').value = '';
+  qs('activity-status').value = 'scheduled';
+  clearCalendarErrors('activity');
+  populateCalendarSelectors();
+  markFormClean(form);
+}
+
+function fillActivityForm(activity) {
+  if (!activity) return;
+  populateCalendarSelectors();
+  qs('activity-id').value = activity.id || '';
+  qs('activity-type').value = activity.type || 'meeting';
+  qs('activity-title').value = activity.title || '';
+  qs('activity-start-at').value = String(activity.startAt || '').slice(0, 16);
+  qs('activity-end-at').value = String(activity.endAt || '').slice(0, 16);
+  qs('activity-status').value = activity.status || 'scheduled';
+  qs('activity-description').value = activity.description || '';
+  const relations = Array.isArray(activity.relatedRecords) ? activity.relatedRecords : [];
+  qs('activity-client-id').value = relations.find((relation) => relation?.type === 'customer')?.id || activity.clientId || '';
+  qs('activity-contact-id').value = relations.find((relation) => relation?.type === 'contact')?.customerId || '';
+  qs('activity-opportunity-id').value = relations.find((relation) => relation?.type === 'opportunity')?.id || '';
+  qs('activity-employee-id').value = activity.employeeId || activity.ownerUserId || '';
+  clearCalendarErrors('activity');
+  qs('activity-form').hidden = false;
+  markFormClean(qs('activity-form'));
+  qs('activity-title')?.focus?.();
+}
+
+function handleActivitySubmit(event) {
+  event.preventDefault();
+  clearCalendarErrors('activity');
+  const id = sanitizeText(qs('activity-id')?.value);
+  const employeeId = sanitizeText(qs('activity-employee-id')?.value);
+  const payload = {
+    type: sanitizeText(qs('activity-type')?.value),
+    title: sanitizeText(qs('activity-title')?.value),
+    startAt: sanitizeText(qs('activity-start-at')?.value),
+    endAt: sanitizeText(qs('activity-end-at')?.value),
+    status: sanitizeText(qs('activity-status')?.value) || 'scheduled',
+    description: sanitizeText(qs('activity-description')?.value),
+    ownerUserId: employeeId || currentCalendarUser(),
+    employeeId,
+    clientId: sanitizeText(qs('activity-client-id')?.value),
+    relatedRecords: buildActivityRelations()
+  };
+  const validation = validateCalendarActivity(payload);
+  if (!validation.valid) {
+    showCalendarErrors('activity', validation);
+    return;
+  }
+  if (id) updateCalendarActivity(id, payload);
+  else addCalendarActivity(payload);
+  resetActivityForm();
+  qs('activity-form').hidden = true;
+  qs('activity-detail').hidden = true;
+  renderActivityList();
+  renderCalendarGrid();
+}
+
+function openActivityDetail(activity) {
+  if (!activity) return;
+  const detail = formatActivityDetail(activity, {
+    customers: loadCustomers(),
+    opportunities: loadDocuments(),
+    employees: loadEmployees({ includeArchived: true })
+  });
+  qs('activity-detail-title').textContent = `${detail.typeLabel}: ${detail.title}`;
+  const relationsHTML = detail.relations.length
+    ? `<ul class="calendar-detail-relations">${detail.relations.map((relation) => `<li>${escapeHTML(relation.label || relation.id)}${relation.available ? '' : ' (no disponible)'}</li>`).join('')}</ul>`
+    : `<p>${escapeHTML(detail.emptyRelationsMessage)}</p>`;
+  qs('activity-detail-body').innerHTML = `
+    <p>${escapeHTML(detail.description || 'Sin descripción')}</p>
+    <p>${escapeHTML(detail.dateLabel)} · ${escapeHTML(detail.statusLabel)} · ${escapeHTML(detail.ownerLabel)}</p>
+    ${relationsHTML}`;
+  qs('activity-detail').hidden = false;
+}
+
+function renderActivityList() {
+  const list = qs('activity-list');
+  if (!list) return;
+  list.replaceChildren();
+  const activities = loadCalendarActivities();
+  const empty = qs('activity-list-empty');
+  if (empty) empty.hidden = activities.length > 0;
+  const employees = new Map(loadEmployees({ includeArchived: true }).map((employee) => [employee.id, employee]));
+  for (const activity of activities) {
+    const owner = employees.get(activity.ownerUserId || activity.employeeId);
+    const tr = document.createElement('tr');
+    tr.dataset.activityId = activity.id;
+    tr.innerHTML = `
+      <td>${escapeHTML(formatCalendarDate(activity.startAt, true))}</td>
+      <td>${escapeHTML(CALENDAR_ACTIVITY_LABELS[activity.type] || activity.type || '-')}</td>
+      <td>${escapeHTML(activity.title || '')}</td>
+      <td>${escapeHTML(owner?.name || activity.ownerUserId || '-')}</td>
+      <td>${escapeHTML(CALENDAR_STATUS_LABELS[activity.status] || activity.status || '-')}</td>
+      <td class="row-actions">
+        <button type="button" class="link-action" data-action="activity-detail" data-activity-id="${escapeHTML(activity.id)}">Detalle</button>
+        <button type="button" class="link-action" data-action="activity-edit" data-activity-id="${escapeHTML(activity.id)}">Editar</button>
+        <button type="button" class="link-action danger" data-action="activity-delete" data-activity-id="${escapeHTML(activity.id)}">Eliminar</button>
+      </td>`;
+    tr.querySelector('[data-action="activity-detail"]')?.addEventListener('click', () => openActivityDetail(activity));
+    tr.querySelector('[data-action="activity-edit"]')?.addEventListener('click', () => fillActivityForm(activity));
+    tr.querySelector('[data-action="activity-delete"]')?.addEventListener('click', (event) => {
+      openDeleteConfirmDialog({
+        title: 'Eliminar actividad',
+        message: `¿Deseas eliminar "${activity.title || 'esta actividad'}"? Esta acción no se puede deshacer.`,
+        confirmLabel: 'Eliminar',
+        opener: event.currentTarget,
+        onConfirm: () => {
+          deleteCalendarActivity(activity.id);
+          if (qs('activity-id')?.value === activity.id) resetActivityForm();
+          qs('activity-detail').hidden = true;
+          renderActivityList();
+          renderCalendarGrid();
+        }
+      });
+    });
+    list.appendChild(tr);
+  }
+}
+
+function createCalendarChip(activity) {
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'calendar-activity-chip';
+  chip.dataset.activityId = activity.id;
+  chip.textContent = `${String(activity.startAt || '').slice(11, 16)} ${activity.title || ''}`.trim();
+  chip.addEventListener('click', () => openActivityDetail(activity));
+  return chip;
+}
+
+function renderCalendarGrid() {
+  const grid = qs('calendar-grid');
+  if (!grid) return;
+  const state = getCalendarState();
+  const view = ['year', 'month', 'week'].includes(state.view) ? state.view : 'month';
+  const referenceDate = state.referenceDate || new Date().toISOString().slice(0, 10);
+  const range = getCalendarViewRange({ view, referenceDate });
+  document.querySelectorAll('[data-calendar-view]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.calendarView === view));
+  });
+  if (qs('calendar-team-filter')) qs('calendar-team-filter').checked = state.team === true;
+  if (view === 'year') qs('calendar-period-label').textContent = String(new Date(referenceDate).getUTCFullYear());
+  else if (view === 'month') qs('calendar-period-label').textContent = formatCalendarDate(range.start).replace(/^\w+/, (match) => match);
+  else qs('calendar-period-label').textContent = `${formatCalendarDate(range.start)} – ${formatCalendarDate(range.end)}`;
+
+  const activities = filterCalendarActivities(loadCalendarActivities(), {
+    start: range.start,
+    end: range.end,
+    userId: currentCalendarUser(),
+    team: state.team === true
+  });
+  const empty = qs('calendar-empty');
+  if (empty) empty.hidden = activities.length > 0;
+  const byDay = new Map();
+  for (const activity of activities) {
+    const key = calendarDayKey(activity.startAt);
+    if (!key) continue;
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(activity);
+  }
+  grid.replaceChildren();
+  grid.dataset.view = view;
+  if (view === 'year') {
+    const year = new Date(referenceDate).getUTCFullYear();
+    for (let month = 0; month < 12; month += 1) {
+      const cell = document.createElement('div');
+      cell.className = 'calendar-month-cell';
+      cell.setAttribute('role', 'gridcell');
+      const monthStart = new Date(Date.UTC(year, month, 1));
+      cell.innerHTML = `<h4>${escapeHTML(new Intl.DateTimeFormat('es-CL', { month: 'long' }).format(monthStart))}</h4>`;
+      const keyPrefix = `${year}-${String(month + 1).padStart(2, '0')}-`;
+      const monthActivities = activities.filter((activity) => calendarDayKey(activity.startAt).startsWith(keyPrefix));
+      const counter = document.createElement('span');
+      counter.className = 'calendar-cell-count';
+      counter.textContent = String(monthActivities.length);
+      cell.appendChild(counter);
+      monthActivities.slice(0, 4).forEach((activity) => cell.appendChild(createCalendarChip(activity)));
+      grid.appendChild(cell);
+    }
+    return;
+  }
+  const start = view === 'week' ? calendarWeekStart(referenceDate) : calendarWeekStart(new Date(Date.UTC(new Date(referenceDate).getUTCFullYear(), new Date(referenceDate).getUTCMonth(), 1)));
+  const totalDays = view === 'week' ? 7 : 42;
+  for (let index = 0; index < totalDays; index += 1) {
+    const day = new Date(start);
+    day.setUTCDate(day.getUTCDate() + index);
+    const key = calendarDayKey(day.toISOString());
+    const cell = document.createElement('div');
+    cell.className = 'calendar-day-cell';
+    cell.setAttribute('role', 'gridcell');
+    cell.dataset.date = key;
+    const weekday = day.getUTCDay();
+    if (weekday === 0 || weekday === 6) cell.classList.add('calendar-weekend');
+    const header = document.createElement('span');
+    header.className = 'calendar-day-number';
+    header.textContent = String(day.getUTCDate());
+    cell.appendChild(header);
+    (byDay.get(key) || []).forEach((activity) => cell.appendChild(createCalendarChip(activity)));
+    grid.appendChild(cell);
+  }
+}
+
+function renderCalendarView() {
+  populateCalendarSelectors();
+  renderTaskSidebar();
+  renderActivityList();
+  renderCalendarGrid();
+}
+
+function prepareCalendarState() {
+  populateCalendarSelectors();
+  markFormClean(qs('task-form'));
+  markFormClean(qs('activity-form'));
+}
+
+function bindCalendarHandlers() {
+  const taskForm = qs('task-form');
+  if (taskForm && !taskForm.dataset.bound) {
+    taskForm.addEventListener('submit', handleTaskSubmit);
+    taskForm.dataset.bound = 'true';
+  }
+  const taskReset = qs('task-reset');
+  if (taskReset && !taskReset.dataset.bound) {
+    taskReset.addEventListener('click', resetTaskForm);
+    taskReset.dataset.bound = 'true';
+  }
+  const taskDetailClose = qs('task-detail-close');
+  if (taskDetailClose && !taskDetailClose.dataset.bound) {
+    taskDetailClose.addEventListener('click', () => { qs('task-detail').hidden = true; });
+    taskDetailClose.dataset.bound = 'true';
+  }
+
+  document.querySelectorAll('[data-calendar-view]').forEach((button) => {
+    if (button.dataset.bound) return;
+    button.addEventListener('click', () => {
+      setCalendarState({ view: button.dataset.calendarView });
+      renderCalendarGrid();
+    });
+    button.dataset.bound = 'true';
+  });
+  const calendarPrev = qs('calendar-prev');
+  if (calendarPrev && !calendarPrev.dataset.bound) {
+    calendarPrev.addEventListener('click', () => {
+      const state = getCalendarState();
+      setCalendarState({ referenceDate: navigateCalendarPeriod({ view: state.view, referenceDate: state.referenceDate, direction: -1 }) });
+      renderCalendarGrid();
+    });
+    calendarPrev.dataset.bound = 'true';
+  }
+  const calendarNext = qs('calendar-next');
+  if (calendarNext && !calendarNext.dataset.bound) {
+    calendarNext.addEventListener('click', () => {
+      const state = getCalendarState();
+      setCalendarState({ referenceDate: navigateCalendarPeriod({ view: state.view, referenceDate: state.referenceDate, direction: 1 }) });
+      renderCalendarGrid();
+    });
+    calendarNext.dataset.bound = 'true';
+  }
+  const calendarToday = qs('calendar-today');
+  if (calendarToday && !calendarToday.dataset.bound) {
+    calendarToday.addEventListener('click', () => {
+      setCalendarState({ referenceDate: new Date().toISOString().slice(0, 10) });
+      renderCalendarGrid();
+    });
+    calendarToday.dataset.bound = 'true';
+  }
+  const teamFilter = qs('calendar-team-filter');
+  if (teamFilter && !teamFilter.dataset.bound) {
+    teamFilter.addEventListener('change', () => {
+      setCalendarState({ team: teamFilter.checked });
+      renderCalendarGrid();
+    });
+    teamFilter.dataset.bound = 'true';
+  }
+
+  const activityForm = qs('activity-form');
+  if (activityForm && !activityForm.dataset.bound) {
+    activityForm.addEventListener('submit', handleActivitySubmit);
+    activityForm.dataset.bound = 'true';
+  }
+  const activityNew = qs('activity-new');
+  if (activityNew && !activityNew.dataset.bound) {
+    activityNew.addEventListener('click', () => {
+      resetActivityForm();
+      qs('activity-form').hidden = false;
+      qs('activity-title')?.focus?.();
+    });
+    activityNew.dataset.bound = 'true';
+  }
+  const activityReset = qs('activity-reset');
+  if (activityReset && !activityReset.dataset.bound) {
+    activityReset.addEventListener('click', resetActivityForm);
+    activityReset.dataset.bound = 'true';
+  }
+  const activityDetailClose = qs('activity-detail-close');
+  if (activityDetailClose && !activityDetailClose.dataset.bound) {
+    activityDetailClose.addEventListener('click', () => { qs('activity-detail').hidden = true; });
+    activityDetailClose.dataset.bound = 'true';
+  }
+}
+
 function getSelectedEntityId() {
   return sanitizeText(qs('entity_id')?.value || qs('edit-entity')?.value || qs('entity-id')?.value || '')
     || sanitizeText(qs('#entity-list tr[data-selected="true"]')?.dataset?.entityId || '');
@@ -2008,6 +2560,8 @@ function bindOperationalHandlers() {
     interactionFilter.addEventListener('input', renderInteractionList);
     interactionFilter.dataset.bound = 'true';
   }
+
+  bindCalendarHandlers();
 
   const entityShowArchived = qs('entity-show-archived');
   if (entityShowArchived && !entityShowArchived.dataset.bound) {

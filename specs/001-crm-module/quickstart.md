@@ -222,3 +222,88 @@ Nuevas pruebas esperadas (plan): `tests/unit/lifecycle-transitions.test.js`, `te
 | US28 (antes 002-US4) | FR-008..009, SC-003 | FR-096–FR-097, SC-033 | `tests/integration/client-360.test.js` |
 | US29 (antes 002-US5) | FR-010..011, SC-004 | FR-098–FR-099, SC-034 | `tests/integration/dashboard-upcoming-integrity.test.js` |
 | US30 (antes 002-US6) | FR-012, FR-014, SC-001/SC-005 | FR-100, FR-102, SC-031/SC-035 | `tests/integration/archive-restore-ui.test.js`, `tests/integration/performance-dom.test.js` |
+
+---
+
+## Guía rápida del Calendario CRM (integrada de `004-crm-calendar/quickstart.md`)
+
+> **Nota de fusión (2026-11-25)**: se incorpora íntegramente la guía rápida de 004 sin modificar ni eliminar el texto previo de este documento; la carpeta original se conserva. Los criterios de éxito se leen con la numeración fusionada SC-037–SC-042 (antes SC-001–SC-006 de 004).
+
+### Propósito
+
+Validar la funcionalidad planificada del calendario CRM: calendario lateral de tareas personales y calendario general con vistas anual/mensual/semanal y gestión de actividades comerciales.
+
+### Prerrequisitos
+
+- Node/npm instalado
+- Dependencias del repositorio instaladas: `npm install`
+- Rama original del contenido: `004-crm-calendar`
+
+### Áreas de implementación planificadas
+
+- `index.html`: calendario lateral, vistas/controles del calendario general y diálogos
+- `src/domain.js`: enums de tareas/actividades, reglas de vencimiento y validación de fechas
+- `src/storage.js`: `crm_module:tasks`, `crm_module:calendarActivities` y sincronización con interacciones
+- `src/app.js`: render, filtros, handlers CRUD y navegación de vistas
+- `src/styles.css`: layout del calendario, estados atrasada/próxima a vencer y responsive
+- `tests/unit/calendar-domain.test.js`
+- `tests/unit/calendar-storage.test.js`
+- `tests/integration/calendar-sidebar.test.js`
+- `tests/integration/calendar-general.test.js`
+- `tests/integration/calendar-interactions-sync.test.js`
+
+### Escenarios de validación manual
+
+1. **Tareas laterales (personales)**
+   - Crear tareas con vencimiento pasado, dentro de las próximas 24 h, futuro y sin fecha.
+   - Verificar que solo aparecen las tareas del usuario actual.
+   - Verificar indicadores visuales de atrasada y próxima a vencer.
+   - Editar tarea y cambiar estado; confirmar actualización inmediata.
+
+2. **Vistas del calendario general**
+   - Crear actividades en distintos días/semanas/meses.
+   - Cambiar entre vistas anual, mensual y semanal; confirmar conservación del período de referencia.
+   - Navegar a períodos anterior/siguiente; confirmar estado vacío cuando corresponda.
+
+3. **CRUD de actividades**
+   - Crear reunión, evento, llamada, seguimiento y actividad comercial.
+   - Editar y confirmar que todas las vistas afectadas se actualizan en la misma sesión.
+   - Eliminar con confirmación; confirmar desaparición de todas las vistas.
+
+4. **Relaciones CRM y sincronización**
+   - Vincular actividad a cliente/contacto/oportunidad existente.
+   - Crear llamada/reunión: verificar la interacción planificada en el historial de Interacciones CRM.
+   - Completar resultado/notas en el flujo de Interacciones; el calendario conserva la actividad planificada.
+   - Evento/seguimiento/actividad comercial: no debe crear registro de interacción.
+
+5. **Casos límite**
+   - Fin anterior al inicio: error de validación, sin guardado.
+   - Campos obligatorios ausentes: errores inline y datos conservados.
+   - Registro relacionado archivado/ausente: actividad visible y relación marcada como no disponible.
+   - Navegación por teclado y pantalla estrecha: sin desplazamiento horizontal en acciones principales.
+
+### Comprobaciones automatizadas
+
+```powershell
+npm run lint
+npm run test:run
+```
+
+### Trazabilidad del calendario (US32–US35)
+
+| US | SC fusionado | Pruebas / verificación |
+|---|---|---|
+| US32 (antes 004-US1) | SC-037 | `tests/unit/calendar-domain.test.js`, `tests/integration/calendar-sidebar.test.js` |
+| US33 (antes 004-US2) | SC-037, SC-039 | `tests/unit/calendar-domain.test.js`, `tests/integration/calendar-general.test.js` |
+| US34 (antes 004-US3) | SC-038, SC-039, SC-040 | `tests/unit/calendar-storage.test.js`, `tests/integration/calendar-interactions-sync.test.js` |
+| US35 (antes 004-US4) | SC-040, SC-041 | `tests/integration/calendar-general.test.js`, `tests/unit/calendar-domain.test.js` |
+
+SC-042 (sin desplazamiento horizontal) se verifica en las pruebas de layout/responsive en escritorio y pantalla estrecha.
+
+### Resultado de la implementación (2026-11-25)
+
+- Calendario CRM integrado en la ERP final y navegable desde `#nav-calendar`.
+- Pruebas específicas del calendario: 19/19 en verde con `npx vitest run tests/unit/calendar-domain.test.js tests/unit/calendar-storage.test.js tests/integration/calendar-sidebar.test.js tests/integration/calendar-general.test.js tests/integration/calendar-interactions-sync.test.js`.
+- `npm run lint`: sin errores tras instalar dependencias locales.
+- `npm run build`: compilación de producción correcta.
+- `npm run test:run`: 132/133 en verde; queda una falla preexistente no relacionada (`storage-recovery.test.js` por la simulación de `setItem` con spy). `performance-dom.test.js` quedó en verde al diferir el render del calendario hasta que la vista está activa.

@@ -488,7 +488,9 @@ const CRM_KEYS = Object.freeze({
   customers: 'crm_module:customers',
   employees: 'crm_module:employees',
   opportunities: 'crm_module:opportunities',
-  interactions: 'crm_module:interactions'
+  interactions: 'crm_module:interactions',
+  tasks: 'crm_module:tasks',
+  calendarActivities: 'crm_module:calendarActivities'
 });
 
 const CRM_CUSTOMER_STATUSES = ['Posible', 'Activo', 'Inactivo'];
@@ -1253,7 +1255,9 @@ const CRM_REQUIRED_FIELDS = Object.freeze({
   customers: ['companyName', 'contactName', 'email', 'phone'],
   employees: ['name', 'role'],
   opportunities: ['clientId', 'employeeId', 'amount', 'closeDate', 'stage'],
-  interactions: ['clientId', 'employeeId', 'date', 'type']
+  interactions: ['clientId', 'employeeId', 'date', 'type'],
+  tasks: ['ownerUserId', 'title', 'status'],
+  calendarActivities: ['type', 'title', 'startAt', 'endAt', 'status', 'ownerUserId']
 });
 
 function hasValidCRMShape(name, value) {
@@ -1338,3 +1342,240 @@ export function clearCRMData() {
 export const customerStatuses = CRM_DEFAULTS.customerStatuses;
 export const opportunityStages = CRM_DEFAULTS.opportunityStages;
 export const interactionTypes = CRM_DEFAULTS.interactionTypes;
+
+// ---- Calendario CRM (US32-US35) ----
+const CALENDAR_TASK_STATUSES = ['pending', 'in_progress', 'completed'];
+const CALENDAR_ACTIVITY_TYPES = ['meeting', 'event', 'call', 'follow_up', 'commercial_activity'];
+const CALENDAR_ACTIVITY_STATUSES = ['scheduled', 'completed', 'cancelled'];
+const CALENDAR_RELATION_TYPES = ['customer', 'contact', 'opportunity'];
+const CALENDAR_INTERACTION_TYPES = { call: 'Llamada', meeting: 'Reunión' };
+
+function normalizeCalendarText(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function isCalendarDateTime(value) {
+  if (value instanceof Date) return !Number.isNaN(value.getTime());
+  const text = normalizeCalendarText(value);
+  if (!text) return false;
+  return !Number.isNaN(new Date(text).getTime());
+}
+
+function normalizeCalendarRelations(value) {
+  if (!Array.isArray(value)) return [];
+  return value.filter((relation) => relation && typeof relation === 'object')
+    .map((relation) => ({
+      type: CALENDAR_RELATION_TYPES.includes(normalizeCalendarText(relation.type)) ? normalizeCalendarText(relation.type) : '',
+      id: normalizeCalendarText(relation.id),
+      customerId: normalizeCalendarText(relation.customerId),
+      label: normalizeCalendarText(relation.label),
+      available: relation.available !== false
+    }))
+    .filter((relation) => relation.type && relation.id);
+}
+
+function validateCalendarTask(data = {}) {
+  const errors = {};
+  const title = normalizeCalendarText(data.title);
+  const status = normalizeCalendarText(data.status) || 'pending';
+  if (!title) errors.title = 'El título de la tarea es obligatorio.';
+  if (!normalizeCalendarText(data.ownerUserId)) errors.ownerUserId = 'La tarea debe tener un responsable.';
+  if (!CALENDAR_TASK_STATUSES.includes(status)) errors.status = 'El estado de la tarea no es válido.';
+  if (data.dueAt && !isCalendarDateTime(data.dueAt)) errors.dueAt = 'La fecha de vencimiento no es válida.';
+  return { valid: Object.keys(errors).length === 0, errors };
+}
+
+function validateCalendarActivity(data = {}) {
+  const errors = {};
+  const title = normalizeCalendarText(data.title);
+  const type = normalizeCalendarText(data.type);
+  const status = normalizeCalendarText(data.status) || 'scheduled';
+  const startMs = isCalendarDateTime(data.startAt) ? new Date(data.startAt).getTime() : null;
+  const endMs = isCalendarDateTime(data.endAt) ? new Date(data.endAt).getTime() : null;
+  if (!title) errors.title = 'El título de la actividad es obligatorio.';
+  if (!CALENDAR_ACTIVITY_TYPES.includes(type)) errors.type = 'El tipo de actividad no es válido.';
+  if (startMs === null) errors.startAt = 'La fecha de inicio es obligatoria.';
+  if (endMs === null) errors.endAt = 'La fecha de fin es obligatoria.';
+  if (startMs !== null && endMs !== null && endMs < startMs) errors.endAt = 'La fecha de fin no puede ser anterior a la de inicio.';
+  if (!CALENDAR_ACTIVITY_STATUSES.includes(status)) errors.status = 'El estado de la actividad no es válido.';
+  if (!normalizeCalendarText(data.ownerUserId)) errors.ownerUserId = 'La actividad debe tener un responsable.';
+  return { valid: Object.keys(errors).length === 0, errors };
+}
+
+function readCalendarActivities() {
+  return readCRMStorage(CRM_KEYS.calendarActivities, []).filter((record) => record && typeof record === 'object');
+}
+
+function syncCalendarInteraction(activity = {}, previous = null) {
+  const interactionType = CALENDAR_INTERACTION_TYPES[activity.type];
+  const previousId = normalizeCalendarText(previous?.linkedInteractionId);
+  if (!interactionType) {
+    if (previousId) deleteInteraction(previousId);
+    return '';
+  }
+  const date = normalizeCalendarText(activity.startAt).slice(0, 10);
+  const relationCustomer = (Array.isArray(activity.relatedRecords) ? activity.relatedRecords : [])
+    .find((relation) => relation?.type === 'customer');
+  const ownerId = normalizeCalendarText(activity.ownerUserId);
+  const employee = loadEmployees().find((item) => item.id === ownerId);
+  const clientId = normalizeCalendarText(activity.clientId) || normalizeCalendarText(relationCustomer?.id);
+  const employeeId = normalizeCalendarText(activity.employeeId) || employee?.id || loadEmployees()[0]?.id || '';
+  if (!isValidDate(date) || !clientId || !employeeId) {
+    if (previousId) deleteInteraction(previousId);
+    return '';
+  }
+  const payload = {
+    clientId,
+    employeeId,
+    date,
+    type: interactionType,
+    description: `Actividad programada desde calendario: ${normalizeCalendarText(activity.title)}`
+  };
+  try {
+    if (previousId) {
+      return normalizeCalendarText(updateInteraction(previousId, payload)?.id) || previousId;
+    }
+    return normalizeCalendarText(addInteraction(payload)?.id);
+  } catch {
+    return previousId;
+  }
+}
+
+export function loadTasks(options = {}) {
+  const all = readCRMStorage(CRM_KEYS.tasks, []).filter((record) => record && typeof record === 'object');
+  const owner = normalizeCalendarText(options?.ownerUserId);
+  const includeCompleted = options?.includeCompleted === true;
+  return all.filter((task) => {
+    if (owner && normalizeCalendarText(task.ownerUserId) !== owner) return false;
+    if (!includeCompleted && normalizeCalendarText(task.status) === 'completed') return false;
+    return true;
+  });
+}
+
+export function addTask(data = {}, options = {}) {
+  const ownerUserId = normalizeCalendarText(options?.ownerUserId ?? data?.ownerUserId);
+  const timestamp = new Date().toISOString();
+  const record = {
+    ...data,
+    id: normalizeCalendarText(data.id) || createId('task'),
+    ownerUserId,
+    title: normalizeCalendarText(data.title),
+    description: normalizeCalendarText(data.description),
+    dueAt: normalizeCalendarText(data.dueAt),
+    status: normalizeCalendarText(data.status) || 'pending',
+    priority: normalizeCalendarText(data.priority),
+    relatedRecords: normalizeCalendarRelations(data.relatedRecords),
+    archived: toBoolean(data.archived, false),
+    createdAt: normalizeCalendarText(data.createdAt) || timestamp,
+    updatedAt: timestamp
+  };
+  const validation = validateCalendarTask(record);
+  if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
+  const all = readCRMStorage(CRM_KEYS.tasks, []);
+  all.push(record);
+  writeCRMStorage(CRM_KEYS.tasks, all);
+  return record;
+}
+
+export function updateTask(id, patch = {}, options = {}) {
+  const all = readCRMStorage(CRM_KEYS.tasks, []);
+  const index = all.findIndex((task) => task?.id === id);
+  if (index === -1) return null;
+  const owner = normalizeCalendarText(options?.ownerUserId);
+  if (owner && normalizeCalendarText(all[index].ownerUserId) !== owner) return null;
+  const merged = { ...all[index], ...patch, id: all[index].id, ownerUserId: all[index].ownerUserId, updatedAt: new Date().toISOString() };
+  if (patch?.title !== undefined) merged.title = normalizeCalendarText(patch.title);
+  if (patch?.description !== undefined) merged.description = normalizeCalendarText(patch.description);
+  if (patch?.dueAt !== undefined) merged.dueAt = normalizeCalendarText(patch.dueAt);
+  if (patch?.relatedRecords !== undefined) merged.relatedRecords = normalizeCalendarRelations(patch.relatedRecords);
+  const validation = validateCalendarTask(merged);
+  if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
+  all[index] = merged;
+  writeCRMStorage(CRM_KEYS.tasks, all);
+  return merged;
+}
+
+export function loadCalendarActivities(options = {}) {
+  const from = normalizeCalendarText(options.from).slice(0, 10);
+  const to = normalizeCalendarText(options.to).slice(0, 10);
+  const userId = normalizeCalendarText(options.userId ?? options.ownerUserId);
+  const team = options.team === true;
+  return readCalendarActivities().filter((activity) => {
+    const start = normalizeCalendarText(activity.startAt).slice(0, 10);
+    const end = normalizeCalendarText(activity.endAt).slice(0, 10);
+    if (from && end && end < from) return false;
+    if (to && start && start > to) return false;
+    if (!team && userId) {
+      const owner = normalizeCalendarText(activity.ownerUserId);
+      const participants = Array.isArray(activity.participantUserIds) ? activity.participantUserIds.map(normalizeCalendarText) : [];
+      if (owner !== userId && !participants.includes(userId)) return false;
+    }
+    return true;
+  }).sort((a, b) => normalizeCalendarText(a.startAt).localeCompare(normalizeCalendarText(b.startAt)));
+}
+
+export function addCalendarActivity(data = {}) {
+  const timestamp = new Date().toISOString();
+  const record = {
+    ...data,
+    id: normalizeCalendarText(data.id) || createId('cal'),
+    title: normalizeCalendarText(data.title),
+    description: normalizeCalendarText(data.description),
+    type: normalizeCalendarText(data.type),
+    status: normalizeCalendarText(data.status) || 'scheduled',
+    startAt: normalizeCalendarText(data.startAt),
+    endAt: normalizeCalendarText(data.endAt),
+    ownerUserId: normalizeCalendarText(data.ownerUserId),
+    employeeId: normalizeCalendarText(data.employeeId),
+    clientId: normalizeCalendarText(data.clientId),
+    participantUserIds: Array.isArray(data.participantUserIds) ? data.participantUserIds.map(normalizeCalendarText).filter(Boolean) : [],
+    relatedRecords: normalizeCalendarRelations(data.relatedRecords),
+    linkedInteractionId: '',
+    createdAt: timestamp,
+    updatedAt: timestamp
+  };
+  const validation = validateCalendarActivity(record);
+  if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
+  record.linkedInteractionId = syncCalendarInteraction(record);
+  const all = readCalendarActivities();
+  all.push(record);
+  writeCRMStorage(CRM_KEYS.calendarActivities, all);
+  return record;
+}
+
+export function updateCalendarActivity(id, patch = {}) {
+  const all = readCalendarActivities();
+  const index = all.findIndex((activity) => activity?.id === id);
+  if (index === -1) return null;
+  const previous = all[index];
+  const merged = {
+    ...previous,
+    ...patch,
+    id: previous.id,
+    createdAt: previous.createdAt,
+    updatedAt: new Date().toISOString()
+  };
+  for (const field of ['title', 'description', 'type', 'status', 'startAt', 'endAt', 'ownerUserId', 'employeeId', 'clientId']) {
+    if (patch?.[field] !== undefined) merged[field] = normalizeCalendarText(patch[field]);
+  }
+  if (patch?.relatedRecords !== undefined) merged.relatedRecords = normalizeCalendarRelations(patch.relatedRecords);
+  if (patch?.participantUserIds !== undefined) {
+    merged.participantUserIds = Array.isArray(patch.participantUserIds) ? patch.participantUserIds.map(normalizeCalendarText).filter(Boolean) : [];
+  }
+  const validation = validateCalendarActivity(merged);
+  if (!validation.valid) throw new Error(Object.values(validation.errors).join(' '));
+  merged.linkedInteractionId = syncCalendarInteraction(merged, previous);
+  all[index] = merged;
+  writeCRMStorage(CRM_KEYS.calendarActivities, all);
+  return merged;
+}
+
+export function deleteCalendarActivity(id) {
+  const all = readCalendarActivities();
+  const target = all.find((activity) => activity?.id === id);
+  if (!target) return all;
+  if (target.linkedInteractionId) deleteInteraction(target.linkedInteractionId);
+  const next = all.filter((activity) => activity?.id !== id);
+  writeCRMStorage(CRM_KEYS.calendarActivities, next);
+  return next;
+}

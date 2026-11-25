@@ -241,3 +241,111 @@ Etapa actual -> transición permitida por opportunityLifecycle -> nueva etapa pe
 Etapa actual -> transición no permitida -> cambio bloqueado, feedback visible, registro sin corromper
 Config inválida/parcial -> fallback seguro + banner visible -> CRUD básico sigue disponible
 ```
+
+---
+
+## Modelo de datos del Calendario CRM (integrado de `004-crm-calendar/data-model.md`)
+
+> **Nota de fusión (2026-11-25)**: se incorpora íntegramente el modelo de datos de 004 sin modificar ni eliminar las entidades/reglas previas de este documento; la carpeta original se conserva. Las reglas nuevas son aditivas y usan los identificadores FR-104–FR-121 / US32–US35 de la sección de calendario de [spec.md](spec.md). El contrato de almacenamiento correspondiente es [calendar-storage.md](contracts/calendar-storage.md).
+
+### CRMTask (tarea personal del lateral)
+
+| Campo | Tipo | Requerido | Descripción / reglas |
+|---|---|---:|---|
+| `id` | string | Sí | ID único (`task_*`). |
+| `ownerUserId` | string | Sí | Usuario responsable; el lateral muestra solo tareas del usuario actual. |
+| `title` | string | Sí | No vacío, recortado. |
+| `description` | string | No | Detalles opcionales. |
+| `dueAt` | datetime ISO | No | Si existe, datetime válido; usado para atrasada/próxima a vencer. |
+| `status` | enum | Sí | `pending` \| `in_progress` \| `completed`. Default `pending`. |
+| `priority` | enum | No | `low` \| `medium` \| `high` cuando existe. |
+| `relatedRecords` | `CRMRelation[]` | No | Vínculos opcionales a cliente/contacto/oportunidad. |
+| `createdAt` | datetime ISO | Sí | Fecha de creación. |
+| `updatedAt` | datetime ISO | Sí | Última actualización. |
+| `archived` | boolean | No | Default `false`; preparación futura, no exigida por la UI. |
+
+**Validaciones**: `title` obligatorio; `dueAt` válido si se proporciona; `status` dentro del enum soportado; `ownerUserId` obligatorio para el alcance personal.
+
+**Estados derivados**:
+
+- `overdue`: `status != completed` y `dueAt < now`.
+- `dueSoon`: `status != completed` y `dueAt >= now` y `dueAt <= now + 24h`.
+- `pendingFuture`: `status != completed` y (`dueAt` ausente o `dueAt > now`), mostrado en la lista pendiente/futura del lateral.
+
+### CalendarActivity (actividad del calendario general)
+
+| Campo | Tipo | Requerido | Descripción / reglas |
+|---|---|---:|---|
+| `id` | string | Sí | ID único (`cal_*`). |
+| `type` | enum | Sí | `meeting` \| `event` \| `call` \| `follow_up` \| `commercial_activity`. |
+| `title` | string | Sí | No vacío. |
+| `description` | string | No | Opcional. |
+| `startAt` | datetime ISO | Sí | datetime válido. |
+| `endAt` | datetime ISO | Sí | datetime válido; debe ser >= `startAt`. |
+| `status` | enum | Sí | `scheduled` \| `completed` \| `cancelled` (mínimo). |
+| `ownerUserId` | string | Sí | Usuario responsable. |
+| `participantUserIds` | string[] | No | Participantes; usado en el filtro personal/equipo. |
+| `relatedRecords` | `CRMRelation[]` | No | Cero o más relaciones CRM. |
+| `linkedInteractionId` | string | No | Para `call`/`meeting`, ID del registro vinculado en `crm_module:interactions`. |
+| `createdAt` | datetime ISO | Sí | Fecha de creación. |
+| `updatedAt` | datetime ISO | Sí | Última actualización. |
+
+**Validaciones**: `title`, `type`, `startAt`, `endAt`, `status` obligatorios; `endAt >= startAt`; `type` dentro del conjunto soportado; `call`/`meeting` deben crear/actualizar la interacción vinculada; `event`/`follow_up`/`commercial_activity` no deben crearla.
+
+### CRMRelation (calendario)
+
+| Campo | Tipo | Requerido | Descripción / reglas |
+|---|---|---:|---|
+| `type` | enum | Sí | `customer` \| `contact` \| `opportunity`. |
+| `id` | string | Sí | ID referenciado. Para `contact`, `contact:<customerId>` (o `contact:<customerId>:<contactIndex>` si hay varios contactos). |
+| `customerId` | string | Condicional | Requerido cuando `type=contact`. |
+| `label` | string | Sí | Etiqueta legible capturada, p. ej. `Contacto: <nombre> (<cliente>)`. |
+| `available` | boolean | No | Sugerencia calculada; `false` si el registro referenciado está archivado/ausente. |
+
+**Regla de contacto**: el CRM no tiene entidad Contacto separada. Las relaciones de contacto se representan con la información de contacto existente del cliente; no se crea una entidad nueva ni se cambia la especificación base.
+
+### CalendarViewState (estado UI, no canónico)
+
+| Campo | Tipo | Requerido | Descripción / reglas |
+|---|---|---:|---|
+| `activeView` | enum | Sí | `year` \| `month` \| `week`. |
+| `referenceDate` | datetime ISO | Sí | Fecha ancla para la navegación de períodos. |
+| `rangeStart` | datetime ISO | Sí | Inicio calculado del período visible. |
+| `rangeEnd` | datetime ISO | Sí | Fin calculado del período visible. |
+| `teamFilter` | boolean | Sí | Default `false` (personal: responsable/participante). |
+
+### Relaciones del calendario
+
+- `CRMTask.ownerUserId` -> identidad del usuario autenticado del CRM.
+- `CRMTask.relatedRecords[*]` -> `Customer` (`crm_customers`/entities), `Opportunity` (`crm_opportunities`/documents) o información de contacto derivada del cliente.
+- `CalendarActivity.ownerUserId` / `participantUserIds` -> usuarios/empleados del CRM usados por el contexto de la app.
+- `CalendarActivity.relatedRecords[*]` -> los mismos registros CRM que las tareas.
+- `CalendarActivity.linkedInteractionId` -> `Interaction.id` en `crm_module:interactions` para las interacciones planificadas de llamada/reunión.
+
+### Transiciones de estado del calendario
+
+```text
+Tarea: pending -> in_progress -> completed
+Tarea: pending -> completed
+Tarea: in_progress -> pending (edición/corrección)
+Tarea: completed -> pending/in_progress (reapertura por edición)
+Actividad: scheduled -> completed
+Actividad: scheduled -> cancelled
+Actividad: completed/cancelled -> scheduled (edición/reapertura si la UI lo permite)
+
+Crear actividad call/meeting -> crear Interaction vinculada (planificada)
+Editar actividad call/meeting -> actualizar campos de la Interaction vinculada
+Eliminar actividad call/meeting -> eliminar/marcar la Interaction vinculada de forma coherente
+Ejecutar llamada/reunión -> resultado/notas se completan en el flujo de Interacciones, no en el calendario
+```
+
+La eliminación de tareas desde el lateral queda fuera de esta versión; la eliminación de actividades requiere confirmación explícita y las retira de todas las vistas.
+
+### Claves de almacenamiento nuevas del calendario
+
+| Clave | Tipo | Default | Notas |
+|---|---|---|---|
+| `crm_module:tasks` | array JSON | `[]` | Registros `CRMTask`. |
+| `crm_module:calendarActivities` | array JSON | `[]` | Registros `CalendarActivity`. |
+
+Se reutilizan las claves existentes `crm_module:customers`, `crm_module:opportunities`, `crm_module:interactions`, `crm_module:employees` y `erp.authenticatedUser`.

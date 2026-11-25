@@ -77,3 +77,42 @@ Las mismas comprobaciones de contenido, completitud y preparación se aplicaron 
 - [x] Los iconos SVG y el comportamiento responsivo en escritorio/móvil están especificados como criterios observables.
 - [x] US31 no introduce almacenamiento, configuración, entidades ni reglas de negocio nuevas.
 - [ ] La spec registra casos límite específicos de US31 (por ejemplo, textos extensos o vista estrecha extrema) además de los casos límite generales de interfaz ya documentados.
+
+---
+
+## Comprobaciones del Calendario CRM (integrado de `004-crm-calendar/checklists/requirements.md`)
+
+> **Nota de fusión (2026-11-25)**: se incorpora íntegramente el checklist de 004 sin modificar ni eliminar las comprobaciones previas; la carpeta original se conserva. La spec de referencia es la sección «Calendario CRM» de [../spec.md](../spec.md), con US32–US35, FR-104–FR-121 y SC-037–SC-042.
+
+**Propósito**: validar la completitud y calidad de la especificación del calendario antes de pasar a la planificación.  
+**Creado**: 2026-11-25.
+
+### Calidad del contenido
+
+- [x] No incluye detalles de implementación (lenguajes, frameworks, APIs)
+- [x] Enfocado en valor de usuario y necesidades de negocio
+- [x] Escrito para stakeholders no técnicos
+- [x] Todas las secciones obligatorias completadas
+
+### Completitud de los requisitos
+
+- [x] No quedan marcadores [NEEDS CLARIFICATION]
+- [x] Los requisitos son verificables e inequívocos
+- [x] Los criterios de éxito son medibles
+- [x] Los criterios de éxito son independientes de la tecnología
+- [x] Todos los escenarios de aceptación están definidos
+- [x] Se identificaron casos límite
+- [x] El alcance está claramente delimitado
+- [x] Se identifican dependencias y supuestos
+
+### Preparación de la funcionalidad
+
+- [x] Todos los requisitos funcionales tienen criterios de aceptación claros
+- [x] Los escenarios de usuario cubren los flujos principales
+- [x] La funcionalidad cumple los resultados medibles definidos en Success Criteria
+- [x] No se filtran detalles de implementación en la especificación
+
+### Notas del calendario
+
+- Validación pasada 1: no se encontraron marcadores [NEEDS CLARIFICATION] ni palabras clave de implementación en el cuerpo de la spec.
+- La spec del calendario quedó lista para `/speckit.clarify` o `/speckit.plan` en el momento de la auditoría original; con la fusión actual sus documentos son los archivos de esta carpeta.
