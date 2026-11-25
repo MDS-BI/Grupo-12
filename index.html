@@ -209,6 +209,12 @@
           </span>
           <span id="nav-interactions-label" class="nav-label">Interacciones</span>
         </button>
+        <button id="nav-calendar" class="nav-module" data-module="calendar">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+          </span>
+          <span id="nav-calendar-label" class="nav-label">Calendario</span>
+        </button>
         <button id="nav-search" class="nav-module" data-module="search">
           <span class="nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -754,6 +760,175 @@
                 <tbody id="interaction-list"></tbody>
               </table>
             </div>
+          </section>
+        </section>
+
+        <section id="view-calendar" class="view" hidden>
+          <div class="calendar-header">
+            <div>
+              <h2 id="calendar-heading">Calendario CRM</h2>
+              <p class="view-subtitle">Coordina tareas, reuniones y actividades comerciales por responsable.</p>
+            </div>
+          </div>
+          <div class="calendar-layout">
+            <aside id="calendar-sidebar" class="calendar-sidebar" aria-labelledby="task-sidebar-heading">
+              <h3 id="task-sidebar-heading">Mis tareas</h3>
+              <form id="task-form" class="crm-form calendar-form" novalidate>
+                <h4 id="task-form-heading">Agregar / Editar Tarea</h4>
+                <input id="task-id" type="hidden" />
+                <div class="form-grid">
+                  <div class="field">
+                    <label for="task-title">Título</label>
+                    <input id="task-title" name="title" type="text" placeholder="Ej. Enviar propuesta" />
+                    <div id="error-task-title" class="validation-error"></div>
+                  </div>
+                  <div class="field">
+                    <label for="task-due-at">Vencimiento</label>
+                    <input id="task-due-at" name="dueAt" type="datetime-local" />
+                    <div id="error-task-due-at" class="validation-error"></div>
+                  </div>
+                  <div class="field">
+                    <label for="task-status">Estado</label>
+                    <select id="task-status" name="status">
+                      <option value="pending">Pendiente</option>
+                      <option value="in_progress">En curso</option>
+                      <option value="completed">Completada</option>
+                    </select>
+                    <div id="error-task-status" class="validation-error"></div>
+                  </div>
+                  <div class="field field-full">
+                    <label for="task-description">Descripción</label>
+                    <textarea id="task-description" name="description" placeholder="Detalles de la tarea..."></textarea>
+                    <div id="error-task-description" class="validation-error"></div>
+                  </div>
+                </div>
+                <div class="actions-row">
+                  <button id="task-submit" type="submit">Guardar tarea</button>
+                  <button id="task-reset" type="button">Limpiar</button>
+                </div>
+              </form>
+              <div id="task-list-empty" class="empty-state" hidden>No hay tareas pendientes.</div>
+              <ul id="task-list" class="task-list"></ul>
+              <section id="task-detail" class="calendar-detail" hidden aria-live="polite">
+                <h4 id="task-detail-title"></h4>
+                <p id="task-detail-body"></p>
+                <button id="task-detail-close" type="button">Cerrar detalle</button>
+              </section>
+            </aside>
+            <section class="calendar-general" aria-labelledby="calendar-general-heading">
+              <h3 id="calendar-general-heading" class="calendar-section-title">Vista general</h3>
+              <div class="calendar-controls">
+                <div class="calendar-view-switch" role="group" aria-label="Vista del calendario">
+                  <button id="calendar-view-year" type="button" data-calendar-view="year" aria-pressed="false">Anual</button>
+                  <button id="calendar-view-month" type="button" data-calendar-view="month" aria-pressed="true">Mensual</button>
+                  <button id="calendar-view-week" type="button" data-calendar-view="week" aria-pressed="false">Semanal</button>
+                </div>
+                <div class="calendar-period-controls">
+                  <button id="calendar-prev" type="button" aria-label="Período anterior">Anterior</button>
+                  <span id="calendar-period-label" aria-live="polite"></span>
+                  <button id="calendar-next" type="button" aria-label="Período siguiente">Siguiente</button>
+                  <button id="calendar-today" type="button">Hoy</button>
+                </div>
+                <label class="calendar-team-filter" for="calendar-team-filter">
+                  <input id="calendar-team-filter" type="checkbox" />
+                  <span>Ver equipo/CRM</span>
+                </label>
+              </div>
+              <div id="calendar-empty" class="empty-state" hidden>No hay actividades en este período.</div>
+              <div id="calendar-grid" class="calendar-grid" role="grid" aria-label="Actividades del calendario"></div>
+            </section>
+          </div>
+
+          <section class="list-panel" aria-labelledby="activity-list-heading">
+            <div class="calendar-list-header">
+              <h3 id="activity-list-heading">Actividades registradas</h3>
+              <button id="activity-new" type="button">Nueva actividad</button>
+            </div>
+            <div id="activity-list-empty" class="empty-state" hidden>No hay actividades registradas.</div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Título</th><th>Responsable</th><th>Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="activity-list"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <form id="activity-form" class="crm-form" novalidate hidden>
+            <h3 id="activity-form-heading">Agregar / Editar Actividad</h3>
+            <input id="activity-id" type="hidden" />
+            <div class="form-section">
+              <h4 class="form-section-title">DATOS DE LA ACTIVIDAD</h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="activity-type">Tipo</label>
+                  <select id="activity-type" name="type">
+                    <option value="meeting">Reunión</option>
+                    <option value="event">Evento</option>
+                    <option value="call">Llamada</option>
+                    <option value="follow_up">Seguimiento</option>
+                    <option value="commercial_activity">Actividad comercial</option>
+                  </select>
+                  <div id="error-activity-type" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="activity-title">Título</label>
+                  <input id="activity-title" name="title" type="text" placeholder="Ej. Reunión de cierre" />
+                  <div id="error-activity-title" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="activity-start-at">Inicio</label>
+                  <input id="activity-start-at" name="startAt" type="datetime-local" />
+                  <div id="error-activity-start-at" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="activity-end-at">Fin</label>
+                  <input id="activity-end-at" name="endAt" type="datetime-local" />
+                  <div id="error-activity-end-at" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="activity-status">Estado</label>
+                  <select id="activity-status" name="status">
+                    <option value="scheduled">Programada</option>
+                    <option value="completed">Completada</option>
+                    <option value="cancelled">Cancelada</option>
+                  </select>
+                  <div id="error-activity-status" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="activity-client-id">Cliente</label>
+                  <select id="activity-client-id" name="clientId"></select>
+                  <div id="error-activity-client-id" class="validation-error"></div>
+                </div>
+                <div class="field">
+                  <label for="activity-contact-id">Contacto</label>
+                  <select id="activity-contact-id" name="contactId"></select>
+                </div>
+                <div class="field">
+                  <label for="activity-opportunity-id">Oportunidad</label>
+                  <select id="activity-opportunity-id" name="opportunityId"></select>
+                </div>
+                <div class="field">
+                  <label for="activity-employee-id">Responsable</label>
+                  <select id="activity-employee-id" name="employeeId"></select>
+                  <div id="error-activity-employee-id" class="validation-error"></div>
+                </div>
+                <div class="field field-full">
+                  <label for="activity-description">Descripción</label>
+                  <textarea id="activity-description" name="description" placeholder="Detalles de la actividad..."></textarea>
+                  <div id="error-activity-description" class="validation-error"></div>
+                </div>
+              </div>
+            </div>
+            <div class="actions-row">
+              <button id="activity-submit" type="submit">Guardar actividad</button>
+              <button id="activity-reset" type="button">Limpiar</button>
+            </div>
+          </form>
+
+          <section id="activity-detail" class="calendar-detail" hidden aria-live="polite">
+            <h3 id="activity-detail-title"></h3>
+            <div id="activity-detail-body"></div>
+            <button id="activity-detail-close" type="button">Cerrar detalle</button>
           </section>
         </section>
 

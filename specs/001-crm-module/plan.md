@@ -413,3 +413,68 @@ Artefactos: [data-model.md](data-model.md), [contracts/ui-contracts.md](contract
 ## Complejidad Tracking del cierre de brechas
 
 Sin violaciones de constitución.
+
+---
+
+## Plan de implementación del Calendario CRM (integrado de `004-crm-calendar/plan.md`)
+
+> **Nota de fusión (2026-11-25)**: se incorpora íntegramente el plan de `specs/004-crm-calendar/plan.md` sin modificar ni eliminar el texto previo de este documento; la carpeta original se conserva. Las historias, requisitos, criterios y tareas usan la numeración continua del módulo base: US32–US35, FR-104–FR-121, SC-037–SC-042 y T262–T305 (antes US1–US4, FR-001–FR-018, SC-001–SC-006 y T001–T044 de 004). La restricción original de "no modificar `specs/001-crm-module/spec.md`" se conserva como contexto histórico de la feature 004; tras la fusión sus documentos son estos mismos archivos.
+
+### Resumen del calendario
+
+Agregar al módulo CRM un calendario lateral de tareas personales (crear/editar/cambiar estado/consultar, solo usuario actual) y un calendario general con vistas anual/mensual/semanal para gestionar actividades comerciales (reunión, evento, llamada, seguimiento, actividad comercial). Las llamadas/reuniones se reflejan como actividades programadas coherentes con el historial de Interacciones CRM, sin capturar resultado/notas en el flujo de creación del calendario. La implementación reutiliza la arquitectura SPA existente (`index.html` + `src/*` + `localStorage`), extendiendo storage/domain/app con nuevas entidades y vistas de forma aditiva.
+
+**Especificación**: sección «Calendario CRM» de [spec.md](spec.md) | **Investigación**: sección «Investigación del Calendario CRM» de [research.md](research.md) | **Contratos**: [calendar-storage.md](contracts/calendar-storage.md).
+
+### Contexto técnico del calendario
+
+**Lenguaje/versión**: JavaScript ES modules (browser), Node/npm para tests/lint  
+**Dependencias principales**: Vite 8.x (dev/build), Vitest 4.x + jsdom (tests), ESLint 9.x, Prettier 3.x; sin frameworks UI  
+**Almacenamiento**: `localStorage` con claves canónicas `crm_module:*` y compatibilidad `erp_base_module:*` existente; nuevas claves `crm_module:tasks` y `crm_module:calendarActivities`  
+**Pruebas**: `vitest`/`vitest run`, jsdom; contratos unitarios + integración DOM real  
+**Plataforma**: navegador desktop/mobile moderno (SPA estática servida por Vite)  
+**Tipo de proyecto**: SPA frontend-only, sin backend  
+**Objetivos de rendimiento**: actualización de vistas afectadas en la misma sesión (SC-039); operaciones responsivas con volumen CRM típico (<= 500 registros); sin recarga manual  
+**Restricciones**: mantener coherencia visual/arquitectónica; no introducir backend; reutilizar entidades CRM (clientes/oportunidades/interacciones/empleados); accesibilidad teclado/ARIA; responsive sin scroll horizontal en acciones principales  
+**Alcance**: usuario comercial individual/equipo pequeño; tareas personales y actividades CRM en horizonte diario/mensual/anual; volumen objetivo alineado al presupuesto existente (500 registros)
+
+### Comprobación de constitución del calendario
+
+| Principio | Gate | Estado | Notas |
+|-----------|------|--------|-------|
+| I. Calidad y mantenibilidad | Cambios modulares, estilo existente, sin abstracciones innecesarias | PASS | Extender `domain.js`, `storage.js`, `app.js`, `styles.css`, `index.html` siguiendo los patrones actuales. |
+| II. Test-first y verificación | Comportamiento nuevo cubierto por tests automáticos; regresiones verificadas | PASS | Tests unitarios + integración DOM; ejecutar `npm run test:run` y `npm run lint`. |
+| III. Consistencia de UX | Layout, validación, estados vacíos/error y accesibilidad coherentes | PASS | Reutilizar diálogos de confirmación, validación inline, estados vacíos y patrones de foco/teclado. |
+| IV. Rendimiento y fiabilidad | Caminos críticos responsivos, sin trabajo bloqueante evitable | PASS | Filtrado/agrupación en memoria sobre arrays existentes; render solo de vista/período activo. |
+
+**Revisión post-fase 1**: PASS — almacenamiento local, sin dependencias nuevas, entidades acotadas y contratos de storage explícitos.
+
+### Estructura del proyecto del calendario
+
+```text
+specs/001-crm-module/            # documentación 001 + secciones del calendario 004
+├── spec.md, plan.md, research.md, data-model.md, quickstart.md, tasks.md
+└── contracts/calendar-storage.md  # contrato 004 integrado (nuevo archivo)
+
+index.html                       # calendario lateral, calendario general, formularios/detalle
+src/
+├── app.js                       # render/handlers, navegación, filtros, integración UI
+├── domain.js                    # tipos/estados actividad, regla 24 h, validaciones de fecha
+├── storage.js                   # CRUD tareas/actividades, persistencia, sync con interacciones
+├── module-config.js             # etiquetas/config opcional de calendario/tareas si aplica
+├── styles.css                   # estilos laterales/generales, responsive, estados de vencimiento
+└── main.js                      # boot sin cambios de contrato salvo wiring necesario
+
+tests/
+├── unit/calendar-domain.test.js
+├── unit/calendar-storage.test.js
+├── integration/calendar-sidebar.test.js
+├── integration/calendar-general.test.js
+└── integration/calendar-interactions-sync.test.js
+```
+
+**Decisión de estructura**: SPA única existente; se extiende la estructura actual sin crear subproyectos. Los tests siguen la convención `tests/unit` y `tests/integration`. Las tareas correspondientes son T262–T305 en [tasks.md](tasks.md).
+
+### Seguimiento de complejidad del calendario
+
+Sin violaciones de constitución que requieran justificación.

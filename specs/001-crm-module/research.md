@@ -184,3 +184,57 @@
 ### Clarificaciones resueltas del cierre de brechas
 
 No quedan NEEDS CLARIFICATION. Supuestos documentados en spec: ventana 30 días, reporte informativo no destructivo, `src/components/*` histórico.
+
+---
+
+## Investigación del Calendario CRM (integrada de `004-crm-calendar/research.md`)
+
+> **Nota de fusión (2026-11-25)**: se incorpora íntegramente la investigación de 004 sin modificar ni eliminar las decisiones previas de este documento; la carpeta original se conserva. Las decisiones D-010–D-017 corresponden a Decisiones 1–8 del documento original. Las referencias a FR/SC se leen con la numeración fusionada (FR-104–FR-121, SC-037–SC-042).
+
+### D-010 Modelo de datos separado para tareas y actividades
+
+- **Decisión**: Crear entidades nuevas `crm_tasks` (agenda personal lateral) y `crm_calendar_activities` (calendario general), en lugar de sobrecargar `crm_interactions`.
+- **Justificación**: Las tareas tienen semántica de vencimiento/estado personal (FR-105–FR-108); las actividades incluyen tipos no-interacción (evento, seguimiento, actividad comercial) y rango inicio/fin. Reutilizar interacciones forzaría campos ambiguos y rompería el historial CRM.
+- **Alternativas consideradas**: extender `crm_interactions` (rechazado: mezcla planificación, ejecución e historial); solo actividades con flag "tarea" (rechazado: UX lateral personal y reglas de vencimiento distintas).
+
+### D-011 Integración con Interacciones CRM para llamada/reunión
+
+- **Decisión**: Al crear/editar una actividad tipo `call` o `meeting`, crear/actualizar un registro vinculado en `crm_module:interactions` con estado/fecha programada; no capturar resultado/notas de ejecución en el calendario. Eliminar/actualizar en calendario sincroniza el registro vinculado.
+- **Justificación**: Cumple la clarificación "planificación primero" y FR-114/FR-118; evita duplicar la captura de resultado.
+- **Alternativas consideradas**: duplicar resultado/notas en calendario (rechazado: doble captura); no sincronizar (rechazado: inconsistencia con el historial CRM).
+
+### D-012 Visibilidad personal vs equipo
+
+- **Decisión**: Tareas laterales: solo `ownerUserId === currentUser`. Calendario general: por defecto responsable/participante incluye al usuario actual; el filtro opcional "Equipo/CRM" muestra todas las actividades visibles.
+- **Justificación**: Clarificaciones Q3/Q5; equilibra enfoque personal y coordinación comercial.
+- **Alternativas consideradas**: todo el equipo por defecto (rechazado: ruido); solo personal sin filtro (rechazado: necesidad de coordinación).
+
+### D-013 Vistas anual/mensual/semanal sin librería externa
+
+- **Decisión**: Implementar las vistas con renderizado propio en `app.js`/HTML/CSS: mensual (grid de 7 columnas), semanal (grid de días con franjas), anual (12 mini-meses con conteo/indicadores y drill-down a mes).
+- **Justificación**: El proyecto no usa framework ni librería de calendario; evita una dependencia nueva y mantiene control de accesibilidad y estilos.
+- **Alternativas consideradas**: librería externa (rechazada: peso/dependencia y desalineación visual); solo vista mensual (rechazada: FR-109).
+
+### D-014 Regla de vencimiento y estados
+
+- **Decisión**: Tarea `atrasada` si está pendiente y `dueAt < now`; `próxima a vencer` si está pendiente y `now <= dueAt <= now+24h`; exactamente en `now` no es atrasada. Estados mínimos: `pending`, `in_progress`, `completed`, gestionables desde el lateral.
+- **Justificación**: FR-106/FR-107 y caso límite determinista.
+- **Alternativas consideradas**: umbral configurable (fuera de alcance); incluir completadas por defecto (rechazado por supuesto).
+
+### D-015 Relaciones CRM y contactos
+
+- **Decisión**: Relaciones por referencia tipada `{type: 'customer'|'contact'|'opportunity', id, labelSnapshot?}`. `customer` y `opportunity` usan IDs existentes; `contact` se resuelve a la información de contacto del cliente cuando no exista entidad Contacto separada, almacenando `customerId` y etiqueta.
+- **Justificación**: FR-115/FR-120 y el supuesto de contacto no separado; preserva la etiqueta ante archivado o no disponibilidad.
+- **Alternativas consideradas**: crear entidad Contacto nueva (rechazado: amplía alcance); solo customer/opportunity (rechazado: requisito explícito de contacto).
+
+### D-016 Persistencia y claves
+
+- **Decisión**: Usar `crm_module:tasks` y `crm_module:calendarActivities`. Incluirlas en la validación/recuperación de storage afectado por FR-072, con arrays vacíos por defecto y migración segura.
+- **Justificación**: Alineado con el patrón `crm_module:*` y el contrato de almacenamiento existente.
+- **Alternativas consideradas**: claves `erp_base_module:*` (rechazadas por naming CRM actual); localStorage fuera de contrato (rechazado: recuperabilidad inconsistente).
+
+### D-017 Accesibilidad y responsive
+
+- **Decisión**: Controles botón/tab, `aria-label` en navegación de período/vista, grid semántico/roles adecuados, foco gestionado en diálogos y layout CSS que colapsa lateral/general en pantallas estrechas.
+- **Justificación**: Principio III, FR-119 y casos límite de teclado/lector de pantalla.
+- **Alternativas consideradas**: grid solo visual sin semántica (rechazado por accesibilidad).

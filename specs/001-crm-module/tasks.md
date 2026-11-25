@@ -1239,3 +1239,227 @@ T259/T260 (documentación) → T261 (validación final)
 - Las pruebas deben fallar antes de T253–T258.
 - No editar `src/components/*` ni `dist/` a mano.
 - US31 no introduce almacenamiento, configuración ni reglas de negocio; cualquier desviación debe corregirse en T258.
+
+---
+
+# Tareas del Calendario CRM (integradas de `004-crm-calendar/tasks.md`)
+
+> **Nota de fusión (2026-11-25)**: se incorporan íntegramente las tareas de 004 sin modificar ni eliminar las tareas previas; la carpeta original se conserva. La numeración es continua: T262–T305 (antes T001–T044 de 004), en las fases 48–54. Las historias son US32–US35 (antes US1–US4), con FR-104–FR-121 y SC-037–SC-042. Las referencias a "no modificar `specs/001-crm-module/spec.md`" se conservan como contexto histórico de 004; tras la fusión los documentos de destino son estos mismos archivos.
+
+**Entrada**: documentos de diseño del calendario en esta carpeta (spec.md, plan.md, research.md, data-model.md, contracts/calendar-storage.md, quickstart.md).  
+**Prerrequisitos**: fases 1–47 completadas; ruta DOM real `index.html` + `src/*`.  
+**Pruebas**: incluidas; la constitución exige tests automáticos para comportamiento visible y lógica de negocio.  
+**Organización**: agrupadas por historia de usuario para implementación y prueba independientes.
+
+## Formato: `[ID] [P?] [Historia] Descripción`
+
+- **[P]**: puede ejecutarse en paralelo (archivos distintos, sin dependencias)
+- **[Historia]**: etiqueta `[US32]`..`[US35]` en las fases de historias
+- Cada tarea incluye la ruta exacta de archivo(s)
+
+## Fase 48: Configuración del calendario (infraestructura compartida)
+
+**Propósito**: preparar el andamiaje de pruebas y los fixtures compartidos.
+
+- [X] T262 Crear andamiaje de pruebas del calendario y fixtures compartidos en `tests/helpers.js` y `tests/integration/live-dom.js`
+- [X] T263 [P] Añadir constantes/enums del calendario en `src/domain.js`
+- [X] T264 [P] Añadir claves de almacenamiento del calendario y defaults de array vacío en `src/storage.js`
+
+---
+
+## Fase 49: Fundacional del calendario (prerrequisitos bloqueantes)
+
+**Propósito**: infraestructura base de dominio/storage/UI requerida por todas las historias.
+
+**⚠️ CRÍTICO**: ninguna historia comienza antes de completar esta fase.
+
+- [X] T265 Implementar modelos y validadores de dominio del calendario (enums de tarea/actividad/relación, regla de 24 h, validación de rango de fechas) en `src/domain.js`
+- [X] T266 [P] Implementar CRUD de almacenamiento de tareas y alcance por propietario en `src/storage.js`
+- [X] T267 [P] Implementar CRUD de almacenamiento de actividades y contrato de rango/filtros en `src/storage.js`
+- [X] T268 Extender la detección/recuperación/reset de corrupción de FR-072 para incluir `crm_module:tasks` y `crm_module:calendarActivities` como claves de entidad afectadas en `src/storage.js`
+- [X] T269 [P] Añadir contenedores del shell del calendario (lateral, vista general, diálogos) y entradas de navegación en `index.html`
+- [X] T270 [P] Añadir estilos base de layout/responsive/estado vacío del calendario en `src/styles.css`
+- [X] T271 Añadir navegación y enrutado del calendario CRM (`VIEW_KEYS`, botones de nav, `showView`/`persistActiveView`, activación de vistas lateral/general) en `src/app.js` e `index.html`
+
+**Checkpoint**: contratos de dominio/storage, cobertura de recuperación FR-072 y shell/routing listos para las historias.
+
+---
+
+## Fase 50: Historia de Usuario 32 - Gestionar tareas en calendario lateral (Prioridad: P1) 🎯 MVP
+
+**Objetivo**: agenda personal lateral con tareas del usuario actual: ver pendientes/futuras, identificar atrasadas/próximas a vencer, consultar detalle, crear/editar/cambiar estado.
+
+**Prueba independiente**: crear tarea futura, editarla, cambiar estado; verificar lista solo del usuario actual, orden por proximidad, indicadores atrasada/próxima a vencer (24 h), detalle visible sin perder contexto.
+
+### Pruebas de la US32
+
+- [X] T272 [P] [US32] Crear pruebas unitarias de clasificación de vencimiento y validación de tareas en `tests/unit/calendar-domain.test.js`
+- [X] T273 [P] [US32] Crear pruebas de integración de CRUD lateral, indicadores atrasada/próxima a vencer y alcance personal en `tests/integration/calendar-sidebar.test.js`
+
+### Implementación de la US32
+
+- [X] T274 [US32] Implementar helpers de dominio de tareas (orden por proximidad, atrasada/próxima a vencer/transiciones de estado) en `src/domain.js`
+- [X] T275 [US32] Implementar `loadTasks`, `addTask`, `updateTask` con validación de propietario en `src/storage.js`
+- [X] T276 [US32] Añadir markup de lista lateral, panel de detalle y formulario crear/editar/cambiar estado en `index.html`
+- [X] T277 [US32] Implementar render lateral, handlers de formulario y actualizaciones de estado en `src/app.js`
+- [X] T278 [US32] Añadir estados visuales atrasada/próxima a vencer/pendiente y comportamiento responsive del lateral en `src/styles.css`
+- [X] T279 [US32] Conectar inicialización del lateral y refresco en la misma sesión tras mutaciones en `src/app.js`
+
+**Checkpoint**: US32 funcional y verificable de forma independiente (MVP).
+
+---
+
+## Fase 51: Historia de Usuario 33 - Visualizar calendario general CRM por períodos (Prioridad: P1)
+
+**Objetivo**: calendario general con vistas anual/mensual/semanal, navegación por períodos, default personal y filtro equipo/CRM.
+
+**Prueba independiente**: con actividades en distintos días/semanas/meses y usuarios, abrir el calendario general y verificar default personal, filtro equipo, cambio de vista y navegación con estado vacío.
+
+### Pruebas de la US33
+
+- [X] T280 [P] [US33] Crear pruebas unitarias de cálculo de rangos y navegación de vistas en `tests/unit/calendar-domain.test.js`
+- [X] T281 [P] [US33] Crear pruebas de integración de vistas anual/mensual/semanal, navegación y filtro personal/equipo en `tests/integration/calendar-general.test.js`
+
+### Implementación de la US33
+
+- [X] T282 [US33] Implementar helpers de estado de vista y rangos (year/month/week) en `src/domain.js`
+- [X] T283 [US33] Implementar `loadCalendarActivities` con filtro de rango y equipo en `src/storage.js`
+- [X] T284 [US33] Añadir controles de vista, navegación de períodos, filtro de equipo y contenedores en `index.html`
+- [X] T285 [US33] Implementar renderizado anual/mensual/semanal, navegación y estados vacíos en `src/app.js`
+- [X] T286 [US33] Añadir estilos de grid para vistas anual/mensual/semanal y layout responsive en `src/styles.css`
+
+**Checkpoint**: visualización US33 funciona de forma independiente con datos sembrados/existentes.
+
+---
+
+## Fase 52: Historia de Usuario 34 - Gestionar actividades comerciales en calendario general (Prioridad: P1)
+
+**Objetivo**: crear/editar/eliminar actividades (reunión, evento, llamada, seguimiento, actividad comercial) con validación, confirmación de eliminación, relaciones CRM y sincronización llamada/reunión con Interacciones CRM.
+
+**Prueba independiente**: crear reunión/llamada/seguimiento, editar, relacionar registros CRM, eliminar con confirmación; verificar reflejo en vistas y sincronización con Interacciones CRM para llamada/reunión.
+
+### Pruebas de la US34
+
+- [X] T287 [P] [US34] Crear pruebas unitarias/de storage de validación de actividades, integridad de relaciones y sync llamada/reunión en `tests/unit/calendar-storage.test.js`
+- [X] T288 [P] [US34] Crear pruebas de integración de CRUD, confirmación de eliminación y sincronización en `tests/integration/calendar-interactions-sync.test.js`
+
+### Implementación de la US34
+
+- [X] T289 [US34] Implementar validación de actividades, reglas de tipo/estado y normalización de relaciones en `src/domain.js`
+- [X] T290 [US34] Implementar `addCalendarActivity`, `updateCalendarActivity`, `deleteCalendarActivity` en `src/storage.js`
+- [X] T291 [US34] Implementar sincronización de llamada/reunión con `crm_module:interactions` (planificada, sin captura de resultado/notas) en `src/storage.js`
+- [X] T292 [US34] Añadir markup de formularios crear/editar/eliminar con selectores de relaciones en `index.html`
+- [X] T293 [US34] Implementar handlers CRUD, diálogo de confirmación y refresco de vistas en `src/app.js`
+- [X] T294 [US34] Implementar resolución/visualización de relaciones CRM para cliente/contacto/oportunidad en `src/app.js`; contacto usa `contact:<customerId>` determinista a partir de la información de contacto del cliente, y las relaciones se marcan no disponibles si el registro está archivado/ausente
+- [X] T295 [US34] Añadir estilos de formulario/diálogo/validación/error en `src/styles.css`
+
+**Checkpoint**: gestión US34 funciona de forma independiente y mantiene coherentes vistas e interacciones.
+
+---
+
+## Fase 53: Historia de Usuario 35 - Consultar detalle y contexto de actividades (Prioridad: P2)
+
+**Objetivo**: consultar detalle de actividad desde cualquier vista con tipo, horario, descripción, estado y relaciones CRM legibles.
+
+**Prueba independiente**: seleccionar actividad desde vista semanal y mensual; confirmar mismo detalle, relaciones claras y mensaje cuando no hay relaciones.
+
+### Pruebas de la US35
+
+- [X] T296 [P] [US35] Crear pruebas de integración de apertura del panel desde vistas semana/mes, consistencia, estado sin relaciones y restauración de foco en `tests/integration/calendar-general.test.js`
+- [X] T297 [P] [US35] Crear pruebas unitarias de formateo del view-model de detalle y etiquetas de relación en `tests/unit/calendar-domain.test.js`
+
+### Implementación de la US35
+
+- [X] T298 [US35] Implementar view-model/formateadores de detalle de actividad en `src/domain.js`
+- [X] T299 [US35] Añadir markup del panel/cajón de detalle con etiquetas accesibles en `index.html`
+- [X] T300 [US35] Implementar apertura/cierre/render del panel, selección desde vistas year/month/week y restauración de foco en `src/app.js`
+- [X] T301 [US35] Añadir estilos del panel, insignias de relación y estado vacío sin relaciones en `src/styles.css`
+
+**Checkpoint**: detalle US35 se abre desde cualquier vista, muestra datos/relaciones coherentes, restaura el foco y es verificable de forma independiente.
+
+---
+
+## Fase 54: Pulido y Cross-Cutting Concerns del calendario
+
+**Propósito**: endurecimiento entre historias, accesibilidad, rendimiento y documentación.
+
+- [X] T302 [P] Añadir gestión de foco de teclado y etiquetas ARIA para controles/diálogos del calendario en `src/app.js` e `index.html`
+- [X] T303 [P] Añadir ajustes responsive y comprobaciones de no desplazamiento horizontal en acciones principales en `src/styles.css`
+- [X] T304 Ejecutar escenarios de la guía rápida y actualizar notas en la sección «Guía rápida del Calendario CRM» de `specs/001-crm-module/quickstart.md`
+- [X] T305 Ejecutar lint y suite de pruebas, corrigiendo regresiones en `src/domain.js`, `src/storage.js`, `src/app.js`, `tests/unit/calendar-domain.test.js`, `tests/unit/calendar-storage.test.js`, `tests/integration/calendar-sidebar.test.js`, `tests/integration/calendar-general.test.js`, `tests/integration/calendar-interactions-sync.test.js`
+
+---
+
+## Dependencias y orden de ejecución del calendario
+
+### Dependencias entre fases
+
+- **Fase 48 (Setup)**: sin dependencias.
+- **Fase 49 (Fundacional)**: depende de la Fase 48; bloquea todas las historias.
+- **Fase 50 (US32)**: depende de la Fase 49; MVP.
+- **Fase 51 (US33)**: depende de la Fase 49; se integra con el shell/routing fundacional.
+- **Fase 52 (US34)**: depende de la Fase 49 y de los contenedores/hooks de refresco de US33.
+- **Fase 53 (US35)**: depende del render de US33, los datos de US34 y el markup de US35.
+- **Fase 54 (Pulido)**: depende de las historias deseadas.
+
+### Dependencias entre historias
+
+- **US32 (P1)**: independiente tras Fundacional; sin dependencia de US33–US35.
+- **US33 (P1)**: independiente tras Fundacional; puede usar datos sembrados antes de US34.
+- **US34 (P1)**: depende de las superficies de US33 para reflejar CRUD en las vistas.
+- **US35 (P2)**: depende de las superficies de selección de US33 y los datos/relaciones de US34.
+
+### Dentro de cada historia
+
+- Las pruebas se escriben primero y fallan antes de la implementación.
+- Dominio/storage antes del cableado en app.
+- Markup/estilos junto al comportamiento según sea necesario.
+- El checkpoint de la historia pasa antes de avanzar a la siguiente prioridad.
+
+## Oportunidades de paralelismo del calendario
+
+- **Setup**: T263, T264 en paralelo.
+- **Fundacional**: T266/T267 en paralelo; T269/T270 en paralelo tras definir requisitos; T268 y T271 secuenciales donde tocan archivos compartidos.
+- **US32**: T272/T273 en paralelo; T276/T278 en paralelo tras estabilizar contratos de handlers.
+- **US33**: T280/T281 en paralelo; T284/T286 en paralelo con coordinación de T285.
+- **US34**: T287/T288 en paralelo; T292/T295 en paralelo tras el contrato de handlers.
+- **US35**: T296/T297 en paralelo; T299/T301 en paralelo tras el contrato de T300.
+- **Pulido**: T302/T303 en paralelo.
+
+### Ejemplo de paralelismo: US32
+
+```bash
+# Pruebas en paralelo:
+Task: "T272 [US32] Pruebas unitarias en tests/unit/calendar-domain.test.js"
+Task: "T273 [US32] Pruebas de integración en tests/integration/calendar-sidebar.test.js"
+
+# Tras domain/storage, UI dividida:
+Task: "T276 [US32] Markup lateral en index.html"
+Task: "T278 [US32] Estilos del lateral en src/styles.css"
+```
+
+## Estrategia de implementación del calendario
+
+### MVP primero (solo US32)
+
+1. Completar fases 48 y 49.
+2. Completar fase 50 (US32).
+3. Validar US32 con T272–T273 y el escenario 1 de la guía rápida.
+4. Demo/despliegue del MVP.
+
+### Entrega incremental
+
+1. Setup + Fundacional → base lista.
+2. US32 → calendario lateral de tareas personales (MVP).
+3. US33 → visualización por períodos.
+4. US34 → CRUD de actividades + sincronización con Interacciones CRM.
+5. US35 → detalle/contexto.
+6. Fase 54 → accesibilidad, responsive y regresiones.
+
+## Notas del calendario
+
+- `[P]` indica archivos distintos o secciones aisladas sin dependencia incompleta.
+- `[US32]`..`[US35]` asocian tareas con las historias de la sección de calendario de `spec.md`.
+- Originalmente ninguna tarea modificaba `specs/001-crm-module/spec.md`; la integración es aditiva y tras la fusión de 2026-11-25 las secciones de calendario viven en esos mismos archivos.
+- Las actividades de llamada/reunión se sincronizan con Interacciones como actividades planificadas; el resultado/notas permanecen en el flujo de Interacciones.
+- Las claves `crm_module:tasks` y `crm_module:calendarActivities` se incluyen en la detección/recuperación de corrupción de FR-072.
