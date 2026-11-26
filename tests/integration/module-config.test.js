@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mountLiveDom } from './live-dom.js';
+import { mountLiveDom, seedAuth } from './live-dom.js';
 import { boot } from '../../src/app.js';
 import { loadModuleConfig, normalizeConfig, setActiveConfig } from '../../src/module-config.js';
 import { loadEntities } from '../../src/storage.js';
@@ -22,6 +22,7 @@ const customConfig = {
 
 async function mountConfig(config) {
   localStorage.clear();
+  seedAuth();
   mountLiveDom();
   setActiveConfig(normalizeConfig(config).config);
   await boot();
@@ -87,6 +88,7 @@ describe('US10 - configuración del módulo', () => {
 describe('FR-071 - campos personalizados eliminados (DOM real)', () => {
   it('conserva el valor en localStorage y lo oculta de formularios, listas y búsqueda', async () => {
     localStorage.clear();
+    seedAuth();
 
     mountLiveDom();
     setActiveConfig(normalizeConfig({

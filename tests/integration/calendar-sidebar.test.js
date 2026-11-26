@@ -14,13 +14,13 @@ describe('Calendario lateral de tareas (US32)', () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    seedAuth('Cliente1');
+    seedAuth('Jefe');
   });
 
   it('muestra solo tareas del usuario actual con estados de vencimiento', async () => {
-    addTask({ title: 'Atrasada', dueAt: offsetISO(-2), status: 'pending' }, { ownerUserId: 'Cliente1' });
-    addTask({ title: 'Próxima', dueAt: offsetISO(2), status: 'pending' }, { ownerUserId: 'Cliente1' });
-    addTask({ title: 'Futura', dueAt: offsetISO(48), status: 'pending' }, { ownerUserId: 'Cliente1' });
+    addTask({ title: 'Atrasada', dueAt: offsetISO(-2), status: 'pending' }, { ownerUserId: 'Jefe' });
+    addTask({ title: 'Próxima', dueAt: offsetISO(2), status: 'pending' }, { ownerUserId: 'Jefe' });
+    addTask({ title: 'Futura', dueAt: offsetISO(48), status: 'pending' }, { ownerUserId: 'Jefe' });
     addTask({ title: 'Ajena', dueAt: offsetISO(1), status: 'pending' }, { ownerUserId: 'Otro' });
     await bootApp();
     document.querySelector('#nav-calendar').click();
@@ -40,7 +40,7 @@ describe('Calendario lateral de tareas (US32)', () => {
     document.querySelector('#task-due-at').value = offsetLocal(3);
     document.querySelector('#task-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-    expect(loadTasks({ ownerUserId: 'Cliente1' }).map((task) => task.title)).toContain('Nueva tarea');
+    expect(loadTasks({ ownerUserId: 'Jefe' }).map((task) => task.title)).toContain('Nueva tarea');
     expect(document.querySelector('#task-list').textContent).toContain('Nueva tarea');
 
     const item = [...document.querySelectorAll('#task-list [data-task-id]')]
@@ -52,11 +52,11 @@ describe('Calendario lateral de tareas (US32)', () => {
     document.querySelector('#task-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
     expect(document.querySelector('#task-list').textContent).not.toContain('Tarea editada');
-    expect(loadTasks({ ownerUserId: 'Cliente1', includeCompleted: true })[0].status).toBe('completed');
+    expect(loadTasks({ ownerUserId: 'Jefe', includeCompleted: true })[0].status).toBe('completed');
   });
 
   it('muestra el detalle sin perder el contexto y valida campos obligatorios', async () => {
-    addTask({ title: 'Consultar detalle', description: 'Notas de la tarea', dueAt: offsetISO(4), status: 'pending' }, { ownerUserId: 'Cliente1' });
+    addTask({ title: 'Consultar detalle', description: 'Notas de la tarea', dueAt: offsetISO(4), status: 'pending' }, { ownerUserId: 'Jefe' });
     await bootApp();
     document.querySelector('#nav-calendar').click();
     document.querySelector('#task-list [data-action="task-detail"]').click();

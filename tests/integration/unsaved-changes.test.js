@@ -1,5 +1,5 @@
 ﻿import { beforeEach, describe, expect, it } from 'vitest';
-import { mountLiveDom } from './live-dom.js';
+import { mountLiveDom, seedAuth } from './live-dom.js';
 import { boot } from '../../src/app.js';
 import { normalizeConfig, setActiveConfig } from '../../src/module-config.js';
 
@@ -12,6 +12,7 @@ async function mountAndBoot() {
 beforeEach(async () => {
   window.localStorage.clear();
   window.sessionStorage.clear();
+  seedAuth();
   await mountAndBoot();
 });
 

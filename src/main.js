@@ -1,31 +1,32 @@
 import './styles.css';
 import { loadModuleConfig } from './module-config.js';
-import { AUTH_STORAGE_KEY, SIDEBAR_STORAGE_KEY, initApp } from './app.js';
+import { SIDEBAR_STORAGE_KEY, initApp } from './app.js';
+import {
+  authenticate,
+  clearAuthenticatedUser,
+  clearInvalidAuthenticatedUsers,
+  getAuthenticatedUser,
+  persistAuthenticatedUser
+} from './authorization.js';
 import { fillContactInfo } from './contact-info.js';
 
 export const THEME_STORAGE_KEY = 'crm.theme';
-const VALID_USER = 'Cliente1';
-const VALID_PASSWORD = '1234';
 
 const moduleConfigResult = loadModuleConfig();
 const { config } = moduleConfigResult;
 globalThis.__crmModuleConfigResult = moduleConfigResult;
 
 function isAuthenticated() {
-  return localStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER
-    || sessionStorage.getItem(AUTH_STORAGE_KEY) === VALID_USER;
+  clearInvalidAuthenticatedUsers();
+  return Boolean(getAuthenticatedUser());
 }
 
-function setAuthenticated(remember = true) {
-  localStorage.removeItem(AUTH_STORAGE_KEY);
-  sessionStorage.removeItem(AUTH_STORAGE_KEY);
-  const storage = remember ? localStorage : sessionStorage;
-  storage.setItem(AUTH_STORAGE_KEY, VALID_USER);
+function setAuthenticated(username, remember = true) {
+  persistAuthenticatedUser(username, { remember });
 }
 
 function clearAuthenticated() {
-  localStorage.removeItem(AUTH_STORAGE_KEY);
-  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  clearAuthenticatedUser();
   sessionStorage.removeItem(SIDEBAR_STORAGE_KEY);
 }
 
@@ -102,8 +103,9 @@ function bindAuthHandlers() {
       const username = document.getElementById('login-username')?.value ?? '';
       const password = document.getElementById('login-password')?.value ?? '';
       const remember = document.getElementById('login-remember')?.checked === true;
-      if (username === VALID_USER && password === VALID_PASSWORD) {
-        setAuthenticated(remember);
+      const user = authenticate(username, password);
+      if (user) {
+        setAuthenticated(user.username, remember);
         navigate('/inicio');
       } else {
         showLogin('Usuario o contraseña incorrectos.');

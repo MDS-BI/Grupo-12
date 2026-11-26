@@ -6,6 +6,12 @@ import {
 } from './domain.js';
 import { fillContactInfo } from './contact-info.js';
 import {
+  canAccessModule,
+  canPerformAction,
+  getAuthenticatedUser,
+  ROLES
+} from './authorization.js';
+import {
   addCalendarActivity, addCustomer, archiveCustomer, addDocument, addEmployee, addEntity, addInteraction, addTask,
   archiveEmployee, deleteCalendarActivity, deleteDocument, deleteEntity, deleteInteraction,
   getCRMOverview, getCRMStorageErrors, getCustomer360, getReferentialIntegrityReport, getUpcomingClosures,
@@ -15,7 +21,7 @@ import {
   validateDocument, validateEmployee, validateEntity, validateInteraction
 } from './storage.js';
 
-export const AUTH_STORAGE_KEY = 'erp.authenticatedUser';
+export { AUTH_STORAGE_KEY } from './authorization.js';
 export const SIDEBAR_STORAGE_KEY = 'erp.sidebarCollapsed';
 export const ACTIVE_VIEW_STORAGE_KEY = 'erp.activeView';
 
@@ -101,6 +107,18 @@ const formBaselines = new WeakMap();
 
 function qs(id) {
   return document.getElementById(id);
+}
+function currentUser() {
+  return getAuthenticatedUser();
+}
+function currentRole() {
+  return currentUser()?.role || null;
+}
+function canAccessCurrentModule(moduleName) {
+  return canAccessModule(currentRole(), moduleName);
+}
+function canPerformCurrentAction(moduleName, action) {
+  return canPerformAction(currentRole(), moduleName, action);
 }
 function sanitizeText(value) {
   return String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -258,6 +276,7 @@ function runNavigation(name, onNavigate) {
 }
 
 function navigateTo(name, onNavigate) {
+  if (!canAccessCurrentModule(name)) return false;
   if (!hasUnsavedChanges()) {
     runNavigation(name, onNavigate);
     return true;
@@ -653,7 +672,8 @@ function clearFormErrors(scope) {
 }
 
 function showView(name) {
-  const safe = isValidView(name) ? name : 'dashboard';
+  const requested = isValidView(name) ? name : 'dashboard';
+  const safe = canAccessCurrentModule(requested) ? requested : 'dashboard';
   if (safe === 'entities') { updateEntitySelect(); }
   if (safe === 'documents') {
     populateEntityDropdown();
@@ -687,9 +707,7 @@ function formatCurrency(value) {
 function renderWelcomeBanner() {
   const node = qs('welcome-title');
   if (!node) return;
-  const user = localStorage.getItem(AUTH_STORAGE_KEY)
-    || sessionStorage.getItem(AUTH_STORAGE_KEY)
-    || 'Cliente1';
+  const user = currentUser()?.username || '';
   node.textContent = `Bienvenido, ${user}`;
 }
 
@@ -844,6 +862,40 @@ function renderModuleLabels() {
   if (qs('search-empty')) qs('search-empty').textContent = `No hay coincidencias para su búsqueda.`;
 }
 
+function applyRolePermissions() {
+  for (const button of document.querySelectorAll('.nav-module')) {
+    button.hidden = !canAccessCurrentModule(button.dataset.module);
+  }
+
+  const guardedControls = [
+    ['action-new-entity', 'entities', 'create'],
+    ['action-new-document', 'documents', 'create']
+  ];
+  for (const [id, moduleName, action] of guardedControls) {
+    const control = qs(id);
+    if (control) control.hidden = !canPerformCurrentAction(moduleName, action);
+  }
+
+  const canManageEntities = canPerformCurrentAction('entities', 'create');
+  const canManageDocuments = canPerformCurrentAction('documents', 'create');
+  const canManageCalendar = canPerformCurrentAction('calendar', 'create');
+  if (qs('entity-form')) qs('entity-form').hidden = !canManageEntities;
+  const entitySelectorPanel = document.querySelector('#view-entities .selector-panel');
+  if (entitySelectorPanel) entitySelectorPanel.hidden = !canManageEntities;
+  if (qs('entity-show-archived')?.closest('.archive-toggle')) {
+    qs('entity-show-archived').closest('.archive-toggle').hidden = !canManageEntities;
+  }
+  if (qs('document-form')) qs('document-form').hidden = !canManageDocuments;
+  const documentSelectorPanel = document.querySelector('#view-documents .selector-panel');
+  if (documentSelectorPanel) documentSelectorPanel.hidden = !canManageDocuments;
+  if (qs('task-form')) qs('task-form').hidden = !canManageCalendar;
+  if (qs('activity-form')) qs('activity-form').hidden = !canManageCalendar;
+  if (qs('activity-new')) qs('activity-new').hidden = !canManageCalendar;
+  if (qs('interaction-form')) {
+    qs('interaction-form').hidden = !canPerformCurrentAction('interactions', 'create');
+  }
+}
+
 function getEntityArchivedState(entity, customersById = null) {
   const id = String(entity?.id || entity?.entity_id || '');
   if (!id) return false;
@@ -889,12 +941,15 @@ function renderEntityList() {
       tr.classList.add('selected');
       tr.setAttribute('data-selected', 'true');
     }
-    const archiveAction = archived
-      ? `<button type="button" class="row-action" data-action="restore-entity" data-entity-id="${escapeHTML(entity.id)}">Restaurar</button>`
-      : `<button type="button" class="row-action danger" data-action="archive-entity" data-entity-id="${escapeHTML(entity.id)}">Archivar</button>`;
+    const canManage = canPerformCurrentAction('entities', 'edit');
+    const archiveAction = !canManage
+      ? ''
+      : archived
+        ? `<button type="button" class="row-action" data-action="restore-entity" data-entity-id="${escapeHTML(entity.id)}">Restaurar</button>`
+        : `<button type="button" class="row-action danger" data-action="archive-entity" data-entity-id="${escapeHTML(entity.id)}">Archivar</button>`;
     tr.innerHTML = `<td>${escapeHTML(entity.name || '')}${archived ? ' <span class="badge-archived">Archivado</span>' : ''}</td><td>${escapeHTML(entity.code || '')}</td><td>${escapeHTML(entity.email || '')}</td><td>${escapeHTML(entity.phone || '')}</td>`
       + `<td class="row-actions"><button type="button" class="row-action" data-action="view-client-360" data-entity-id="${escapeHTML(entity.id)}">Ver ficha</button>`
-      + `<button type="button" class="row-action" data-action="edit" data-entity-id="${escapeHTML(entity.id)}">Editar</button>`
+      + (canManage ? `<button type="button" class="row-action" data-action="edit" data-entity-id="${escapeHTML(entity.id)}">Editar</button>` : '')
       + archiveAction
       + `</td>`;
     tr.addEventListener('click', (ev) => {
@@ -902,7 +957,8 @@ function renderEntityList() {
       selectEntityRow(entity.id);
     });
     tr.querySelector('[data-action="view-client-360"]').addEventListener('click', () => openClient360(entity.id));
-    tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+    tr.querySelector('[data-action="edit"]')?.addEventListener('click', () => {
+      if (!canPerformCurrentAction('entities', 'edit')) return;
       selectEntityRow(entity.id);
       fillEntityForm(entity);
       const select = qs('edit-entity');
@@ -911,12 +967,14 @@ function renderEntityList() {
     });
     const archiveBtn = tr.querySelector('[data-action="archive-entity"]');
     if (archiveBtn) archiveBtn.addEventListener('click', (e) => {
+      if (!canPerformCurrentAction('entities', 'archive')) return;
       openDeleteConfirmDialog({
         title: 'Confirmar archivado',
         message: '\u00bfDeseas archivar el cliente seleccionado? Podr\u00e1s restaurarlo desde la vista de archivados.',
         confirmLabel: 'Archivar',
         opener: e.currentTarget,
         onConfirm: () => {
+          if (!canPerformCurrentAction('entities', 'archive')) return;
           const customer = custById.get(String(entity.id)) || custByEntityId.get(String(entity.id)) || loadCustomers().find((c) => String(c.entityId || '') === String(entity.id));
           const custId = customer?.id || entity.id;
           archiveCustomer(custId);
@@ -931,6 +989,7 @@ function renderEntityList() {
     });
     const restoreBtn = tr.querySelector('[data-action="restore-entity"]');
     if (restoreBtn) restoreBtn.addEventListener('click', () => {
+      if (!canPerformCurrentAction('entities', 'restore')) return;
       const customer = custById.get(String(entity.id)) || custByEntityId.get(String(entity.id)) || loadCustomers().find((c) => String(c.entityId || '') === String(entity.id));
       const custId = customer?.id || entity.id;
       restoreCustomer(custId);
@@ -962,22 +1021,42 @@ function renderDocumentList() {
     tr.dataset.documentId = doc.id;
     const folio = [doc.series, doc.folio].filter(Boolean).join('-');
     const amountLabel = formatMoney(doc.totalAmount, doc.currency || MVP_BASE_CURRENCY);
+    const canManage = canPerformCurrentAction('documents', 'edit');
+    const employeeCanUpdateStatus = currentRole() === ROLES.EMPLOYEE
+      && canPerformCurrentAction('documents', 'update-status');
+    let actions = '';
+    if (canManage) {
+      actions = `<button type="button" class="row-action" data-action="edit" data-document-id="${escapeHTML(doc.id)}">Editar</button>`
+        + `<button type="button" class="row-action danger" data-action="delete" data-document-id="${escapeHTML(doc.id)}">Eliminar</button>`;
+    } else if (employeeCanUpdateStatus) {
+      const lifecycle = getActiveOpportunityLifecycle();
+      const nextStatuses = lifecycle.transitions[doc.status] || [];
+      if (nextStatuses.length) {
+        actions = `<label class="sr-only" for="opportunity-status-${escapeHTML(doc.id)}">Nueva etapa para ${escapeHTML(doc.entityName || folio)}</label>`
+          + `<select id="opportunity-status-${escapeHTML(doc.id)}" data-action="opportunity-status" aria-label="Nueva etapa para ${escapeHTML(doc.entityName || folio)}">`
+          + nextStatuses.map((status) => `<option value="${escapeHTML(status)}">${escapeHTML(status)}</option>`).join('')
+          + `</select><button type="button" class="row-action" data-action="update-opportunity-status" data-document-id="${escapeHTML(doc.id)}">Actualizar etapa</button>`
+          + `<span role="status" data-status-feedback></span>`;
+      }
+    }
     tr.innerHTML = `<td>${escapeHTML(doc.entityName || '')}</td><td>${escapeHTML(folio)}</td><td>${escapeHTML(doc.status || '')}</td><td>${escapeHTML(amountLabel)}</td>`
-      + `<td class="row-actions"><button type="button" class="row-action" data-action="edit" data-document-id="${escapeHTML(doc.id)}">Editar</button>`
-      + `<button type="button" class="row-action danger" data-action="delete" data-document-id="${escapeHTML(doc.id)}">Eliminar</button></td>`;
-    tr.querySelector('[data-action="edit"]').addEventListener('click', () => {
+      + `<td class="row-actions">${actions}</td>`;
+    tr.querySelector('[data-action="edit"]')?.addEventListener('click', () => {
+      if (!canPerformCurrentAction('documents', 'edit')) return;
       fillDocumentForm(doc);
       const select = qs('edit-document');
       if (select) select.value = doc.id;
       qs('document-form')?.scrollIntoView?.({ block: 'nearest' });
     });
-    tr.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+    tr.querySelector('[data-action="delete"]')?.addEventListener('click', (e) => {
+      if (!canPerformCurrentAction('documents', 'delete')) return;
       openDeleteConfirmDialog({
         title: 'Confirmar eliminación',
         message: '¿Deseas eliminar la oportunidad seleccionada? Esta acción no se puede deshacer.',
         confirmLabel: 'Eliminar',
         opener: e.currentTarget,
         onConfirm: () => {
+          if (!canPerformCurrentAction('documents', 'delete')) return;
           deleteDocument(doc.id);
           if (qs('document-id')?.value === doc.id) resetDocumentForm();
           updateDocumentSelect();
@@ -985,6 +1064,25 @@ function renderDocumentList() {
           renderSearchResults();
         }
       });
+    });
+    tr.querySelector('[data-action="update-opportunity-status"]')?.addEventListener('click', () => {
+      if (!canPerformCurrentAction('documents', 'update-status')) return;
+      const status = tr.querySelector('[data-action="opportunity-status"]')?.value || '';
+      const transition = evaluateOpportunityTransition({
+        from: doc.status,
+        to: status,
+        lifecycle: getActiveOpportunityLifecycle()
+      });
+      if (!transition.allowed) {
+        const feedback = tr.querySelector('[data-status-feedback]');
+        if (feedback) feedback.textContent = transition.reason;
+        return;
+      }
+      updateDocument(doc.id, { status });
+      updateDocumentSelect();
+      updateDashboardStats();
+      renderSearchResults();
+      renderDocumentList();
     });
     tbody.appendChild(tr);
   }
@@ -1473,6 +1571,8 @@ function syncCustomerMirror(entity) {
 
 function handleEntitySubmit(event) {
   event.preventDefault();
+  const existingId = sanitizeText(qs('entity-id')?.value);
+  if (!canPerformCurrentAction('entities', existingId ? 'edit' : 'create')) return;
   const form = qs('entity-form');
   if (!form) return;
 
@@ -1505,6 +1605,8 @@ function handleEntitySubmit(event) {
 
 function handleDocumentSubmit(event) {
   event.preventDefault();
+  const existingId = sanitizeText(qs('document-id')?.value);
+  if (!canPerformCurrentAction('documents', existingId ? 'edit' : 'create')) return;
   const form = qs('document-form');
   if (!form) return;
 
@@ -1668,10 +1770,13 @@ function renderEmployeeList() {
       <td>${status}</td>
       <td class="row-actions">${actions}</td>`;
     tr.querySelectorAll('[data-action="edit-employee"]').forEach((btn) => {
-      btn.addEventListener('click', () => fillEmployeeForm(employee));
+      btn.addEventListener('click', () => {
+        if (canPerformCurrentAction('employees', 'edit')) fillEmployeeForm(employee);
+      });
     });
     tr.querySelectorAll('[data-action="archive-employee"]').forEach((btn) => {
       btn.addEventListener('click', () => {
+        if (!canPerformCurrentAction('employees', 'archive')) return;
         archiveEmployee(employee.id);
         if (qs('employee-id')?.value === employee.id) resetEmployeeForm();
         renderEmployeeList();
@@ -1680,6 +1785,7 @@ function renderEmployeeList() {
     });
     tr.querySelectorAll('[data-action="restore-employee"]').forEach((btn) => {
       btn.addEventListener('click', () => {
+        if (!canPerformCurrentAction('employees', 'restore')) return;
         restoreEmployee(employee.id);
         renderEmployeeList();
         populateInteractionSelectors();
@@ -1691,6 +1797,7 @@ function renderEmployeeList() {
 
 function handleEmployeeSubmit(event) {
   event.preventDefault();
+  if (!canPerformCurrentAction('employees', 'create')) return;
   clearEmployeeErrors();
   const id = sanitizeText(qs('employee-id')?.value);
   const name = sanitizeText(qs('employee-name')?.value);
@@ -1796,6 +1903,7 @@ function renderInteractionList() {
     const employee = employees.get(interaction.employeeId);
     const tr = document.createElement('tr');
     tr.dataset.interactionId = interaction.id;
+    const canManage = canPerformCurrentAction('interactions', 'edit');
     tr.innerHTML = `
       <td>${escapeHTML(interaction.date || '')}</td>
       <td>${escapeHTML(interaction.type || '')}</td>
@@ -1803,16 +1911,20 @@ function renderInteractionList() {
       <td>${escapeHTML(employee?.name || interaction.employeeId || '')}</td>
       <td>${escapeHTML(interaction.description || interaction.notes || '')}</td>
       <td class="row-actions">
-        <button type="button" class="link-action" data-action="edit-interaction" data-interaction-id="${escapeHTML(interaction.id)}">Editar</button>
-        <button type="button" class="link-action danger" data-action="delete-interaction" data-interaction-id="${escapeHTML(interaction.id)}">Eliminar</button>
+        ${canManage ? `<button type="button" class="link-action" data-action="edit-interaction" data-interaction-id="${escapeHTML(interaction.id)}">Editar</button>
+        <button type="button" class="link-action danger" data-action="delete-interaction" data-interaction-id="${escapeHTML(interaction.id)}">Eliminar</button>` : ''}
       </td>`;
-    tr.querySelector('[data-action="edit-interaction"]')?.addEventListener('click', () => fillInteractionForm(interaction));
+    tr.querySelector('[data-action="edit-interaction"]')?.addEventListener('click', () => {
+      if (canPerformCurrentAction('interactions', 'edit')) fillInteractionForm(interaction);
+    });
     tr.querySelector('[data-action="delete-interaction"]')?.addEventListener('click', () => {
+      if (!canPerformCurrentAction('interactions', 'delete')) return;
       openDeleteConfirmDialog({
         title: 'Eliminar interacción',
         message: '¿Deseas eliminar esta interacción? Esta acción no se puede deshacer.',
         confirmLabel: 'Eliminar',
         onConfirm: () => {
+          if (!canPerformCurrentAction('interactions', 'delete')) return;
           deleteInteraction(interaction.id);
           if (qs('interaction-id')?.value === interaction.id) resetInteractionForm();
           renderInteractionList();
@@ -1825,8 +1937,9 @@ function renderInteractionList() {
 
 function handleInteractionSubmit(event) {
   event.preventDefault();
-  clearInteractionErrors();
   const id = sanitizeText(qs('interaction-id')?.value);
+  if (!canPerformCurrentAction('interactions', id ? 'edit' : 'create')) return;
+  clearInteractionErrors();
   const payload = {
     clientId: sanitizeText(qs('interaction-client-id')?.value),
     employeeId: sanitizeText(qs('interaction-employee-id')?.value),
@@ -1874,7 +1987,7 @@ function setCalendarState(patch) {
 }
 
 function currentCalendarUser() {
-  return sanitizeText(localStorage.getItem(AUTH_STORAGE_KEY) || sessionStorage.getItem(AUTH_STORAGE_KEY) || 'Cliente1');
+  return sanitizeText(currentUser()?.username || '');
 }
 
 function formatCalendarDate(value, withTime = false) {
@@ -1945,7 +2058,7 @@ function resetTaskForm() {
 }
 
 function fillTaskForm(task) {
-  if (!task) return;
+  if (!task || !canPerformCurrentAction('calendar', 'edit')) return;
   qs('task-id').value = task.id || '';
   qs('task-title').value = task.title || '';
   qs('task-due-at').value = String(task.dueAt || '').slice(0, 16);
@@ -1958,8 +2071,9 @@ function fillTaskForm(task) {
 
 function handleTaskSubmit(event) {
   event.preventDefault();
-  clearCalendarErrors('task');
   const id = sanitizeText(qs('task-id')?.value);
+  if (!canPerformCurrentAction('calendar', id ? 'edit' : 'create')) return;
+  clearCalendarErrors('task');
   const user = currentCalendarUser();
   const payload = {
     title: sanitizeText(qs('task-title')?.value),
@@ -2000,6 +2114,8 @@ function renderTaskSidebar() {
   list.replaceChildren();
   for (const task of tasks) {
     const state = classifyTaskDue(task);
+    const canEdit = canPerformCurrentAction('calendar', 'edit');
+    const canUpdateStatus = canPerformCurrentAction('calendar', 'update-status');
     const item = document.createElement('li');
     item.dataset.taskId = task.id;
     item.className = `task-item task-${state}`;
@@ -2011,10 +2127,18 @@ function renderTaskSidebar() {
       </div>
       <div class="task-item-actions">
         <button type="button" class="link-action" data-action="task-detail" data-task-id="${escapeHTML(task.id)}">Detalle</button>
-        <button type="button" class="link-action" data-action="task-edit" data-task-id="${escapeHTML(task.id)}">Editar</button>
+        ${canEdit ? `<button type="button" class="link-action" data-action="task-edit" data-task-id="${escapeHTML(task.id)}">Editar</button>` : ''}
+        ${canUpdateStatus ? `<button type="button" class="link-action" data-action="task-mark-completed" data-task-id="${escapeHTML(task.id)}">Marcar completada</button>` : ''}
       </div>`;
     item.querySelector('[data-action="task-detail"]')?.addEventListener('click', () => openTaskDetail(task));
-    item.querySelector('[data-action="task-edit"]')?.addEventListener('click', () => fillTaskForm(task));
+    item.querySelector('[data-action="task-edit"]')?.addEventListener('click', () => {
+      if (canPerformCurrentAction('calendar', 'edit')) fillTaskForm(task);
+    });
+    item.querySelector('[data-action="task-mark-completed"]')?.addEventListener('click', () => {
+      if (!canPerformCurrentAction('calendar', 'update-status')) return;
+      updateTask(task.id, { status: 'completed' }, { ownerUserId: currentCalendarUser() });
+      renderTaskSidebar();
+    });
     list.appendChild(item);
   }
 }
@@ -2092,7 +2216,7 @@ function resetActivityForm() {
 }
 
 function fillActivityForm(activity) {
-  if (!activity) return;
+  if (!activity || !canPerformCurrentAction('calendar', 'edit')) return;
   populateCalendarSelectors();
   qs('activity-id').value = activity.id || '';
   qs('activity-type').value = activity.type || 'meeting';
@@ -2114,8 +2238,9 @@ function fillActivityForm(activity) {
 
 function handleActivitySubmit(event) {
   event.preventDefault();
-  clearCalendarErrors('activity');
   const id = sanitizeText(qs('activity-id')?.value);
+  if (!canPerformCurrentAction('calendar', id ? 'edit' : 'create')) return;
+  clearCalendarErrors('activity');
   const employeeId = sanitizeText(qs('activity-employee-id')?.value);
   const payload = {
     type: sanitizeText(qs('activity-type')?.value),
@@ -2171,6 +2296,8 @@ function renderActivityList() {
   const employees = new Map(loadEmployees({ includeArchived: true }).map((employee) => [employee.id, employee]));
   for (const activity of activities) {
     const owner = employees.get(activity.ownerUserId || activity.employeeId);
+    const canEdit = canPerformCurrentAction('calendar', 'edit');
+    const canUpdateStatus = canPerformCurrentAction('calendar', 'update-status');
     const tr = document.createElement('tr');
     tr.dataset.activityId = activity.id;
     tr.innerHTML = `
@@ -2181,18 +2308,23 @@ function renderActivityList() {
       <td>${escapeHTML(CALENDAR_STATUS_LABELS[activity.status] || activity.status || '-')}</td>
       <td class="row-actions">
         <button type="button" class="link-action" data-action="activity-detail" data-activity-id="${escapeHTML(activity.id)}">Detalle</button>
-        <button type="button" class="link-action" data-action="activity-edit" data-activity-id="${escapeHTML(activity.id)}">Editar</button>
-        <button type="button" class="link-action danger" data-action="activity-delete" data-activity-id="${escapeHTML(activity.id)}">Eliminar</button>
+        ${canEdit ? `<button type="button" class="link-action" data-action="activity-edit" data-activity-id="${escapeHTML(activity.id)}">Editar</button>
+        <button type="button" class="link-action danger" data-action="activity-delete" data-activity-id="${escapeHTML(activity.id)}">Eliminar</button>` : ''}
+        ${canUpdateStatus && activity.status === 'scheduled' ? `<button type="button" class="link-action" data-action="activity-mark-completed" data-activity-id="${escapeHTML(activity.id)}">Marcar completada</button>` : ''}
       </td>`;
     tr.querySelector('[data-action="activity-detail"]')?.addEventListener('click', () => openActivityDetail(activity));
-    tr.querySelector('[data-action="activity-edit"]')?.addEventListener('click', () => fillActivityForm(activity));
+    tr.querySelector('[data-action="activity-edit"]')?.addEventListener('click', () => {
+      if (canPerformCurrentAction('calendar', 'edit')) fillActivityForm(activity);
+    });
     tr.querySelector('[data-action="activity-delete"]')?.addEventListener('click', (event) => {
+      if (!canPerformCurrentAction('calendar', 'delete')) return;
       openDeleteConfirmDialog({
         title: 'Eliminar actividad',
         message: `¿Deseas eliminar "${activity.title || 'esta actividad'}"? Esta acción no se puede deshacer.`,
         confirmLabel: 'Eliminar',
         opener: event.currentTarget,
         onConfirm: () => {
+          if (!canPerformCurrentAction('calendar', 'delete')) return;
           deleteCalendarActivity(activity.id);
           if (qs('activity-id')?.value === activity.id) resetActivityForm();
           qs('activity-detail').hidden = true;
@@ -2200,6 +2332,12 @@ function renderActivityList() {
           renderCalendarGrid();
         }
       });
+    });
+    tr.querySelector('[data-action="activity-mark-completed"]')?.addEventListener('click', () => {
+      if (!canPerformCurrentAction('calendar', 'update-status')) return;
+      updateCalendarActivity(activity.id, { status: 'completed' });
+      renderActivityList();
+      renderCalendarGrid();
     });
     list.appendChild(tr);
   }
@@ -2368,6 +2506,7 @@ function bindCalendarHandlers() {
   const activityNew = qs('activity-new');
   if (activityNew && !activityNew.dataset.bound) {
     activityNew.addEventListener('click', () => {
+      if (!canPerformCurrentAction('calendar', 'create')) return;
       resetActivityForm();
       qs('activity-form').hidden = false;
       qs('activity-title')?.focus?.();
@@ -2583,16 +2722,17 @@ function bindOperationalHandlers() {
   });
 
   const dashboardActions = [
-    ['action-new-entity', 'entities', 'name'],
-    ['action-new-document', 'documents', 'document-entity'],
-    ['action-find', 'search', 'search-input'],
-    ['action-open-entities', 'entities']
+    ['action-new-entity', 'entities', 'name', 'create'],
+    ['action-new-document', 'documents', 'document-entity', 'create'],
+    ['action-find', 'search', 'search-input', 'view'],
+    ['action-open-entities', 'entities', null, 'view']
   ];
 
-  dashboardActions.forEach(([id, viewName, focusId]) => {
+  dashboardActions.forEach(([id, viewName, focusId, action]) => {
     const button = qs(id);
     if (!button || button.dataset.bound) return;
     button.addEventListener('click', () => {
+      if (!canPerformCurrentAction(viewName, action)) return;
       navigateTo(viewName, () => {
         if (focusId) qs(focusId)?.focus();
       });
@@ -2671,6 +2811,7 @@ async function boot() {
   renderWelcomeBanner();
   fillContactInfo(qs('dashboard-contact-info'));
   renderModuleLabels();
+  applyRolePermissions();
   renderConfigBanner();
   bindSidebarControls();
   bindUnsavedDialog();
@@ -2691,6 +2832,7 @@ async function boot() {
   const entityDelete = qs('delete-entity');
   if (entityDelete && !entityDelete.dataset.bound) {
     entityDelete.addEventListener('click', () => {
+        if (!canPerformCurrentAction('entities', 'delete')) return;
       const selectedId = qs('entity-id')?.value;
       if (!selectedId) return;
       openDeleteConfirmDialog({
@@ -2699,6 +2841,7 @@ async function boot() {
         confirmLabel: 'Eliminar',
         opener: entityDelete,
         onConfirm: () => {
+          if (!canPerformCurrentAction('entities', 'delete')) return;
           deleteEntity(selectedId);
           updateEntitySelect();
           resetEntityForm();
@@ -2713,6 +2856,7 @@ async function boot() {
   const documentDelete = qs('delete-document');
   if (documentDelete && !documentDelete.dataset.bound) {
     documentDelete.addEventListener('click', () => {
+      if (!canPerformCurrentAction('documents', 'delete')) return;
       const selectedId = qs('document-id')?.value;
       if (!selectedId) return;
       openDeleteConfirmDialog({
@@ -2721,6 +2865,7 @@ async function boot() {
         confirmLabel: 'Eliminar',
         opener: documentDelete,
         onConfirm: () => {
+          if (!canPerformCurrentAction('documents', 'delete')) return;
           deleteDocument(selectedId);
           updateDocumentSelect();
           resetDocumentForm();
@@ -2741,7 +2886,12 @@ let appInitialized = false;
 export async function initApp(configOverride) {
   const result = configOverride && configOverride.config ? configOverride : normalizeConfig(configOverride ?? null);
   setActiveConfig(result);
-  if (appInitialized) return;
+  if (appInitialized) {
+    renderWelcomeBanner();
+    applyRolePermissions();
+    showView(readPersistedView());
+    return;
+  }
   await boot();
   appInitialized = true;
 }

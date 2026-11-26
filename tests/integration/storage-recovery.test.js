@@ -37,7 +37,7 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
   it('muestra el error, no sobrescribe y solo reinicia tras la acción explícita', async () => {
     const corrupted = '{no-es-json';
     localStorage.setItem('crm_module:customers', corrupted);
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     localStorage.setItem('crm.theme', 'Oscuro');
 
     mountLiveDom();
@@ -53,23 +53,23 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
     for (const key of ENTITY_KEYS) {
       expect(localStorage.getItem(key)).toBe('[]');
     }
-    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Jefe');
     expect(localStorage.getItem('crm.theme')).toBe('Oscuro');
     expect(errorPanel.hidden).toBe(true);
   });
 
   it('resetCorruptedCRMStorage no toca claves de sesión ni tema', () => {
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     localStorage.setItem('crm.theme', 'Claro');
     resetCorruptedCRMStorage();
-    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Jefe');
     expect(localStorage.getItem('crm.theme')).toBe('Claro');
   });
 
 
   it('T190/FR-072: bloqueo visible, acciones dependientes deshabilitadas, retry ante fallo y preservación de sesión/tema/vista/sidebar', async () => {
     localStorage.setItem('crm_module:customers', '{no-es-json');
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     localStorage.setItem('crm.theme', 'Oscuro');
     localStorage.setItem('erp.activeView', 'dashboard');
     sessionStorage.setItem('erp.sidebarCollapsed', 'true');
@@ -100,7 +100,7 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
     expect(document.querySelector('#storage-error').hidden).toBe(false);
     expect(document.querySelector('#storage-error-detail').hidden).toBe(false);
     expect(document.querySelector('#storage-retry').hidden).toBe(false);
-    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Jefe');
     expect(localStorage.getItem('crm.theme')).toBe('Oscuro');
     expect(localStorage.getItem('erp.activeView')).toBe('dashboard');
     expect(sessionStorage.getItem('erp.sidebarCollapsed')).toBe('true');
@@ -112,7 +112,7 @@ describe('FR-072 - validation y recuperación de almacenamiento corrupto', () =>
 
     expect(document.querySelector('#storage-error').hidden).toBe(true);
     expect(localStorage.getItem('crm_module:customers')).toBe('[]');
-    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Jefe');
     expect(localStorage.getItem('crm.theme')).toBe('Oscuro');
     expect(localStorage.getItem('erp.activeView')).toBe('dashboard');
     expect(sessionStorage.getItem('erp.sidebarCollapsed')).toBe('true');

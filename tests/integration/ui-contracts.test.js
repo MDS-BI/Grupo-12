@@ -4,7 +4,7 @@ import { boot } from '../../src/app.js';
 import { addCustomer, addEmployee, addOpportunity, loadEntities } from '../../src/storage.js';
 
 async function bootAuthenticatedApp() {
-  localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+  localStorage.setItem('erp.authenticatedUser', 'Jefe');
   await boot();
 }
 
@@ -52,11 +52,11 @@ describe('US1 - acceso dividido', () => {
   });
 
   it('opens the app with valid credentials', () => {
-    document.querySelector('#login-username').value = 'Cliente1';
-    document.querySelector('#login-password').value = '1234';
+    document.querySelector('#login-username').value = 'Jefe';
+    document.querySelector('#login-password').value = 'Jefe123';
     document.querySelector('#login-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-    expect(localStorage.getItem('erp.authenticatedUser') === 'Cliente1' || sessionStorage.getItem('erp.authenticatedUser') === 'Cliente1').toBe(true);
+    expect(localStorage.getItem('erp.authenticatedUser') === 'Jefe' || sessionStorage.getItem('erp.authenticatedUser') === 'Jefe').toBe(true);
     expect(document.querySelector('#app-shell').hidden).toBe(false);
   });
 });
@@ -68,7 +68,7 @@ describe('US3 - banner y KPI', () => {
   });
 
   it('renders the username and four neutral KPIs', () => {
-    expect(document.querySelector('#welcome-title').textContent).toBe('Bienvenido, Cliente1');
+    expect(document.querySelector('#welcome-title').textContent).toBe('Bienvenido, Jefe');
     expect(document.querySelectorAll('.stats-grid .stat-card')).toHaveLength(4);
     expect(document.querySelector('#stat-clients-label').textContent).toBe('Clientes activos');
     expect(document.querySelector('#stat-opportunities-label').textContent).toBe('Oportunidades activas');
@@ -181,12 +181,12 @@ describe('US19/US18 - contratos de regresión', () => {
     window.confirm = confirmSpy;
     try {
       mountLiveDom();
-      localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+      localStorage.setItem('erp.authenticatedUser', 'Jefe');
       await boot();
       const { addEntity, loadEntities } = await import('../../src/storage.js');
       const entity = addEntity({ name: 'SinConfirm SA', code: 'SC-1', email: 'sinconfirm@sa.cl', phone: '912345678', creditLimit: 1000 });
       mountLiveDom();
-      localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+      localStorage.setItem('erp.authenticatedUser', 'Jefe');
       await boot();
       document.querySelector('#nav-entities').click();
       const select = document.querySelector('#edit-entity');
@@ -214,7 +214,7 @@ describe('US19/US18 - contratos de regresión', () => {
   it('T176: vista inválida guardada hace fallback seguro a dashboard; sin auth no restaura vista interna', async () => {
     const wait = async (fn, tries=60) => { for (let i=0;i<tries;i++){ if(fn()) return; await new Promise(r=>setTimeout(r,30)); } };
     localStorage.setItem('erp.activeView', 'invalid-view');
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     mountLiveDom();
     vi.resetModules();
     window.history.replaceState({}, '', '/inicio');
@@ -234,8 +234,8 @@ describe('US19/US18 - contratos de regresión', () => {
 
   it('T159: logout limpia auth de localStorage y sessionStorage', async () => {
     localStorage.clear(); sessionStorage.clear();
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
-    sessionStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
+    sessionStorage.setItem('erp.authenticatedUser', 'Jefe');
     mountLiveDom();
     vi.resetModules();
     window.history.replaceState({}, '', '/inicio');
@@ -246,8 +246,8 @@ describe('US19/US18 - contratos de regresión', () => {
       return fn();
     };
     await waitFor(() => document.querySelector('#app-shell')?.hidden === false);
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
-    sessionStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
+    sessionStorage.setItem('erp.authenticatedUser', 'Jefe');
     document.querySelector('#logout-button').click();
     await waitFor(() => !localStorage.getItem('erp.authenticatedUser') && !sessionStorage.getItem('erp.authenticatedUser'));
     expect(localStorage.getItem('erp.authenticatedUser')).toBeNull();

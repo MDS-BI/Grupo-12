@@ -28,7 +28,7 @@ export async function bootApp() {
   return document;
 }
 
-export function seedAuth(user = 'Cliente1', { remember = true } = {}) {
+export function seedAuth(user = 'Jefe', { remember = true } = {}) {
   const key = 'erp.authenticatedUser';
   localStorage.removeItem(key);
   sessionStorage.removeItem(key);

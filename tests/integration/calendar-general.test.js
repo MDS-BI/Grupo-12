@@ -14,7 +14,7 @@ function seedActivities() {
     startAt: offsetISO(2),
     endAt: offsetISO(3),
     status: 'scheduled',
-    ownerUserId: 'Cliente1'
+    ownerUserId: 'Jefe'
   });
 }
 
@@ -22,7 +22,7 @@ describe('Calendario general y detalle (US33/US35)', () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    seedAuth('Cliente1');
+    seedAuth('Jefe');
   });
 
   it('cambia entre vistas anual, mensual y semanal conservando el período', async () => {
@@ -63,13 +63,13 @@ describe('Calendario general y detalle (US33/US35)', () => {
     const customer = addCustomer({ companyName: 'Acme', contactName: 'Ana', email: 'ana@acme.cl', phone: '+56911111111' });
     const activity = addCalendarActivity({
       type: 'call', title: 'Llamada de seguimiento', startAt: offsetISO(6), endAt: offsetISO(7),
-      status: 'scheduled', ownerUserId: 'Cliente1',
+      status: 'scheduled', ownerUserId: 'Jefe',
       clientId: customer.id,
       relatedRecords: [{ type: 'customer', id: customer.id, label: 'Acme' }]
     });
     const single = addCalendarActivity({
       type: 'event', title: 'Sin relaciones', startAt: offsetISO(8), endAt: offsetISO(9),
-      status: 'scheduled', ownerUserId: 'Cliente1'
+      status: 'scheduled', ownerUserId: 'Jefe'
     });
     await bootApp();
     document.querySelector('#nav-calendar').click();

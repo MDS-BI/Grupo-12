@@ -26,7 +26,7 @@ describe('Sincronización calendario ↔ Interacciones CRM (US34)', () => {
   beforeEach(() => {
     localStorage.clear();
     sessionStorage.clear();
-    seedAuth('Cliente1');
+    seedAuth('Jefe');
   });
 
   it('crea una interacción planificada al registrar una llamada desde el calendario', async () => {

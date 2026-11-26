@@ -7,7 +7,7 @@ import { addCustomer, addEmployee, addOpportunity } from '../../src/storage.js';
 async function mount() {
   localStorage.clear();
   sessionStorage.clear();
-  seedAuth('Cliente1', { remember: true });
+  seedAuth('Jefe', { remember: true });
   mountLiveDom();
   setActiveConfig(normalizeConfig(null).config);
   await boot();

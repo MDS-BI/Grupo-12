@@ -28,7 +28,7 @@ function valuesOf(section) {
 
 async function mountDashboard({ corrupted = false } = {}) {
   clearStorages();
-  seedAuth('Cliente1', { remember: true });
+  seedAuth('Jefe', { remember: true });
   localStorage.setItem('erp.activeView', 'dashboard');
   if (corrupted) localStorage.setItem('crm_module:customers', '{no-es-json');
   const before = allStorageKeys();

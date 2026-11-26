@@ -5,7 +5,7 @@ import { addEmployee, addCustomer, addOpportunity, getCRMOverview } from '../../
 async function boot() {
   localStorage.clear();
   sessionStorage.clear();
-  seedAuth('Cliente1', { remember: true });
+  seedAuth('Jefe', { remember: true });
   await bootApp();
 }
 
@@ -146,14 +146,14 @@ describe('US22 - Restaurar vista activa', () => {
 
   it('T175: persiste y restaura última vista interna válida tras recarga', async () => {
     mountLiveDom();
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     await bootApp();
     document.querySelector('#nav-entities').click();
     await new Promise((r) => setTimeout(r, 30));
     expect(localStorage.getItem('erp.activeView')).toBe('entities');
     // reload: preserve localStorage
     mountLiveDom();
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     await bootApp();
     await new Promise((r) => setTimeout(r, 30));
     expect(document.querySelector('#view-entities').hidden).toBe(false);
@@ -166,7 +166,7 @@ describe('US24 - Moneda consistente CLP', () => {
 
   it('T181: dashboard, listados y formularios muestran moneda/regla consistente', async () => {
     mountLiveDom();
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     await boot();
     const { addEntity, addDocument } = await import('../../src/storage.js');
     const ent = addEntity({ name: 'Moneda SA', code: 'M1', email: 'm@m.cl', phone: '912345678', creditLimit: 1000, currency: 'CLP' });
@@ -203,12 +203,12 @@ describe('US18 - Recordar mi sesión', () => {
     window.history.replaceState({}, '', '/');
     await import('../../src/main.js');
     await waitFor(() => document.querySelector('#login-form'));
-    document.querySelector('#login-username').value = 'Cliente1';
-    document.querySelector('#login-password').value = '1234';
+    document.querySelector('#login-username').value = 'Jefe';
+    document.querySelector('#login-password').value = 'Jefe123';
     document.querySelector('#login-remember').checked = true;
     document.querySelector('#login-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    await waitFor(() => localStorage.getItem('erp.authenticatedUser') === 'Cliente1');
-    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    await waitFor(() => localStorage.getItem('erp.authenticatedUser') === 'Jefe');
+    expect(localStorage.getItem('erp.authenticatedUser')).toBe('Jefe');
     expect(sessionStorage.getItem('erp.authenticatedUser')).toBeNull();
 
     // New browser context: session cleared, localStorage kept
@@ -231,13 +231,13 @@ describe('US18 - Recordar mi sesión', () => {
     window.history.replaceState({}, '', '/');
     await import('../../src/main.js');
     await waitFor(() => document.querySelector('#login-view')?.hidden === false);
-    document.querySelector('#login-username').value = 'Cliente1';
-    document.querySelector('#login-password').value = '1234';
+    document.querySelector('#login-username').value = 'Jefe';
+    document.querySelector('#login-password').value = 'Jefe123';
     const remember = document.querySelector('#login-remember');
     if (remember) remember.checked = false;
     document.querySelector('#login-form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    await waitFor(() => sessionStorage.getItem('erp.authenticatedUser') === 'Cliente1');
-    expect(sessionStorage.getItem('erp.authenticatedUser')).toBe('Cliente1');
+    await waitFor(() => sessionStorage.getItem('erp.authenticatedUser') === 'Jefe');
+    expect(sessionStorage.getItem('erp.authenticatedUser')).toBe('Jefe');
     expect(localStorage.getItem('erp.authenticatedUser')).toBeNull();
 
     // New browser context: no session auth

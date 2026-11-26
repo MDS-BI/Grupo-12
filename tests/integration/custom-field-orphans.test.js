@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { mountLiveDom } from './live-dom.js';
+import { mountLiveDom, seedAuth } from './live-dom.js';
 import { boot } from '../../src/app.js';
 import { normalizeConfig, setActiveConfig } from '../../src/module-config.js';
 
@@ -10,6 +10,7 @@ const configWithSegment = {
 };
 
 async function mountWithConfig(config) {
+  seedAuth();
   mountLiveDom();
   setActiveConfig(normalizeConfig(config).config);
   await boot();

@@ -19,7 +19,7 @@ describe('sidebar collapse', () => {
 
   beforeEach(async () => {
     mountLiveDom();
-    localStorage.setItem('erp.authenticatedUser', 'Cliente1');
+    localStorage.setItem('erp.authenticatedUser', 'Jefe');
     await boot();
   });
 
